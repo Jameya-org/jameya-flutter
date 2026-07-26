@@ -7,6 +7,7 @@ import 'package:jameya/core/routing/app_rotes.dart';
 import 'package:jameya/core/utils/app_colors.dart';
 import 'package:jameya/core/utils/app_text_styles.dart';
 
+// A tappable button that switches the app language and navigates to onboarding
 class LanguageButton extends StatelessWidget {
   const LanguageButton({
     super.key,
@@ -21,6 +22,7 @@ class LanguageButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
+        // Save the selected language then navigate forward
         context.read<LocaleCubit>().changeLanguage(localeCode);
 
         context.push(AppRoutes.kOnboardingView);

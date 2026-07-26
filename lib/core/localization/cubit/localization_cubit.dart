@@ -5,6 +5,7 @@ import 'package:jameya/core/localization/cubit/localization_state.dart';
 
 import '../../../../core/cache/cache_helper.dart';
 
+// Manages the app locale (language) and persists the selection
 class LocaleCubit extends Cubit<LocaleState> {
   LocaleCubit(this._cacheHelper)
     : super(const LocaleState(locale: Locale('en')));
@@ -29,8 +30,10 @@ class LocaleCubit extends Cubit<LocaleState> {
     emit(LocaleState(locale: Locale(languageCode)));
   }
 
+  // Returns true when the current language is Arabic
   bool get isArabic => state.locale.languageCode == 'ar';
 
+  // Switches between Arabic and English
   Future<void> toggleLanguage() async {
     if (isArabic) {
       await changeLanguage('en');

@@ -9,7 +9,9 @@ import 'package:jameya/core/services/services_locator.dart';
 import 'package:jameya/generated/l10n.dart';
 
 void main() async {
+  // Ensure Flutter bindings are ready before any async work
   WidgetsFlutterBinding.ensureInitialized();
+  // Initialize all services (cache, cubit, etc.)
   await setupServiceLocator();
   runApp(const Jameya());
 }
@@ -20,13 +22,16 @@ class Jameya extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
+      // Provide LocaleCubit globally and load the saved language on start
       create: (_) => getIt<LocaleCubit>()..loadSavedLanguage(),
       child: ScreenUtilInit(
+        // Base design size used for responsive scaling
         designSize: const Size(440, 956),
         minTextAdapt: true,
         splitScreenMode: true,
         builder: (context, child) {
           return BlocBuilder<LocaleCubit, LocaleState>(
+            // Rebuild the app whenever the locale changes
             builder: (context, state) {
               return MaterialApp.router(
                 routerConfig: AppRouter.router,

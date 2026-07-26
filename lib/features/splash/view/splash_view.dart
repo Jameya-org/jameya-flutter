@@ -19,17 +19,20 @@ class _SplashViewState extends State<SplashView> {
   void initState() {
     super.initState();
 
+    // Re-render the widget whenever the controller notifies a change
     controller.addListener(() {
       if (mounted) {
         setState(() {});
       }
     });
 
+    // Kick off the typing animation
     controller.startTyping();
   }
 
   @override
   void dispose() {
+    // Cancel timer and release the ChangeNotifier
     controller.disposeController();
     controller.dispose();
     super.dispose();
@@ -47,6 +50,7 @@ class _SplashViewState extends State<SplashView> {
                 moveUp: controller.moveUp,
                 maxHeight: constraints.maxHeight,
               ),
+              // Fade in the language buttons after animation completes
               AnimatedOpacity(
                 opacity: controller.showButtons ? 1 : 0,
                 duration: const Duration(milliseconds: 700),

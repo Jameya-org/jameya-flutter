@@ -1,3 +1,4 @@
+// Keys used to read/write data in SharedPreferences and SecureStorage
 abstract class CacheKey {
   static const String accessToken = 'accessToken';
   static const String refreshToken = 'refreshToken';

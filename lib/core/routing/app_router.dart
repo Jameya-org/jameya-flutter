@@ -4,8 +4,9 @@ import 'package:jameya/core/routing/app_rotes.dart';
 import 'package:jameya/features/onboarding/presentation/view/onboarding_view.dart';
 import 'package:jameya/features/splash/view/splash_view.dart';
 
+// Defines the app's navigation using GoRouter
 abstract final class AppRouter {
-  //* --- Global Transition ---
+  // Wraps any page with a fade transition animation
   static CustomTransitionPage<dynamic> _buildTransitionPage({
     required GoRouterState state,
     required Widget child,
@@ -19,6 +20,7 @@ abstract final class AppRouter {
     );
   }
 
+  // The global router instance with all app routes
   static final router = GoRouter(
     routes: [
       //* --- Splash ---

@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:jameya/core/utils/app_colors.dart';
 
+// Reusable text styles based on a consistent type scale
 abstract final class AppTextStyles {
   const AppTextStyles._();
 
+  // Default font used across all styles
   static const _fontFamily = 'Inter';
 
   static final appTitle = TextStyle(
     fontSize: 44.sp,
     fontWeight: FontWeight.w700,
     color: AppColors.primary,
-    //TODO: Put the right font family here
-    // fontFamily: "Outfit",
+    fontFamily: _fontFamily,
     height: 1.5,
     letterSpacing: -.02,
   );
