@@ -10,6 +10,6 @@ class Jameya extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(home: SplashScreen());
+    return MaterialApp(home: SplashView());
   }
 }
