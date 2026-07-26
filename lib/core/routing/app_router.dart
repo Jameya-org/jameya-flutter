@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jameya/core/routing/app_rotes.dart';
+import 'package:jameya/features/onboarding/presentation/view/onboarding_view.dart';
 import 'package:jameya/features/splash/view/splash_view.dart';
 
 abstract final class AppRouter {
@@ -26,15 +27,15 @@ abstract final class AppRouter {
         builder: (context, state) => const SplashView(),
       ),
       //* --- Onboarding ---
-      // GoRoute(
-      //   path: AppRoutes.kOnboardingView,
-      //   pageBuilder: (context, state) {
-      //     return _buildTransitionPage(
-      //       state: state,
-      //       child: const OnboardingView(),
-      //     );
-      //   },
-      // ),
+      GoRoute(
+        path: AppRoutes.kOnboardingView,
+        pageBuilder: (context, state) {
+          return _buildTransitionPage(
+            state: state,
+            child: const OnboardingView(),
+          );
+        },
+      ),
     ],
   );
 }

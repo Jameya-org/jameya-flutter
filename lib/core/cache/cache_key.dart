@@ -6,4 +6,6 @@ abstract class CacheKey {
   static const String onBoardingViewed = 'onBoardingViewed';
 
   static const String isLoggedIn = 'isLoggedIn';
+
+  static const String languageCode = 'languageCode';
 }
