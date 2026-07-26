@@ -58,10 +58,11 @@ abstract final class AppTextStyles {
 
   static final body = TextStyle(
     fontSize: 16.sp,
-    fontWeight: FontWeight.w400,
+    fontWeight: FontWeight.w500,
     fontFamily: _fontFamily,
     height: 1.5,
     letterSpacing: -.02,
+    color: AppColors.primary,
   );
 
   static final bodySmall = TextStyle(

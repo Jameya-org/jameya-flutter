@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:jameya/core/utils/app_colors.dart';
 import 'package:jameya/core/utils/app_text_styles.dart';
 
 class SplashView extends StatefulWidget {
@@ -80,21 +82,40 @@ class _SplashViewState extends State<SplashView> {
                 opacity: _showButtons ? 1 : 0,
                 curve: Curves.ease,
                 duration: Duration(milliseconds: 700),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Container(
-                      color: Colors.black,
-                      height: 52,
-                      width: double.infinity,
-                    ),
-                  ],
+                child: Padding(
+                  padding: .symmetric(horizontal: 16.w),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      SizedBox(height: 535.h),
+                      LanguageButton(text: "العربية"),
+                      SizedBox(height: 14.h),
+                      LanguageButton(text: "English"),
+                    ],
+                  ),
                 ),
               ),
             ],
           );
         },
       ),
+    );
+  }
+}
+
+class LanguageButton extends StatelessWidget {
+  const LanguageButton({super.key, required this.text});
+  final String text;
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10.r),
+        border: Border.all(color: AppColors.primary),
+      ),
+      height: 52.h,
+      width: .infinity,
+      child: Center(child: Text(text, style: AppTextStyles.body)),
     );
   }
 }
