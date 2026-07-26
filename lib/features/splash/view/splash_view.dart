@@ -18,21 +18,23 @@ class _SplashViewState extends State<SplashView> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: AnimatedTextKit(
-        animatedTexts: [
-          TypewriterAnimatedText(
-            'Jameya.',
-            cursor: "",
-            speed: const Duration(milliseconds: 400),
-            textStyle: const TextStyle(
-              fontSize: 32,
-              fontWeight: FontWeight.bold,
+      body: Center(
+        child: AnimatedTextKit(
+          animatedTexts: [
+            TypewriterAnimatedText(
+              'Jameya.',
+              cursor: "",
+              speed: const Duration(milliseconds: 400),
+              textStyle: const TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+              ),
             ),
-          ),
-        ],
-        totalRepeatCount: 1,
-        displayFullTextOnTap: true,
-        stopPauseOnTap: true,
+          ],
+          totalRepeatCount: 1,
+          displayFullTextOnTap: true,
+          stopPauseOnTap: true,
+        ),
       ),
     );
   }
