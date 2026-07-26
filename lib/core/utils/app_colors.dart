@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 
 abstract final class AppColors {
-  const AppColors._();
-
   // Brand
   static const Color primary = Color(0xFF008080);
   static const Color primaryLight = Color(0x9900A6A5); // 60%

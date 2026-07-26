@@ -55,9 +55,9 @@ class _SplashViewState extends State<SplashView> {
                   child: Column(
                     children: [
                       SizedBox(height: 535.h),
-                      const LanguageButton(text: 'العربية'),
+                      const LanguageButton(text: 'العربية', localeCode: 'ar'),
                       SizedBox(height: 14.h),
-                      const LanguageButton(text: 'English'),
+                      const LanguageButton(text: 'English', localeCode: 'en'),
                     ],
                   ),
                 ),

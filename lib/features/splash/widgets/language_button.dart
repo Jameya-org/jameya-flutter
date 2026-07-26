@@ -8,19 +8,21 @@ import 'package:jameya/core/utils/app_colors.dart';
 import 'package:jameya/core/utils/app_text_styles.dart';
 
 class LanguageButton extends StatelessWidget {
-  const LanguageButton({super.key, required this.text});
+  const LanguageButton({
+    super.key,
+    required this.text,
+    required this.localeCode,
+  });
 
   final String text;
+  final String localeCode;
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        if (text == 'العربية') {
-          context.read<LocaleCubit>().changeLanguage('ar');
-        } else {
-          context.read<LocaleCubit>().changeLanguage('en');
-        }
+        context.read<LocaleCubit>().changeLanguage(localeCode);
+
         context.push(AppRoutes.kOnboardingView);
       },
       child: Container(
