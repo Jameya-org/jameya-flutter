@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:jameya/core/utils/app_colors.dart';
 
 abstract final class AppTextStyles {
   const AppTextStyles._();
@@ -9,7 +10,9 @@ abstract final class AppTextStyles {
   static final appTitle = TextStyle(
     fontSize: 44.sp,
     fontWeight: FontWeight.w700,
-    fontFamily: "Outfit",
+    color: AppColors.primary,
+    //TODO: Put the right font family here
+    // fontFamily: "Outfit",
     height: 1.5,
     letterSpacing: -.02,
   );

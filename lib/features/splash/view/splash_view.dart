@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:animated_text_kit/animated_text_kit.dart';
+import 'package:jameya/core/utils/app_text_styles.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
@@ -25,10 +26,7 @@ class _SplashViewState extends State<SplashView> {
               'Jameya.',
               cursor: "",
               speed: const Duration(milliseconds: 400),
-              textStyle: const TextStyle(
-                fontSize: 32,
-                fontWeight: FontWeight.bold,
-              ),
+              textStyle: AppTextStyles.appTitle,
             ),
           ],
           totalRepeatCount: 1,
