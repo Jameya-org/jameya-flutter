@@ -6,7 +6,6 @@ import 'package:jameya/core/localization/cubit/localization_cubit.dart';
 import 'package:jameya/core/localization/cubit/localization_state.dart';
 import 'package:jameya/core/routing/app_router.dart';
 import 'package:jameya/core/services/services_locator.dart';
-import 'package:jameya/features/splash/view/splash_view.dart';
 import 'package:jameya/generated/l10n.dart';
 
 void main() async {
