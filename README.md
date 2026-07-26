@@ -1,16 +1,105 @@
-# jameya
+# Jameya 🏦
 
-A new Flutter project.
+A Flutter mobile application for managing **rotating savings groups (Jameya)** — a trusted community savings model made digital, secure, and transparent.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 📖 What is Jameya?
 
-A few resources to get you started if this is your first Flutter project:
+A Jameya is a group of people who each contribute a fixed amount of money periodically. Each cycle, one member receives the full pool. Jameya digitalises this process with identity verification, electronic contracts, automated payments, and a full admin dashboard.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## ✨ Features
+
+- **User Registration & KYC** — Phone-based accounts with identity and age verification.
+- **Savings Groups** — Browse, join, and track your active savings group.
+- **Electronic Contracts** — Unique digital contracts signed via OTP and stored as immutable PDFs.
+- **Instalment Payments** — Pay your share and track your payout schedule.
+- **Notifications** — Stay updated on payments, payouts, and group activity.
+- **Referral System** — Invite others and grow the community.
+- **Admin Dashboard** — Manage users, groups, operations, and reports.
+
+---
+
+## 🗺️ Customer Journey
+
+1. Register with a verified phone number.
+2. Verify identity via OTP.
+3. Complete profile & upload KYC documents.
+4. Add a payment method.
+5. Select a savings group you're eligible for.
+6. Review and sign the digital contract.
+7. Pay instalments on schedule.
+8. Receive your payout when your turn comes.
+
+---
+
+## 🏗️ Architecture
+
+```
+lib/
+├── core/
+│   ├── cache/          # SharedPreferences & SecureStorage helpers
+│   ├── localization/   # BLoC-based language switching (AR / EN)
+│   ├── routing/        # GoRouter navigation setup
+│   ├── services/       # Dependency injection (GetIt)
+│   └── utils/          # App colors & text styles
+└── features/
+    ├── splash/         # Animated splash screen with language selection
+    └── onboarding/     # Onboarding flow
+```
+
+**State Management:** flutter_bloc (Cubit)  
+**Navigation:** go_router  
+**DI:** get_it  
+**Storage:** shared_preferences · flutter_secure_storage  
+**Localisation:** flutter_localizations (Arabic & English)  
+**Responsive UI:** flutter_screenutil
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Flutter SDK `>=3.0.0`
+- Dart SDK `>=3.0.0`
+
+### Run the app
+
+```bash
+flutter pub get
+flutter run
+```
+
+---
+
+## 🌍 Localisation
+
+The app supports **Arabic** and **English**. The selected language is persisted locally and applied on every launch. ARB files are located in `lib/l10n/`.
+
+---
+
+## 📋 Business Rules
+
+- One account per verified phone number.
+- Identity and age verification are mandatory before joining a group.
+- Group settings cannot be changed after the group is activated.
+- All financial and admin actions are recorded in an audit log.
+- Accounts with active financial obligations cannot be deleted.
+
+---
+
+## 🚫 Out of Scope
+
+- Loan services
+- Multi-currency support
+- Advertisements
+- Investment features outside the savings-group model
+
+---
+
+## 💰 Revenue Model
+
+The platform generates revenue through **service fees deducted from each payout**.
