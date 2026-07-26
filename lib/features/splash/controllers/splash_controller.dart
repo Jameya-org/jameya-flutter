@@ -16,6 +16,11 @@ class SplashController extends ChangeNotifier {
   int _currentIndex = 0;
 
   void startTyping() {
+    // Show the first character immediately without waiting for the first timer tick
+    _currentIndex = 1;
+    displayedText = fullText.substring(0, _currentIndex);
+    notifyListeners();
+
     _timer = Timer.periodic(const Duration(milliseconds: typingSpeed), (timer) {
       if (_currentIndex < fullText.length) {
         _currentIndex++;
