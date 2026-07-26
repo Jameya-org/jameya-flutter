@@ -1,9 +1,9 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:jameya/core/utils/app_colors.dart';
-import 'package:jameya/core/utils/app_text_styles.dart';
+
+import '../controllers/splash_controller.dart';
+import '../widgets/animated_logo.dart';
+import '../widgets/language_button.dart';
 
 class SplashView extends StatefulWidget {
   const SplashView({super.key});
@@ -13,51 +13,25 @@ class SplashView extends StatefulWidget {
 }
 
 class _SplashViewState extends State<SplashView> {
-  final String _fullText = 'Jameya.';
-
-  String _displayedText = '';
-  bool _moveUp = false;
-  static const int _textDecorationToBeWrittenInScreen = 400;
-  Timer? _timer;
-  int _currentIndex = 0;
-  bool _showButtons = false;
+  final SplashController controller = SplashController();
 
   @override
   void initState() {
     super.initState();
-    _startTyping();
-  }
 
-  void _startTyping() {
-    _timer = Timer.periodic(
-      const Duration(milliseconds: _textDecorationToBeWrittenInScreen),
-      (timer) {
-        if (_currentIndex < _fullText.length) {
-          setState(() {
-            _currentIndex++;
-            _displayedText = _fullText.substring(0, _currentIndex);
-          });
+    controller.addListener(() {
+      if (mounted) {
+        setState(() {});
+      }
+    });
 
-          if (_currentIndex == _fullText.length) {
-            timer.cancel();
-
-            setState(() {
-              _moveUp = true;
-            });
-            Future.delayed(const Duration(milliseconds: 400), () {
-              setState(() {
-                _showButtons = true;
-              });
-            });
-          }
-        }
-      },
-    );
+    controller.startTyping();
   }
 
   @override
   void dispose() {
-    _timer?.cancel();
+    controller.disposeController();
+    controller.dispose();
     super.dispose();
   }
 
@@ -68,29 +42,22 @@ class _SplashViewState extends State<SplashView> {
         builder: (context, constraints) {
           return Stack(
             children: [
-              AnimatedPositioned(
-                duration: const Duration(milliseconds: 700),
-                curve: Curves.easeInOut,
-                top: _moveUp ? 360 : constraints.maxHeight / 2 - 30,
-                left: 0,
-                right: 0,
-                child: Center(
-                  child: Text(_displayedText, style: AppTextStyles.appTitle),
-                ),
+              AnimatedLogo(
+                text: controller.displayedText,
+                moveUp: controller.moveUp,
+                maxHeight: constraints.maxHeight,
               ),
               AnimatedOpacity(
-                opacity: _showButtons ? 1 : 0,
-                curve: Curves.ease,
-                duration: Duration(milliseconds: 700),
+                opacity: controller.showButtons ? 1 : 0,
+                duration: const Duration(milliseconds: 700),
                 child: Padding(
-                  padding: .symmetric(horizontal: 16.w),
+                  padding: EdgeInsets.symmetric(horizontal: 16.w),
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
                     children: [
                       SizedBox(height: 535.h),
-                      LanguageButton(text: "العربية"),
+                      const LanguageButton(text: 'العربية'),
                       SizedBox(height: 14.h),
-                      LanguageButton(text: "English"),
+                      const LanguageButton(text: 'English'),
                     ],
                   ),
                 ),
@@ -99,23 +66,6 @@ class _SplashViewState extends State<SplashView> {
           );
         },
       ),
-    );
-  }
-}
-
-class LanguageButton extends StatelessWidget {
-  const LanguageButton({super.key, required this.text});
-  final String text;
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.r),
-        border: Border.all(color: AppColors.primary),
-      ),
-      height: 52.h,
-      width: .infinity,
-      child: Center(child: Text(text, style: AppTextStyles.body)),
     );
   }
 }
