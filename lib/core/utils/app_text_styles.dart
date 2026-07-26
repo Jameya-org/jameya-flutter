@@ -6,6 +6,13 @@ abstract final class AppTextStyles {
 
   static const _fontFamily = 'Inter';
 
+  static final appTitle = TextStyle(
+    fontSize: 44.sp,
+    fontWeight: FontWeight.w700,
+    fontFamily: "Outfit",
+    height: 1.5,
+    letterSpacing: -.02,
+  );
   static final displayLarge = TextStyle(
     fontSize: 36.sp,
     fontWeight: FontWeight.w700,
