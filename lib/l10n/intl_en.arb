@@ -1,3 +1,11 @@
 {
-    "WithYouEveryWhere": "With you every where"
+    "skip": "Skip",
+    "next": "Next",
+    "start": "Start Now",
+    "onboardingTitle1": "With You Every Step",
+    "onboardingSubtitle1": "Whether you are just starting or have been managing your Jameya for a while, you will find everything you need clearly and simply. Our goal is to make saving easier, faster, and hassle-free.",
+    "onboardingTitle2": "All Your Jameya Details in One Place",
+    "onboardingSubtitle2": "Don't worry about payment dates or tracking your turn. The app will help you easily track everything, from the first payment to the last update in your Jameya.",
+    "onboardingTitle3": "Let Your Savings Grow With You",
+    "onboardingSubtitle3": "Every small step counts, and every amount you save gets you closer to your goals. With Jameya, you can easily track your savings journey."
 }

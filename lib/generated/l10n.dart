@@ -63,6 +63,42 @@ class S {
       args: [],
     );
   }
+
+  String get skip {
+    return Intl.message('Skip', name: 'skip', desc: '', args: []);
+  }
+
+  String get next {
+    return Intl.message('Next', name: 'next', desc: '', args: []);
+  }
+
+  String get start {
+    return Intl.message('Start Now', name: 'start', desc: '', args: []);
+  }
+
+  String get onboardingTitle1 {
+    return Intl.message('With You Every Step', name: 'onboardingTitle1', desc: '', args: []);
+  }
+
+  String get onboardingSubtitle1 {
+    return Intl.message('Whether you are just starting or have been managing your Jameya for a while, you will find everything you need clearly and simply. Our goal is to make saving easier, faster, and hassle-free.', name: 'onboardingSubtitle1', desc: '', args: []);
+  }
+
+  String get onboardingTitle2 {
+    return Intl.message('All Your Jameya Details in One Place', name: 'onboardingTitle2', desc: '', args: []);
+  }
+
+  String get onboardingSubtitle2 {
+    return Intl.message('Don\'t worry about payment dates or tracking your turn. The app will help you easily track everything, from the first payment to the last update in your Jameya.', name: 'onboardingSubtitle2', desc: '', args: []);
+  }
+
+  String get onboardingTitle3 {
+    return Intl.message('Let Your Savings Grow With You', name: 'onboardingTitle3', desc: '', args: []);
+  }
+
+  String get onboardingSubtitle3 {
+    return Intl.message('Every small step counts, and every amount you save gets you closer to your goals. With Jameya, you can easily track your savings journey.', name: 'onboardingSubtitle3', desc: '', args: []);
+  }
 }
 
 class AppLocalizationDelegate extends LocalizationsDelegate<S> {

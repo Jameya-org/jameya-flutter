@@ -22,8 +22,15 @@ class MessageLookup extends MessageLookupByLibrary {
 
   final messages = _notInlinedMessages(_notInlinedMessages);
   static Map<String, Function> _notInlinedMessages(_) => <String, Function>{
-    "WithYouEveryWhere": MessageLookupByLibrary.simpleMessage(
-      "معاك في كل خطوة",
-    ),
+    "WithYouEveryWhere": MessageLookupByLibrary.simpleMessage("معاك في كل خطوة"),
+    "skip": MessageLookupByLibrary.simpleMessage("تخطي"),
+    "next": MessageLookupByLibrary.simpleMessage("التالي"),
+    "start": MessageLookupByLibrary.simpleMessage("ابدأ الآن"),
+    "onboardingTitle1": MessageLookupByLibrary.simpleMessage("معاك في كل خطوة"),
+    "onboardingSubtitle1": MessageLookupByLibrary.simpleMessage("سواء لسه بادئ أو بتتابع جمعيتك بقالك فترة، هتلاقي كل اللي محتاجه قدامك بشكل بسيط وواضح. هدفنا إن تجربة التوفير تكون أسهل، وأسرع، ومن غير أي تعقيد."),
+    "onboardingTitle2": MessageLookupByLibrary.simpleMessage("كل تفاصيل جمعيتك في مكان واحد"),
+    "onboardingSubtitle2": MessageLookupByLibrary.simpleMessage("متشيلش هم مواعيد الدفع أو متابعة دورك. التطبيق هيساعدك تتابع كل حاجة بسهولة، من أول المدفوعات لحد آخر تحديث في جمعيتك."),
+    "onboardingTitle3": MessageLookupByLibrary.simpleMessage("خلّي توفيرك يكبر معاك"),
+    "onboardingSubtitle3": MessageLookupByLibrary.simpleMessage("كل خطوة صغيرة بتفرق، وكل مبلغ بتوفره بيقربك أكثر من اللي نفسك فيه. مع جمعية هتقدر تتابع رحلة التوفير بسهولة.")
   };
 }

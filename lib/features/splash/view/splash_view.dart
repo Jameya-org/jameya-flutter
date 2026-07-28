@@ -56,13 +56,15 @@ class _SplashViewState extends State<SplashView> {
                 duration: const Duration(milliseconds: 700),
                 child: Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16.w),
-                  child: Column(
-                    children: [
-                      SizedBox(height: 535.h),
-                      const LanguageButton(text: 'العربية', localeCode: 'ar'),
-                      SizedBox(height: 14.h),
-                      const LanguageButton(text: 'English', localeCode: 'en'),
-                    ],
+                  child: SingleChildScrollView(
+                    child: Column(
+                      children: [
+                        SizedBox(height: 535.h),
+                        const LanguageButton(text: 'العربية', localeCode: 'ar'),
+                        SizedBox(height: 14.h),
+                        const LanguageButton(text: 'English', localeCode: 'en'),
+                      ],
+                    ),
                   ),
                 ),
               ),
