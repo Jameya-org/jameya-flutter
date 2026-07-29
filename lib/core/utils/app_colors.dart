@@ -25,7 +25,7 @@ abstract final class AppColors {
   // Greys
   static const Color grey100 = Color(0xFFF7F7F7);
   static const Color grey200 = Color(0xFFEAEAEA);
-  static const Color grey300 = Color(0xFFDBDBDB);
+  static const Color greyBut = Color(0xFFDBDBDB);
   static const Color grey500 = Color(0xFF797979);
   static const Color greyDark = Color(0xFF3C4949);
 
@@ -34,7 +34,7 @@ abstract final class AppColors {
   static const Color danger = Color(0xFFBF2714);
 
   // Misc
-  static const Color border = grey300;
+  static const Color border = greyBut;
   static const Color divider = grey200;
   static const Color card = surface;
   static const Color overlay = Color(0x4DBBC9C9); // 30% opacity
