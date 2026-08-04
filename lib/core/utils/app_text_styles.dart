@@ -65,6 +65,14 @@ abstract final class AppTextStyles {
     letterSpacing: -.02,
 
   );
+  static final body2 = TextStyle(
+    fontSize: 18.sp,
+    fontWeight: FontWeight.w400,
+    fontFamily: _fontFamily,
+    height: 1.5,
+    letterSpacing: -.02,
+
+  );
 
   static final bodySmall = TextStyle(
     fontSize: 14.sp,

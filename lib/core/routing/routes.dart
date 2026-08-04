@@ -1,6 +1,7 @@
-// All named route paths used with GoRouter
 abstract final class AppRoutes {
   static const kSplashView = '/';
   static const kOnboardingView = '/onboarding';
-  static const kPhoneNumberView = '/phone-number';
+  static const kEmailView = '/email';
+  static const kOtpView = '/otp';
+  static const kCreateAccountView = '/create';
 }

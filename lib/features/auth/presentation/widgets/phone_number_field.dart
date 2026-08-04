@@ -1,3 +1,4 @@
+import 'package:country_code_picker/country_code_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
@@ -9,62 +10,74 @@ class PhoneNumberField extends StatelessWidget {
     super.key,
     this.controller,
     this.onChanged,
+    this.onCountryChanged,
   });
 
   final TextEditingController? controller;
   final ValueChanged<String>? onChanged;
+  final ValueChanged<String>? onCountryChanged;
+
+
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.end,
       children: [
-        RichText(
-          text: TextSpan(
-            style: AppTextStyles.body.copyWith(
-              color: AppColors.textPrimary,
-            ),
-            children: [
-              const TextSpan(text: 'رقم الهاتف'),
-              TextSpan(
-                text: ' *',
-                style: AppTextStyles.body.copyWith(
-                  color: Colors.red,
-                ),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: [
+            Text(
+              '*',
+              style: AppTextStyles.body.copyWith(
+                color: Colors.red,
+                fontWeight: FontWeight.bold,
               ),
-            ],
-          ),
+            ),
+
+            Text(
+              'رقم الهاتف',
+              style: AppTextStyles.body.copyWith(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w600,
+              ),
+            ),
+          ],
         ),
 
         SizedBox(height: 8.h),
 
         Container(
-          height: 56.h,
+          height: 48.h,
           decoration: BoxDecoration(
-            color: Colors.white,
-            border: Border.all(color: AppColors.border),
-            borderRadius: BorderRadius.circular(12.r),
+            color: AppColors.backgroundLight,
+            border: Border.all(
+              color: AppColors.border,
+            ),
+            borderRadius: BorderRadius.circular(8.r),
           ),
           child: Row(
             children: [
               /// Country
               Padding(
-                padding: EdgeInsets.symmetric(horizontal: 12.w),
-                child: Row(
-                  children: [
-                    Icon(
-                      Icons.keyboard_arrow_down,
-                      size: 18.sp,
-                    ),
-                    SizedBox(width: 6.w),
-                    const Text(
-                      '🇪🇬',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ],
+                padding: EdgeInsets.symmetric(horizontal: 4.w),
+                child: CountryCodePicker(
+                  initialSelection: 'EG',
+                  favorite: const ['+20', 'EG'],
+                  showCountryOnly: false,
+                  showOnlyCountryWhenClosed: false,
+                  alignLeft: false,
+                  padding: EdgeInsets.zero,
+                  textStyle: AppTextStyles.body.copyWith(
+                    color: AppColors.textPrimary,
+                  ),
+                  onChanged: (country) {
+                    onCountryChanged?.call(
+                      country.dialCode ?? '+20',
+                    );
+                  },
                 ),
               ),
-
               Container(
                 width: 1,
                 height: 24.h,
@@ -78,14 +91,13 @@ class PhoneNumberField extends StatelessWidget {
                   controller: controller,
                   keyboardType: TextInputType.phone,
                   textAlign: TextAlign.right,
-                  onChanged: (value) {
-                    print('Phone: $value');
-                    onChanged?.call(value);
-                  },
+                  textAlignVertical: TextAlignVertical.center,
+                  style: AppTextStyles.displayMedium,
+                  onChanged: onChanged,
                   decoration: InputDecoration(
                     hintText: '01xxxxxxxxx',
-                    hintStyle: AppTextStyles.body.copyWith(
-                      color: AppColors.grey100,
+                    hintStyle: AppTextStyles.body2.copyWith(
+                      color: AppColors.textHint,
                     ),
                     border: InputBorder.none,
                     isCollapsed: true,

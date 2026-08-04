@@ -8,17 +8,16 @@ class AuthBackground extends StatelessWidget {
     super.key,
     required this.header,
     required this.child,
-    required this.containerAnimation,
+     this.containerAnimation,
   });
 
   final Widget header;
   final Widget child;
-  final Animation<Offset> containerAnimation;
-
+  final Animation<Offset>? containerAnimation;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColors.primary,
+      backgroundColor: AppColors.backgroundLight,
       body: Stack(
         children: [
           /// Green Background
@@ -39,21 +38,31 @@ class AuthBackground extends StatelessWidget {
           /// White Container
           Positioned.fill(
             top: 230.h,
-            child: SlideTransition(
-              position: containerAnimation,
-              child: Container(
-                decoration: BoxDecoration(
-                  color: AppColors.backgroundLight,
-                  borderRadius: BorderRadius.only(
-                    topLeft: Radius.circular(32.r),
-                    topRight: Radius.circular(32.r),
+            child: Builder(
+              builder: (context) {
+                Widget container = Container(
+                  decoration: BoxDecoration(
+                    color: AppColors.background,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(32.r),
+                      topRight: Radius.circular(32.r),
+                    ),
                   ),
-                ),
-                child: SafeArea(
-                  top: false,
-                  child: child,
-                ),
-              ),
+                  child: SafeArea(
+                    top: false,
+                    child: child,
+                  ),
+                );
+
+                if (containerAnimation != null) {
+                  container = SlideTransition(
+                    position: containerAnimation!,
+                    child: container,
+                  );
+                }
+
+                return container;
+              },
             ),
           ),
         ],

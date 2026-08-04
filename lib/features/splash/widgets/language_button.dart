@@ -25,7 +25,7 @@ class LanguageButton extends StatelessWidget {
         // Save the selected language then navigate forward
         context.read<LocaleCubit>().changeLanguage(localeCode);
 
-        context.push(AppRoutes.kPhoneNumberView);
+        context.push(AppRoutes.kOnboardingView);
       },
       child: Container(
         height: 52.h,

@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:go_router/go_router.dart';
 import 'package:jameya/core/cache/cache_helper.dart';
 import 'package:jameya/core/services/services_locator.dart';
 import 'package:jameya/features/onboarding/data/models/onboarding_model.dart';
 import 'package:jameya/features/onboarding/presentation/viewmodel/onboarding_state.dart';
+
+import '../../../../core/routing/routes.dart';
 
 class OnboardingCubit extends Cubit<OnboardingState> {
   OnboardingCubit() : super(const OnboardingInitialState());
@@ -25,7 +28,8 @@ class OnboardingCubit extends Cubit<OnboardingState> {
       value: true,
     );
     if (context.mounted) {
-      // TODO: navigate to login/auth screen when ready
+      context.push(AppRoutes.kEmailView);
+
       // context.go(AppRoutes.kLoginView);
     }
   }

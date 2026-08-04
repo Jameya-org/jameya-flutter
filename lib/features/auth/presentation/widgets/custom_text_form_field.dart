@@ -17,6 +17,7 @@ class CustomTextFormField extends StatelessWidget {
     this.obscureText = false,
     this.readOnly = false,
     this.enabled = true,
+    this.onTap,
   });
 
   final TextEditingController? controller;
@@ -29,6 +30,7 @@ class CustomTextFormField extends StatelessWidget {
   final bool obscureText;
   final bool readOnly;
   final bool enabled;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -42,11 +44,12 @@ class CustomTextFormField extends StatelessWidget {
         obscureText: obscureText,
         readOnly: readOnly,
         enabled: enabled,
-        style: AppTextStyles.displayMedium,
+        onTap: onTap,
+        style: AppTextStyles.body2,
         decoration: InputDecoration(
           hintText: hintText,
-          hintStyle: AppTextStyles.displayMedium.copyWith(
-            color: AppColors.grey100,
+          hintStyle: AppTextStyles.body.copyWith(
+            color: AppColors.textHint,
           ),
 
           prefixIcon: prefix,
