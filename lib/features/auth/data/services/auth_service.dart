@@ -39,11 +39,12 @@ class AuthService {
     required String firstName,
     required String lastName,
     required String nationalId,
-    String? dateOfBirth,
+    required String dateOfBirth,
     required String mobileNumber,
   }) async {
     final Map<String, dynamic> data = {
       'legalName': '$firstName $lastName',
+      'dateOfBirth': dateOfBirth,
       'nationalIdNumber': nationalId,
       'address': {
         'governorate': 'Dakahlia',
@@ -53,10 +54,8 @@ class AuthService {
       'mobileNumber': mobileNumber,
     };
 
-    if (dateOfBirth != null && dateOfBirth.isNotEmpty) {
-      data['dateOfBirth'] = dateOfBirth;
-    }
     print(data);
+
     await dio.post(
       '/customers/profile',
       data: data,

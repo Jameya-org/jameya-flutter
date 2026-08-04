@@ -53,6 +53,7 @@ class _CreateAccountViewState extends State<CreateAccountView> {
             lastNameController.text.isNotEmpty &&
             phoneController.text.length == 11 &&
             nationalIdController.text.length == 14 &&
+            birthDateController.text.isNotEmpty &&
             _acceptedTerms;
 
     setState(() {
@@ -132,7 +133,6 @@ class _CreateAccountViewState extends State<CreateAccountView> {
 
             LabeledTextField(
               label: 'تاريخ الميلاد',
-              requiredField: false,
               controller: birthDateController,
               hintText: 'YYYY-MM-DD',
               readOnly: true,
@@ -182,9 +182,7 @@ class _CreateAccountViewState extends State<CreateAccountView> {
         firstName: firstNameController.text,
         lastName: lastNameController.text,
         nationalId: nationalIdController.text,
-        dateOfBirth: birthDateController.text.isEmpty
-            ? null
-            : birthDateController.text,
+        dateOfBirth: birthDateController.text,
         mobileNumber: '$countryCode${phoneController.text}',      );
 
       print('Success ✅');
