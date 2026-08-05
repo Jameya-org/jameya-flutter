@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:jameya_user/saved_cards.dart' as saved_cards;
+import 'package:jameya_user/profile/add_card.dart' as add_card;
 
 void main() {
-  runApp(const saved_cards.MyApp());
+  runApp(const MaterialApp(
+    debugShowCheckedModeBanner: false,
+    home: add_card.AddCardPage(),
+  ));
 }

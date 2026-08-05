@@ -21,10 +21,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       locale: const Locale('ar'),
       builder: (context, child) {
-        return Directionality(
-          textDirection: TextDirection.rtl,
-          child: child!,
-        );
+        return Directionality(textDirection: TextDirection.ltr, child: child!);
       },
       theme: ThemeData(
         fontFamily: 'Cairo',
@@ -45,6 +42,7 @@ class SavedCardsPage extends StatefulWidget {
 
 class _SavedCardsPageState extends State<SavedCardsPage> {
   final PageController _pageController = PageController(viewportFraction: 0.86);
+  final List<Widget> _cards = const [_GreyCreditCard(), _VisaCard()];
   int _currentPage = 0;
 
   @override
@@ -65,8 +63,9 @@ class _SavedCardsPageState extends State<SavedCardsPage> {
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                textDirection: TextDirection.rtl,
                 children: [
-                  const Icon(Icons.chevron_left, color: kTeal, size: 28),
+                  const Icon(Icons.chevron_right, color: kTeal, size: 28),
                   const Text(
                     'البطاقات المحفوظة',
                     style: TextStyle(
@@ -83,37 +82,38 @@ class _SavedCardsPageState extends State<SavedCardsPage> {
 
             // Card carousel
             SizedBox(
-              height: 190,
-              child: PageView(
+              height: 210,
+              child: PageView.builder(
                 controller: _pageController,
-                onPageChanged: (i) => setState(() => _currentPage = i),
-                children: [
-                  _GreyCreditCard(),
-                  _VisaCard(),
-                ],
+                physics: const BouncingScrollPhysics(),
+                pageSnapping: true,
+                itemCount: _cards.length,
+                onPageChanged: (index) => setState(() => _currentPage = index),
+                itemBuilder: (context, index) {
+                  return Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: _cards[index],
+                  );
+                },
               ),
             ),
-            const SizedBox(height: 12),
-
-            // Page indicator dots
+            const SizedBox(height: 15),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(2, (i) {
-                final bool active = i == _currentPage;
+              children: List.generate(_cards.length, (index) {
+                final bool active = index == _currentPage;
                 return AnimatedContainer(
-                  duration: const Duration(milliseconds: 200),
-                  margin: const EdgeInsets.symmetric(horizontal: 3),
-                  width: 7,
-                  height: 7,
+                  duration: const Duration(milliseconds: 250),
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  width: active ? 16 : 8,
+                  height: 8,
                   decoration: BoxDecoration(
-                    shape: BoxShape.circle,
                     color: active ? kTeal : kBorderGrey,
+                    borderRadius: BorderRadius.circular(4),
                   ),
                 );
               }),
             ),
-            const SizedBox(height: 20),
-
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -157,10 +157,7 @@ class _SavedCardsPageState extends State<SavedCardsPage> {
                           const Text(
                             'عند سداد أقساط الجمعيات والمبالغ المستحقة.',
                             textAlign: TextAlign.center,
-                            style: TextStyle(
-                              color: kTextGrey,
-                              fontSize: 12,
-                            ),
+                            style: TextStyle(color: kTextGrey, fontSize: 12),
                           ),
                         ],
                       ),
@@ -226,7 +223,10 @@ class _SavedCardsPageState extends State<SavedCardsPage> {
                         ),
                         child: const Text(
                           'تم',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -247,7 +247,10 @@ class _SavedCardsPageState extends State<SavedCardsPage> {
                         ),
                         child: const Text(
                           'رجوع',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
@@ -287,7 +290,7 @@ class _ActionCard extends StatelessWidget {
       onTap: onTap,
       borderRadius: BorderRadius.circular(14),
       child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 20),
+        padding: EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(14),
@@ -313,12 +316,19 @@ class _ActionCard extends StatelessWidget {
   }
 }
 
-class _GreyCreditCard extends StatelessWidget {
+class _GreyCreditCard extends StatefulWidget {
+  const _GreyCreditCard({super.key});
+
+  @override
+  State<_GreyCreditCard> createState() => _GreyCreditCardState();
+}
+
+class _GreyCreditCardState extends State<_GreyCreditCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 6),
-      padding: const EdgeInsets.all(20),
+      margin: EdgeInsets.symmetric(horizontal: 6),
+      padding: EdgeInsets.all(20),
       decoration: BoxDecoration(
         color: kCardGrey,
         borderRadius: BorderRadius.circular(18),
@@ -349,7 +359,11 @@ class _GreyCreditCard extends StatelessWidget {
             children: [
               Text(
                 '• • • •   • • • •   • • • •',
-                style: TextStyle(fontSize: 16, letterSpacing: 1, color: Colors.black87),
+                style: TextStyle(
+                  fontSize: 16,
+                  letterSpacing: 1,
+                  color: Colors.black87,
+                ),
               ),
               Text(
                 '8 8 3 2',
@@ -396,6 +410,8 @@ class _GreyCreditCard extends StatelessWidget {
 }
 
 class _VisaCard extends StatelessWidget {
+  const _VisaCard({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -412,7 +428,10 @@ class _VisaCard extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
                 decoration: BoxDecoration(
                   color: Colors.white24,
                   borderRadius: BorderRadius.circular(6),
@@ -431,7 +450,11 @@ class _VisaCard extends StatelessWidget {
           const Spacer(),
           const Text(
             '• • • •   • • • •   • • • •   • • • •',
-            style: TextStyle(fontSize: 16, letterSpacing: 1, color: Colors.white70),
+            style: TextStyle(
+              fontSize: 16,
+              letterSpacing: 1,
+              color: Colors.white70,
+            ),
           ),
           const SizedBox(height: 14),
           const Text(
@@ -463,10 +486,15 @@ class _BottomNavBar extends StatelessWidget {
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
+        textDirection: TextDirection.rtl,
         children: const [
           _NavItem(icon: Icons.home_outlined, label: 'الرئيسية', active: false),
           _NavItem(icon: Icons.autorenew, label: 'جمعياتي', active: false),
-          _NavItem(icon: Icons.receipt_long_outlined, label: 'سجل التعاملات', active: false),
+          _NavItem(
+            icon: Icons.payments_outlined,
+            label: 'سجل التعاملات',
+            active: false,
+          ),
           _NavItem(icon: Icons.person_outline, label: 'حسابي', active: true),
         ],
       ),
@@ -479,7 +507,11 @@ class _NavItem extends StatelessWidget {
   final String label;
   final bool active;
 
-  const _NavItem({required this.icon, required this.label, required this.active});
+  const _NavItem({
+    required this.icon,
+    required this.label,
+    required this.active,
+  });
 
   @override
   Widget build(BuildContext context) {
