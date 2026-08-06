@@ -12,6 +12,18 @@ class CirclesSuccess extends CirclesState {
   CirclesSuccess(this.circles);
 }
 
+class AvailableCirclesSuccess extends CirclesState {
+  final List<CircleSummaryModel> circles;
+
+  AvailableCirclesSuccess(this.circles);
+}
+
+class MyCirclesSuccess extends CirclesState {
+  final List<CircleSummaryModel> circles;
+
+  MyCirclesSuccess(this.circles);
+}
+
 class CirclesFailure extends CirclesState {
   final String message;
 

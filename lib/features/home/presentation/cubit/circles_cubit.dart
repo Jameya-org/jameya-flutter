@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../data/models/home_dashboard_model.dart';
 import '../../data/repos/home_repo.dart';
 import 'circles_state.dart';
 
@@ -9,12 +10,15 @@ class CirclesCubit extends Cubit<CirclesState> {
 
   final HomeRepo homeRepo;
 
+  List<CircleSummaryModel> availableCircles = [];
+  List<CircleSummaryModel> myCircles = [];
+
   Future<void> loadMyCircles() async {
     emit(CirclesLoading());
 
     try {
-      final circles = await homeRepo.getMyCircles();
-      emit(CirclesSuccess(circles));
+      myCircles = await homeRepo.getMyCircles();
+      emit(MyCirclesSuccess(myCircles));
     } on DioException catch (e) {
       emit(
         CirclesFailure(
@@ -30,8 +34,8 @@ class CirclesCubit extends Cubit<CirclesState> {
     emit(CirclesLoading());
 
     try {
-      final circles = await homeRepo.getAvailableCircles();
-      emit(CirclesSuccess(circles));
+      availableCircles = await homeRepo.getAvailableCircles();
+      emit(AvailableCirclesSuccess(availableCircles));
     } on DioException catch (e) {
       emit(
         CirclesFailure(

@@ -27,12 +27,8 @@ class _HomeViewState extends State<HomeView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<HomeCubit>().loadHomeDashboard();
-        context.read<CirclesCubit>().loadAvailableCircles();
-      }
-    });
+    context.read<HomeCubit>().loadHomeDashboard();
+    context.read<CirclesCubit>().loadAvailableCircles();
   }
 
   Future<void> _onRefresh() async {
@@ -133,7 +129,16 @@ class _HomeViewState extends State<HomeView> {
                               // Inline available circles from CirclesCubit
                               BlocBuilder<CirclesCubit, CirclesState>(
                                 builder: (context, circlesState) {
-                                  if (circlesState is CirclesLoading) {
+                                  final cubit = context.read<CirclesCubit>();
+                                  final circles =
+                                      (circlesState is AvailableCirclesSuccess)
+                                          ? circlesState.circles
+                                          : (circlesState is CirclesSuccess)
+                                              ? circlesState.circles
+                                              : cubit.availableCircles;
+
+                                  if (circlesState is CirclesLoading &&
+                                      circles.isEmpty) {
                                     return Padding(
                                       padding:
                                           EdgeInsets.symmetric(vertical: 24.h),
@@ -144,10 +149,10 @@ class _HomeViewState extends State<HomeView> {
                                       ),
                                     );
                                   }
-                                  if (circlesState is CirclesSuccess &&
-                                      circlesState.circles.isNotEmpty) {
+
+                                  if (circles.isNotEmpty) {
                                     final preview =
-                                        circlesState.circles.take(5).toList();
+                                        circles.take(5).toList();
                                     return Column(
                                       children: List.generate(
                                         preview.length,
@@ -163,6 +168,7 @@ class _HomeViewState extends State<HomeView> {
                                       ),
                                     );
                                   }
+
                                   return const SizedBox.shrink();
                                 },
                               ),
