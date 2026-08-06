@@ -1,5 +1,4 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/foundation.dart';
 
 class HomeService {
   final Dio dio;
@@ -35,19 +34,14 @@ class HomeService {
   Future<List<dynamic>> getAvailableCircles() async {
     final response = await dio.get('/customer/circles');
     final data = response.data;
-    debugPrint('[TRACE 1] Raw Dio response type: ${data.runtimeType}');
 
     if (data is Map) {
       final list = data['data'];
-      final meta = data['meta'];
-      debugPrint('[TRACE 2] response.data["data"] length: ${list is List ? list.length : 0}');
-      debugPrint('[TRACE 3] response.data["meta"]: $meta');
       if (list is List) return list;
       return [];
     }
 
     if (data is List) {
-      debugPrint('[TRACE 2] response.data (List) length: ${data.length}');
       return data;
     }
 

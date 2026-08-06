@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
+import '../../../../core/network/dio_error_utils.dart';
 import '../../data/repos/home_repo.dart';
 import 'home_state.dart';
 
@@ -16,11 +17,7 @@ class HomeCubit extends Cubit<HomeState> {
       final dashboard = await homeRepo.getHomeDashboard();
       emit(HomeSuccess(dashboard));
     } on DioException catch (e) {
-      emit(
-        HomeFailure(
-          e.response?.data['message'] ?? e.message ?? 'حدث خطأ',
-        ),
-      );
+      emit(HomeFailure(dioErrorMessage(e)));
     } catch (e) {
       emit(HomeFailure(e.toString()));
     }

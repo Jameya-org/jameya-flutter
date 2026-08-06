@@ -71,8 +71,11 @@ class CompleteProfileDialog extends StatelessWidget {
               CustomButton(
                 text: 'التالي',
                 onPressed: () {
+                  // Capture the router before popping the dialog so we don't
+                  // navigate with a context whose route is being deactivated.
+                  final router = GoRouter.of(context);
                   Navigator.of(context).pop(); // dismiss dialog
-                  context.push(AppRoutes.kKycVerificationView); // navigate directly to verification
+                  router.push(AppRoutes.kKycVerificationView);
                 },
                 height: 50.h,
                 borderRadius: 12.r,

@@ -2,8 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/cache/cache_helper.dart';
-import '../../../../core/cache/cache_key.dart';
 import '../../../../core/cache/cache_keys.dart';
+import '../../../../core/network/dio_error_utils.dart';
 import '../../../../core/services/services_locator.dart';
 import '../../data/models/request_otp_model.dart';
 import '../../data/models/verify_otp_model.dart';
@@ -22,11 +22,7 @@ class AuthCubit extends Cubit<AuthState> {
       await authRepo.requestOtp(RequestOtpModel(email: email));
       emit(RequestOtpSuccess());
     } on DioException catch (e) {
-      emit(
-        RequestOtpFailure(
-          e.response?.data['message'] ?? e.message ?? 'حدث خطأ',
-        ),
-      );
+      emit(RequestOtpFailure(dioErrorMessage(e)));
     } catch (e) {
       emit(RequestOtpFailure(e.toString()));
     }
@@ -50,22 +46,22 @@ class AuthCubit extends Cubit<AuthState> {
 
       if (accessToken != null && accessToken.isNotEmpty) {
         await cache.saveData(
-          key: CacheKey.accessToken,
+          key: CacheKeys.accessToken,
           value: accessToken,
         );
         await cache.saveSecureData(
-          key: CacheKey.accessToken,
+          key: CacheKeys.accessToken,
           value: accessToken,
         );
       }
 
       if (refreshToken != null && refreshToken.isNotEmpty) {
         await cache.saveData(
-          key: CacheKey.refreshToken,
+          key: CacheKeys.refreshToken,
           value: refreshToken,
         );
         await cache.saveSecureData(
-          key: CacheKey.refreshToken,
+          key: CacheKeys.refreshToken,
           value: refreshToken,
         );
       }
@@ -77,11 +73,7 @@ class AuthCubit extends Cubit<AuthState> {
 
       emit(VerifyOtpSuccess());
     } on DioException catch (e) {
-      emit(
-        VerifyOtpFailure(
-          e.response?.data['message'] ?? 'حدث خطأ',
-        ),
-      );
+      emit(VerifyOtpFailure(dioErrorMessage(e)));
     } catch (e) {
       emit(VerifyOtpFailure(e.toString()));
     }

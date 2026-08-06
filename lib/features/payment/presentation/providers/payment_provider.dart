@@ -42,9 +42,10 @@ class PaymentProvider extends ChangeNotifier {
       return true;
     } catch (e) {
       error = 'فشل حفظ البطاقة';
+      return false;
+    } finally {
       isSaving = false;
       notifyListeners();
-      return false;
     }
   }
 

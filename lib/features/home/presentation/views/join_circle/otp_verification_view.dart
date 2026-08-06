@@ -38,8 +38,9 @@ class _OtpVerificationViewState extends State<OtpVerificationView> {
   final StreamController<ErrorAnimationType> _errorController =
       StreamController<ErrorAnimationType>();
 
-  static const int _resendSeconds = 60;
-  int _secondsRemaining = _resendSeconds;
+  static const int _defaultResendSeconds = 60;
+  late final int _resendSeconds;
+  int _secondsRemaining = 0;
   bool _canResend = false;
   Timer? _resendTimer;
 
@@ -49,6 +50,8 @@ class _OtpVerificationViewState extends State<OtpVerificationView> {
   @override
   void initState() {
     super.initState();
+    final expiresIn = context.read<JoinCircleCubit>().otpExpiresIn;
+    _resendSeconds = expiresIn > 0 ? expiresIn : _defaultResendSeconds;
     _startResendTimer();
   }
 

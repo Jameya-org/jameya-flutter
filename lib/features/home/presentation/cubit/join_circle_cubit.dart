@@ -131,7 +131,10 @@ class JoinCircleCubit extends Cubit<JoinCircleState> {
   /// • 201 → [JoinCircleJoinSuccess]
   /// • 409 → [JoinCirclePositionTaken] + auto-refresh positions
   /// • 422 → [JoinCircleIntentBlocked]
-  Future<void> submitJoin() async {
+  Future<void> submitJoin({
+    String? paymentMethodId,
+    String? cardToken,
+  }) async {
     if (selectedPosition == null) return;
 
     emit(JoinCircleJoining());
@@ -139,6 +142,8 @@ class JoinCircleCubit extends Cubit<JoinCircleState> {
       reservation = await homeRepo.joinCircle(
         circleId,
         selectedPosition!.position,
+        paymentMethodId: paymentMethodId,
+        cardToken: cardToken,
       );
       membershipId = reservation!.membershipId;
       contract = reservation!.contract;

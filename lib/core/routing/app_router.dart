@@ -58,7 +58,7 @@ abstract final class AppRouter {
       GoRoute(
         path: AppRoutes.kOtpView,
         builder: (context, state) {
-          final email = state.extra as String;
+          final email = state.extra is String ? state.extra as String : '';
           return OtpView(email: email);
         },
       ),
@@ -179,7 +179,7 @@ abstract final class AppRouter {
         path: AppRoutes.kCircleDetailView,
         pageBuilder: (context, state) {
           final circleId = state.pathParameters['circleId']!;
-          final cubit = state.extra as JoinCircleCubit;
+          final cubit = _joinCubit(state);
           return SmartAnimateTransition.buildPage(
             state: state,
             child: BlocProvider.value(
@@ -193,7 +193,7 @@ abstract final class AppRouter {
         path: AppRoutes.kSelectTurnView,
         pageBuilder: (context, state) {
           final circleId = state.pathParameters['circleId']!;
-          final cubit = state.extra as JoinCircleCubit;
+          final cubit = _joinCubit(state);
           return SmartAnimateTransition.buildPage(
             state: state,
             child: BlocProvider.value(
@@ -207,7 +207,7 @@ abstract final class AppRouter {
         path: AppRoutes.kPaymentInfoView,
         pageBuilder: (context, state) {
           final circleId = state.pathParameters['circleId']!;
-          final cubit = state.extra as JoinCircleCubit;
+          final cubit = _joinCubit(state);
           return SmartAnimateTransition.buildPage(
             state: state,
             child: BlocProvider.value(
@@ -221,7 +221,7 @@ abstract final class AppRouter {
         path: AppRoutes.kSubscriptionReview,
         pageBuilder: (context, state) {
           final circleId = state.pathParameters['circleId']!;
-          final cubit = state.extra as JoinCircleCubit;
+          final cubit = _joinCubit(state);
           return SmartAnimateTransition.buildPage(
             state: state,
             child: BlocProvider.value(
@@ -235,7 +235,7 @@ abstract final class AppRouter {
         path: AppRoutes.kContractReview,
         pageBuilder: (context, state) {
           final circleId = state.pathParameters['circleId']!;
-          final cubit = state.extra as JoinCircleCubit;
+          final cubit = _joinCubit(state);
           return SmartAnimateTransition.buildPage(
             state: state,
             child: BlocProvider.value(
@@ -249,7 +249,7 @@ abstract final class AppRouter {
         path: AppRoutes.kJoinOtpView,
         pageBuilder: (context, state) {
           final circleId = state.pathParameters['circleId']!;
-          final cubit = state.extra as JoinCircleCubit;
+          final cubit = _joinCubit(state);
           return SmartAnimateTransition.buildPage(
             state: state,
             child: BlocProvider.value(
@@ -263,7 +263,7 @@ abstract final class AppRouter {
         path: AppRoutes.kJoinSuccessView,
         pageBuilder: (context, state) {
           final circleId = state.pathParameters['circleId']!;
-          final cubit = state.extra as JoinCircleCubit;
+          final cubit = _joinCubit(state);
           return SmartAnimateTransition.buildPage(
             state: state,
             child: BlocProvider.value(
@@ -276,17 +276,28 @@ abstract final class AppRouter {
       GoRoute(
         path: AppRoutes.kEligibilityBlocked,
         pageBuilder: (context, state) {
-          final extra = state.extra as Map<String, dynamic>;
+          final extra = state.extra;
+          final reason = extra is Map ? (extra['reason'] as String?) ?? '' : '';
+          final missingSteps = extra is Map
+              ? (extra['missingSteps'] as List?)?.cast<String>() ?? []
+              : <String>[];
           return SmartAnimateTransition.buildPage(
             state: state,
             child: EligibilityBlockedView(
-              reason: extra['reason'] as String? ?? '',
-              missingSteps:
-                  (extra['missingSteps'] as List?)?.cast<String>() ?? [],
+              reason: reason,
+              missingSteps: missingSteps,
             ),
           );
         },
       ),
     ],
   );
+
+  /// Returns the [JoinCircleCubit] carried via `state.extra`, or a fresh
+  /// instance when the flow is entered through a deep link / hot restart.
+  static JoinCircleCubit _joinCubit(GoRouterState state) {
+    final extra = state.extra;
+    if (extra is JoinCircleCubit) return extra;
+    return getIt<JoinCircleCubit>();
+  }
 }

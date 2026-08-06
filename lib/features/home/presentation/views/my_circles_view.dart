@@ -25,6 +25,7 @@ class _MyCirclesViewState extends State<MyCirclesView>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this, initialIndex: 0);
+    context.read<CirclesCubit>().loadMyCircles();
   }
 
   @override
@@ -103,7 +104,7 @@ class _MyCirclesViewState extends State<MyCirclesView>
                     ),
                     unselectedLabelColor: AppColors.textHint,
                     tabs: const [
-                      Tab(text: 'متاح للانضمام'),
+                      Tab(text: 'نشطة'),
                       Tab(text: 'مكتملة'),
                     ],
                   ),
@@ -161,13 +162,13 @@ class _MyCirclesViewState extends State<MyCirclesView>
                       );
                     }
 
-                    final active = circles
-                        .where((c) => c.status.toUpperCase() == 'ACTIVE')
-                        .toList();
+                    // Everything that isn't FINISHED is still ongoing
+                    // (ACTIVE, PENDING, RESERVED, UPCOMING, ...).
                     final finished = circles
-                        .where(
-                          (c) => c.status.toUpperCase() == 'FINISHED',
-                        )
+                        .where((c) => c.status.toUpperCase() == 'FINISHED')
+                        .toList();
+                    final active = circles
+                        .where((c) => !finished.contains(c))
                         .toList();
 
                     return TabBarView(

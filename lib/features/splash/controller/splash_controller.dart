@@ -1,13 +1,16 @@
 import 'dart:async';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 
 import '../../../../core/cache/cache_helper.dart';
-import '../../../../core/cache/cache_key.dart';
+import '../../../../core/cache/cache_keys.dart';
 import '../../../../core/routing/routes.dart';
 import '../../../../core/services/services_locator.dart';
 import '../../../../core/utils/jwt_decoder.dart';
 import '../../auth/data/services/auth_service.dart';
+
+enum _RefreshOutcome { success, authFailure, transientFailure }
 
 // Controls the typing animation and auth session restoration on the splash screen
 class SplashController extends ChangeNotifier {
@@ -66,24 +69,31 @@ class SplashController extends ChangeNotifier {
     final cache = getIt<CacheHelper>();
     final authService = getIt<AuthService>();
 
-    String? accessToken = await cache.getSecureData(key: CacheKey.accessToken);
-    accessToken ??= cache.getString(key: CacheKey.accessToken);
+    String? accessToken = await cache.getSecureData(key: CacheKeys.accessToken);
+    accessToken ??= cache.getString(key: CacheKeys.accessToken);
 
-    String? refreshToken = await cache.getSecureData(key: CacheKey.refreshToken);
-    refreshToken ??= cache.getString(key: CacheKey.refreshToken);
+    String? refreshToken = await cache.getSecureData(key: CacheKeys.refreshToken);
+    refreshToken ??= cache.getString(key: CacheKeys.refreshToken);
 
     final onboardingSeen =
-        cache.getBool(key: CacheKey.onBoardingViewed) ?? false;
+        cache.getBool(key: CacheKeys.onBoardingViewed) ?? false;
 
     if (accessToken != null && accessToken.isNotEmpty) {
       if (JwtDecoder.isExpired(accessToken)) {
         if (refreshToken != null && refreshToken.isNotEmpty) {
-          final refreshed = await _tryRefreshToken(authService, cache, refreshToken);
-          if (refreshed) {
-            destinationRoute = AppRoutes.kHomeView;
-          } else {
-            await _clearSession(cache);
-            destinationRoute = AppRoutes.kEmailView;
+          final outcome = await _tryRefreshToken(authService, cache, refreshToken);
+          switch (outcome) {
+            case _RefreshOutcome.success:
+              destinationRoute = AppRoutes.kHomeView;
+            case _RefreshOutcome.authFailure:
+              // Refresh token is invalid/revoked — session must be cleared.
+              await _clearSession(cache);
+              destinationRoute = AppRoutes.kEmailView;
+            case _RefreshOutcome.transientFailure:
+              // Network/timeout. Keep the session — the request interceptor
+              // will retry the refresh on the next 401 instead of logging the
+              // user out for a temporary connectivity problem.
+              destinationRoute = AppRoutes.kHomeView;
           }
         } else {
           await _clearSession(cache);
@@ -101,7 +111,7 @@ class SplashController extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<bool> _tryRefreshToken(
+  Future<_RefreshOutcome> _tryRefreshToken(
     AuthService authService,
     CacheHelper cache,
     String refreshToken,
@@ -114,24 +124,33 @@ class SplashController extends ChangeNotifier {
         final newRefresh = (data['refreshToken'] ?? data['refresh_token'])?.toString();
 
         if (newAccess != null && newAccess.isNotEmpty) {
-          await cache.saveData(key: CacheKey.accessToken, value: newAccess);
-          await cache.saveSecureData(key: CacheKey.accessToken, value: newAccess);
+          await cache.saveData(key: CacheKeys.accessToken, value: newAccess);
+          await cache.saveSecureData(key: CacheKeys.accessToken, value: newAccess);
           if (newRefresh != null && newRefresh.isNotEmpty) {
-            await cache.saveData(key: CacheKey.refreshToken, value: newRefresh);
-            await cache.saveSecureData(key: CacheKey.refreshToken, value: newRefresh);
+            await cache.saveData(key: CacheKeys.refreshToken, value: newRefresh);
+            await cache.saveSecureData(key: CacheKeys.refreshToken, value: newRefresh);
           }
-          return true;
+          return _RefreshOutcome.success;
         }
       }
-      return false;
+      // Server responded, but the payload didn't contain a usable token.
+      return _RefreshOutcome.authFailure;
+    } on DioException catch (e) {
+      final statusCode = e.response?.statusCode;
+      if (statusCode != null) {
+        // The server answered with an HTTP error — token is invalid/revoked.
+        return _RefreshOutcome.authFailure;
+      }
+      // No HTTP response (connection refused, timeout, DNS, ...) — transient.
+      return _RefreshOutcome.transientFailure;
     } catch (_) {
-      return false;
+      return _RefreshOutcome.transientFailure;
     }
   }
 
   Future<void> _clearSession(CacheHelper cache) async {
-    await cache.deleteData(key: CacheKey.accessToken);
-    await cache.deleteData(key: CacheKey.refreshToken);
+    await cache.deleteData(key: CacheKeys.accessToken);
+    await cache.deleteData(key: CacheKeys.refreshToken);
     await cache.deleteAllSecureData();
   }
 
