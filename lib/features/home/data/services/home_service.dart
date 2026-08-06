@@ -5,6 +5,8 @@ class HomeService {
 
   HomeService(this.dio);
 
+  /// GET /customer/home
+  /// Real response: { eligible, reason, missingSteps }
   Future<Map<String, dynamic>> getHomeDashboard() async {
     final response = await dio.get('/customer/home');
     final data = response.data;
@@ -13,21 +15,36 @@ class HomeService {
     throw StateError('Unexpected home dashboard response format');
   }
 
+  /// GET /customer/my-circles
+  /// Real response: { circles: [] }
   Future<List<dynamic>> getMyCircles() async {
     final response = await dio.get('/customer/my-circles');
     final data = response.data;
+    if (data is Map) {
+      final circles = data['circles'];
+      if (circles is List) return circles;
+      return [];
+    }
     if (data is List) return data;
     throw StateError('Unexpected my-circles response format');
   }
 
+  /// GET /customer/circles
+  /// Real response: { data: [...], meta: {...} }
   Future<List<dynamic>> getAvailableCircles() async {
     final response = await dio.get('/customer/circles');
     final data = response.data;
+    if (data is Map) {
+      final list = data['data'];
+      if (list is List) return list;
+      return [];
+    }
     if (data is List) return data;
     throw StateError('Unexpected circles response format');
   }
 
-  Future<Map<String, dynamic>> getCircleDetail(int id) async {
+  /// GET /customer/circles/{id}
+  Future<Map<String, dynamic>> getCircleDetail(String id) async {
     final response = await dio.get('/customer/circles/$id');
     final data = response.data;
     if (data is Map<String, dynamic>) return data;
@@ -35,7 +52,8 @@ class HomeService {
     throw StateError('Unexpected circle detail response format');
   }
 
-  Future<Map<String, dynamic>> getCirclePositions(int id) async {
+  /// GET /customer/circles/{id}/positions
+  Future<Map<String, dynamic>> getCirclePositions(String id) async {
     final response = await dio.get('/customer/circles/$id/positions');
     final data = response.data;
     if (data is Map<String, dynamic>) return data;
@@ -43,7 +61,7 @@ class HomeService {
     throw StateError('Unexpected circle positions response format');
   }
 
-  Future<void> joinIntent(int id) async {
+  Future<void> joinIntent(String id) async {
     await dio.post('/customer/circles/$id/join-intent');
   }
 }

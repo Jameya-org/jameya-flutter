@@ -1,25 +1,30 @@
 class ProfileModel {
-  final String name;
+  final String id;
+  final String legalName;
   final String email;
-  final String? phone;
-  final String? avatarUrl;
+  final String mobileNumber;
+  final String status;
+  final String locale;
+  final String createdAt;
+  // Local-only fields (not returned by /customers/profile but editable locally)
   final String? kycStatus;
-  final String? address;
-  final String? birthDate;
   final String? nationalId;
+  final String? birthDate;
   final String? governorate;
   final String? city;
   final String? streetAddress;
 
   ProfileModel({
-    required this.name,
+    this.id = '',
+    required this.legalName,
     required this.email,
-    this.phone,
-    this.avatarUrl,
+    this.mobileNumber = '',
+    this.status = '',
+    this.locale = '',
+    this.createdAt = '',
     this.kycStatus,
-    this.address,
-    this.birthDate,
     this.nationalId,
+    this.birthDate,
     this.governorate,
     this.city,
     this.streetAddress,
@@ -27,35 +32,36 @@ class ProfileModel {
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
     return ProfileModel(
-      name: json['name'] ?? '',
+      id: json['id']?.toString() ?? '',
+      legalName: json['legalName'] ?? '',
       email: json['email'] ?? '',
-      phone: json['phone'],
-      avatarUrl: json['avatarUrl'],
-      kycStatus: json['kycStatus'],
-      address: json['address'],
-      birthDate: json['birthDate'],
+      mobileNumber: json['mobileNumber'] ?? '',
+      status: json['status'] ?? '',
+      locale: json['locale'] ?? '',
+      createdAt: json['createdAt'] ?? '',
     );
   }
 
   ProfileModel copyWith({
-    String? name,
-    String? phone,
-    String? address,
-    String? birthDate,
+    String? legalName,
+    String? mobileNumber,
     String? nationalId,
+    String? birthDate,
     String? governorate,
     String? city,
     String? streetAddress,
   }) {
     return ProfileModel(
-      name: name ?? this.name,
+      id: id,
+      legalName: legalName ?? this.legalName,
       email: email,
-      phone: phone ?? this.phone,
-      avatarUrl: avatarUrl,
+      mobileNumber: mobileNumber ?? this.mobileNumber,
+      status: status,
+      locale: locale,
+      createdAt: createdAt,
       kycStatus: kycStatus,
-      address: address ?? this.address,
-      birthDate: birthDate ?? this.birthDate,
       nationalId: nationalId ?? this.nationalId,
+      birthDate: birthDate ?? this.birthDate,
       governorate: governorate ?? this.governorate,
       city: city ?? this.city,
       streetAddress: streetAddress ?? this.streetAddress,

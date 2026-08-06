@@ -8,7 +8,8 @@ import '../../../../core/utils/assets.dart';
 import '../../data/models/home_dashboard_model.dart';
 
 /// Top greeting card shown on the home screen.
-/// Shows notification bell, greeting text, and user avatar.
+/// Shows notification bell, greeting text, and user avatar (initials fallback).
+/// Accepts [HomeUserModel] from the /customers/profile endpoint.
 class HomeGreetingCard extends StatelessWidget {
   final HomeUserModel user;
 
@@ -73,7 +74,7 @@ class HomeGreetingCard extends StatelessWidget {
                   ),
                   SizedBox(width: 4.w),
                   Text(
-                    'صباح الخير، ${user.name}',
+                    'صباح الخير، ${user.legalName}',
                     style: AppTextStyles.body.copyWith(
                       fontWeight: FontWeight.w700,
                       color: AppColors.textPrimary,
@@ -93,23 +94,20 @@ class HomeGreetingCard extends StatelessWidget {
           ),
         ),
 
-        // Right: user avatar
+        // Right: user avatar — initials fallback (no avatar URL from API)
         CircleAvatar(
           radius: 22.r,
           backgroundColor: AppColors.grey200,
-          backgroundImage: user.avatar != null && user.avatar!.isNotEmpty
-              ? NetworkImage(user.avatar!)
-              : null,
-          child: user.avatar == null || user.avatar!.isEmpty
-              ? Text(
-                  user.name.isNotEmpty ? user.name[0].toUpperCase() : '؟',
-                  style: TextStyle(
-                    fontSize: 16.sp,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.primary,
-                  ),
-                )
-              : null,
+          child: Text(
+            user.legalName.isNotEmpty
+                ? user.legalName[0].toUpperCase()
+                : '؟',
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
+            ),
+          ),
         ),
       ],
     );

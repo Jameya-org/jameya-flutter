@@ -6,17 +6,10 @@ import 'package:go_router/go_router.dart';
 import '../../../../core/routing/routes.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/app_text_styles.dart';
-import '../../data/models/home_dashboard_model.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
-import '../widgets/active_circle_card.dart';
-import '../widgets/circle_card.dart';
 import '../widgets/empty_circle_card.dart';
-import '../widgets/home_greeting_card.dart';
-import '../widgets/progress_dots_indicator.dart';
-import '../widgets/recent_activity_item.dart';
 import '../widgets/section_header.dart';
-import '../widgets/status_badge.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -91,7 +84,7 @@ class _HomeViewState extends State<HomeView> {
               }
 
               if (state is HomeSuccess) {
-                final dashboard = state.dashboard;
+                final eligibility = state.eligibility;
                 return RefreshIndicator(
                   color: AppColors.primary,
                   onRefresh: _onRefresh,
@@ -104,17 +97,35 @@ class _HomeViewState extends State<HomeView> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Greeting
-                        HomeGreetingCard(user: dashboard.user),
+                        // Greeting header (static — profile loaded separately)
+                        _HomeGreetingHeader(),
                         SizedBox(height: 24.h),
 
-                        // Active circle OR empty state
-                        if (dashboard.activeCircle != null)
-                          _HasCircleBody(dashboard: dashboard)
-                        else
-                          _NoCircleBody(
-                            dashboard: dashboard,
+                        // Eligibility / onboarding state
+                        if (!eligibility.eligible)
+                          _EligibilityBanner(
+                            reason: eligibility.reason,
+                            missingSteps: eligibility.missingSteps,
                           ),
+
+                        SizedBox(height: 28.h),
+
+                        // Available circles section
+                        SectionHeader(
+                          title: 'الجمعيات المتاحة',
+                          actionLabel: 'عرض المزيد',
+                          onActionTap: () =>
+                              context.push(AppRoutes.kAvailableCirclesView),
+                        ),
+                        SizedBox(height: 14.h),
+
+                        // Show empty state — circles are loaded separately
+                        // from /customer/circles in AvailableCirclesView
+                        EmptyCircleCard(
+                          onBrowseCircles: () =>
+                              context.push(AppRoutes.kAvailableCirclesView),
+                        ),
+                        SizedBox(height: 24.h),
                       ],
                     ),
                   ),
@@ -131,137 +142,178 @@ class _HomeViewState extends State<HomeView> {
 }
 
 // ─────────────────────────────────────────────
-// Case 1: User has an active circle
+// Static greeting header (no backend user data from home endpoint)
 // ─────────────────────────────────────────────
 
-class _HasCircleBody extends StatelessWidget {
-  final HomeDashboardModel dashboard;
-
-  const _HasCircleBody({required this.dashboard});
-
+class _HomeGreetingHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final circle = dashboard.activeCircle!;
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
-        // Active circle card
-        ActiveCircleCard(circle: circle),
-        SizedBox(height: 28.h),
-
-        // Recent activities
-        if (dashboard.recentActivities.isNotEmpty) ...[
-          SectionHeader(title: 'اخر النشاطات'),
-          SizedBox(height: 14.h),
-          ...dashboard.recentActivities.map(
-            (a) => Padding(
-              padding: EdgeInsets.only(bottom: 10.h),
-              child: RecentActivityItem(activity: a),
-            ),
-          ),
-          SizedBox(height: 14.h),
-        ],
-
-        // Progress section header
-        SectionHeader(
-          title: 'تقدم الجمعية',
-          actionLabel: 'عرض المزيد',
-          onActionTap: () => context.push(AppRoutes.kProgressView),
-        ),
-        SizedBox(height: 14.h),
-
-        // Mini progress card for the active circle
+        // Notification bell placeholder
         Container(
-          padding: EdgeInsets.all(16.w),
-          decoration: BoxDecoration(
-            color: AppColors.surface,
-            borderRadius: BorderRadius.circular(12.r),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.04),
-                blurRadius: 8,
-                offset: const Offset(0, 1),
-              ),
-            ],
+          width: 44.w,
+          height: 44.w,
+          decoration: const BoxDecoration(
+            color: AppColors.grey100,
+            shape: BoxShape.circle,
           ),
+          child: const Icon(
+            Icons.notifications_none_rounded,
+            color: AppColors.textPrimary,
+          ),
+        ),
+
+        // Greeting text
+        Expanded(
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.end,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  StatusBadge(status: circle.status),
+                  Text('👋', style: TextStyle(fontSize: 18.sp)),
+                  SizedBox(width: 4.w),
                   Text(
-                    'الدور الحالي',
-                    style: AppTextStyles.label.copyWith(
-                      color: AppColors.textHint,
+                    'أهلاً بك',
+                    style: AppTextStyles.body.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
+                      fontSize: 16.sp,
                     ),
                   ),
                 ],
               ),
-              SizedBox(height: 4.h),
+              SizedBox(height: 2.h),
               Text(
-                '${circle.currentTurn}/${circle.totalTurns}',
-                style: AppTextStyles.body.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
-                  fontSize: 16.sp,
+                'كل ما يخص جمعيتك في مكان واحد.',
+                style: AppTextStyles.label.copyWith(
+                  color: AppColors.textHint,
                 ),
-                textAlign: TextAlign.right,
-              ),
-              SizedBox(height: 12.h),
-              ProgressDotsIndicator(
-                currentTurn: circle.currentTurn,
-                totalTurns: circle.totalTurns,
               ),
             ],
           ),
         ),
-        SizedBox(height: 24.h),
+
+        // Avatar fallback — default icon
+        CircleAvatar(
+          radius: 22.r,
+          backgroundColor: AppColors.grey200,
+          child: Text(
+            '؟',
+            style: TextStyle(
+              fontSize: 16.sp,
+              fontWeight: FontWeight.bold,
+              color: AppColors.primary,
+            ),
+          ),
+        ),
       ],
     );
   }
 }
 
 // ─────────────────────────────────────────────
-// Case 3: User has no circles
+// Eligibility banner shown when user is not yet eligible
 // ─────────────────────────────────────────────
 
-class _NoCircleBody extends StatelessWidget {
-  final HomeDashboardModel dashboard;
+class _EligibilityBanner extends StatelessWidget {
+  final String reason;
+  final List<String> missingSteps;
 
-  const _NoCircleBody({required this.dashboard});
+  const _EligibilityBanner({
+    required this.reason,
+    required this.missingSteps,
+  });
+
+  String _translateStep(String step) {
+    switch (step) {
+      case 'identity_verification':
+        return 'التحقق من الهوية';
+      case 'proof_of_income':
+        return 'إثبات الدخل';
+      case 'eligibility_decision':
+        return 'قرار الأهلية';
+      default:
+        return step;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        // Empty state card
-        EmptyCircleCard(
-          onBrowseCircles: () => context.push(AppRoutes.kAvailableCirclesView),
+    return Container(
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(
+          color: const Color(0xFFE87D3E).withValues(alpha: 0.4),
+          width: 1,
         ),
-        SizedBox(height: 28.h),
-
-        // Recommended circles
-        if (dashboard.recommendedCircles.isNotEmpty) ...[
-          SectionHeader(
-            title: 'الجمعيات المتاحة',
-            actionLabel: 'عرض المزيد',
-            onActionTap: () =>
-                context.push(AppRoutes.kAvailableCirclesView),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.04),
+            blurRadius: 8,
+            offset: const Offset(0, 1),
           ),
-          SizedBox(height: 14.h),
-          ...dashboard.recommendedCircles.map(
-            (c) => Padding(
-              padding: EdgeInsets.only(bottom: 10.h),
-              child: CircleCard(circle: c),
-            ),
-          ),
-          SizedBox(height: 24.h),
         ],
-      ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                'الحساب غير مؤهل بعد',
+                style: AppTextStyles.body.copyWith(
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                  fontSize: 15.sp,
+                ),
+              ),
+              SizedBox(width: 8.w),
+              const Icon(
+                Icons.info_outline_rounded,
+                color: Color(0xFFE87D3E),
+                size: 20,
+              ),
+            ],
+          ),
+          if (missingSteps.isNotEmpty) ...[
+            SizedBox(height: 10.h),
+            Text(
+              'الخطوات المطلوبة:',
+              style: AppTextStyles.label.copyWith(color: AppColors.textHint),
+            ),
+            SizedBox(height: 6.h),
+            ...missingSteps.map(
+              (step) => Padding(
+                padding: EdgeInsets.only(bottom: 4.h),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    Text(
+                      _translateStep(step),
+                      style: AppTextStyles.bodySmall.copyWith(
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    SizedBox(width: 6.w),
+                    const Icon(
+                      Icons.radio_button_unchecked,
+                      size: 14,
+                      color: Color(0xFFE87D3E),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ],
+      ),
     );
   }
 }

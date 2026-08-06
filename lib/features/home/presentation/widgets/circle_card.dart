@@ -17,7 +17,8 @@ class CircleCard extends StatelessWidget {
 
   const CircleCard({super.key, required this.circle, this.onTap});
 
-  String _formatPaymentDate(String dateStr) {
+  String _formatStartDate(String dateStr) {
+    if (dateStr.isEmpty) return '—';
     try {
       final date = DateTime.parse(dateStr);
       return '${date.day} ${_arabicMonth(date.month)}';
@@ -34,9 +35,14 @@ class CircleCard extends StatelessWidget {
     return months[month - 1];
   }
 
-  String _formatAmount(double amount) {
-    final formatter = NumberFormat('#,###');
-    return '${formatter.format(amount.toInt())} ج.م';
+  String _formatAmount(String amount) {
+    try {
+      final value = double.parse(amount);
+      final formatter = NumberFormat('#,###');
+      return '${formatter.format(value.toInt())} ج.م';
+    } catch (_) {
+      return '$amount ج.م';
+    }
   }
 
   @override
@@ -60,12 +66,12 @@ class CircleCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
-            // Top row: title + monthly amount
+            // Top row: title + contribution amount
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Monthly amount
+                // Contribution amount (monthly instalment)
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -77,7 +83,7 @@ class CircleCard extends StatelessWidget {
                     ),
                     SizedBox(height: 2.h),
                     Text(
-                      _formatAmount(circle.monthlyAmount),
+                      _formatAmount(circle.contributionAmount),
                       style: AppTextStyles.body.copyWith(
                         fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
@@ -98,7 +104,7 @@ class CircleCard extends StatelessWidget {
             ),
             SizedBox(height: 10.h),
 
-            // Bottom row: status badge + members + date
+            // Bottom row: status badge + members + start date
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -107,12 +113,13 @@ class CircleCard extends StatelessWidget {
                   children: [
                     _InfoChip(
                       icon: Assets.iconsCalendarDots,
-                      label: _formatPaymentDate(circle.paymentDate),
+                      label: _formatStartDate(circle.startDate),
                     ),
                     SizedBox(width: 12.w),
                     _InfoChip(
                       icon: Assets.iconsGroupOfUsers,
-                      label: '${circle.membersCount} عضو',
+                      label:
+                          '${circle.currentMembersCount}/${circle.memberCapacity} عضو',
                     ),
                   ],
                 ),

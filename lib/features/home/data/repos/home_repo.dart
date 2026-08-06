@@ -6,22 +6,37 @@ class HomeRepo {
 
   HomeRepo(this.homeService);
 
-  Future<HomeDashboardModel> getHomeDashboard() async {
+  /// GET /customer/home → HomeEligibilityModel
+  Future<HomeEligibilityModel> getHomeDashboard() async {
     final data = await homeService.getHomeDashboard();
-    return HomeDashboardModel.fromJson(data);
+    return HomeEligibilityModel.fromJson(data);
   }
 
+  /// GET /customer/my-circles → reads from response.circles
   Future<List<CircleSummaryModel>> getMyCircles() async {
-    final data = await homeService.getMyCircles();
-    return data
+    final list = await homeService.getMyCircles();
+    return list
         .map((e) => CircleSummaryModel.fromJson(e as Map<String, dynamic>))
         .toList();
   }
 
+  /// GET /customer/circles → reads from response.data
   Future<List<CircleSummaryModel>> getAvailableCircles() async {
-    final data = await homeService.getAvailableCircles();
-    return data
+    final list = await homeService.getAvailableCircles();
+    return list
         .map((e) => CircleSummaryModel.fromJson(e as Map<String, dynamic>))
         .toList();
+  }
+
+  /// GET /customer/circles/{id}
+  Future<CircleDetailModel> getCircleDetail(String id) async {
+    final data = await homeService.getCircleDetail(id);
+    return CircleDetailModel.fromJson(data);
+  }
+
+  /// GET /customer/circles/{id}/positions
+  Future<CirclePositionsModel> getCirclePositions(String id) async {
+    final data = await homeService.getCirclePositions(id);
+    return CirclePositionsModel.fromJson(data);
   }
 }

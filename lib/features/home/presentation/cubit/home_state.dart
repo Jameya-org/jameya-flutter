@@ -7,9 +7,9 @@ class HomeInitial extends HomeState {}
 class HomeLoading extends HomeState {}
 
 class HomeSuccess extends HomeState {
-  final HomeDashboardModel dashboard;
+  final HomeEligibilityModel eligibility;
 
-  HomeSuccess(this.dashboard);
+  HomeSuccess(this.eligibility);
 }
 
 class HomeFailure extends HomeState {

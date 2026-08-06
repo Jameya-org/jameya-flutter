@@ -5,13 +5,23 @@ import 'package:flutter_svg/flutter_svg.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/app_text_styles.dart';
 import '../../../../core/utils/assets.dart';
-import '../../data/models/home_dashboard_model.dart';
 
-/// Single row item for the "اخر النشاطات" (Recent Activities) section.
+/// Single row item for displaying a recent activity.
+/// Note: The /customer/home endpoint no longer returns recent activities.
+/// This widget is kept for future use when activity data becomes available.
 class RecentActivityItem extends StatelessWidget {
-  final RecentActivityModel activity;
+  final String type;
+  final String title;
+  final String description;
+  final String createdAt;
 
-  const RecentActivityItem({super.key, required this.activity});
+  const RecentActivityItem({
+    super.key,
+    required this.type,
+    required this.title,
+    required this.description,
+    required this.createdAt,
+  });
 
   String _formatTime(String isoString) {
     try {
@@ -65,7 +75,7 @@ class RecentActivityItem extends StatelessWidget {
             ),
             child: Center(
               child: SvgPicture.asset(
-                _getActivityIcon(activity.type),
+                _getActivityIcon(type),
                 width: 20.w,
                 height: 20.w,
                 colorFilter: const ColorFilter.mode(
@@ -83,7 +93,7 @@ class RecentActivityItem extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 Text(
-                  activity.title,
+                  title,
                   textAlign: TextAlign.right,
                   style: AppTextStyles.bodySmall.copyWith(
                     fontWeight: FontWeight.w600,
@@ -92,7 +102,7 @@ class RecentActivityItem extends StatelessWidget {
                 ),
                 SizedBox(height: 2.h),
                 Text(
-                  activity.description,
+                  description,
                   textAlign: TextAlign.right,
                   style: AppTextStyles.label.copyWith(
                     color: AppColors.textHint,
@@ -103,7 +113,7 @@ class RecentActivityItem extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
-                      _formatTime(activity.createdAt),
+                      _formatTime(createdAt),
                       style: AppTextStyles.label.copyWith(
                         color: AppColors.textHint,
                         fontSize: 11.sp,

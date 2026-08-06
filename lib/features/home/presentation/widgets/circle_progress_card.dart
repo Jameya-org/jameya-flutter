@@ -15,8 +15,10 @@ class CircleProgressCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final currentTurn = circle.currentTurn ?? 0;
-    final totalTurns = circle.totalTurns ?? 1;
+    // Use currentMembersCount as a proxy for progress position,
+    // and memberCapacity as the total until turn-based data is available.
+    final currentStep = circle.currentMembersCount;
+    final totalSteps = circle.memberCapacity > 0 ? circle.memberCapacity : 1;
 
     return Container(
       width: double.infinity,
@@ -52,9 +54,9 @@ class CircleProgressCard extends StatelessWidget {
           ),
           SizedBox(height: 6.h),
 
-          // Current turn label
+          // Members label
           Text(
-            'الدور الحالي',
+            'الأعضاء',
             style: AppTextStyles.label.copyWith(
               color: AppColors.textHint,
             ),
@@ -62,7 +64,7 @@ class CircleProgressCard extends StatelessWidget {
           ),
           SizedBox(height: 2.h),
           Text(
-            '$currentTurn/$totalTurns',
+            '$currentStep/$totalSteps',
             style: AppTextStyles.body.copyWith(
               fontWeight: FontWeight.w700,
               color: AppColors.textPrimary,
@@ -74,8 +76,8 @@ class CircleProgressCard extends StatelessWidget {
 
           // Progress dots
           ProgressDotsIndicator(
-            currentTurn: currentTurn,
-            totalTurns: totalTurns,
+            currentTurn: currentStep,
+            totalTurns: totalSteps,
           ),
         ],
       ),

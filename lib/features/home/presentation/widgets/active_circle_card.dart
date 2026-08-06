@@ -8,13 +8,15 @@ import '../../../../core/utils/assets.dart';
 import '../../data/models/home_dashboard_model.dart';
 import 'status_badge.dart';
 
-/// Teal gradient card showing the user's current active circle.
+/// Teal gradient card showing an active circle summary.
+/// Accepts CircleSummaryModel with real API fields.
 class ActiveCircleCard extends StatelessWidget {
-  final ActiveCircleModel circle;
+  final CircleSummaryModel circle;
 
   const ActiveCircleCard({super.key, required this.circle});
 
-  String _formatPaymentDate(String dateStr) {
+  String _formatStartDate(String dateStr) {
+    if (dateStr.isEmpty) return '—';
     try {
       final date = DateTime.parse(dateStr);
       return '${date.day} ${_arabicMonth(date.month)}';
@@ -31,9 +33,14 @@ class ActiveCircleCard extends StatelessWidget {
     return months[month - 1];
   }
 
-  String _formatAmount(double amount) {
-    final formatter = NumberFormat('#,###');
-    return '${formatter.format(amount.toInt())} ج.م';
+  String _formatAmount(String amount) {
+    try {
+      final value = double.parse(amount);
+      final formatter = NumberFormat('#,###');
+      return '${formatter.format(value.toInt())} ج.م';
+    } catch (_) {
+      return '$amount ج.م';
+    }
   }
 
   @override
@@ -85,22 +92,18 @@ class ActiveCircleCard extends StatelessWidget {
               _StatItem(
                 icon: Assets.iconsGroupOfUsers,
                 label: 'الأعضاء',
-                value: circle.membersCount.toString(),
-              ),
-              _StatItem(
-                icon: Assets.iconsRefresh,
-                label: 'دورك',
-                value: circle.currentTurn.toString(),
+                value:
+                    '${circle.currentMembersCount}/${circle.memberCapacity}',
               ),
               _StatItem(
                 icon: Assets.iconsCalendarDots,
-                label: 'تاريخ الدفع',
-                value: _formatPaymentDate(circle.paymentDate),
+                label: 'تاريخ البدء',
+                value: _formatStartDate(circle.startDate),
               ),
               _StatItem(
                 icon: Assets.iconsMoney,
-                label: 'المبلغ الشهري',
-                value: _formatAmount(circle.monthlyAmount),
+                label: 'القسط الشهري',
+                value: _formatAmount(circle.contributionAmount),
               ),
             ],
           ),
