@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
-import 'package:intl/intl.dart';
+import 'package:intl/intl.dart' hide TextDirection;
 
 import '../../../../../core/routing/routes.dart';
 import '../../../../../core/utils/app_colors.dart';
@@ -12,7 +12,6 @@ import '../../cubit/join_circle_state.dart';
 import '../../widgets/join_flow_shared.dart';
 import '../../widgets/join_info_box.dart';
 import '../../widgets/join_step_indicator.dart';
-import 'eligibility_blocked_view.dart';
 
 /// Step 4/7 — Subscription Review.
 ///

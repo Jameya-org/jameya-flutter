@@ -9,16 +9,24 @@ import 'status_badge.dart';
 
 /// Card used in the Progress view showing a circle's progress via dots indicator.
 class CircleProgressCard extends StatelessWidget {
-  final CircleSummaryModel circle;
+  final dynamic circle;
 
   const CircleProgressCard({super.key, required this.circle});
 
   @override
   Widget build(BuildContext context) {
-    // Use currentMembersCount as a proxy for progress position,
-    // and memberCapacity as the total until turn-based data is available.
-    final currentStep = circle.currentMembersCount;
-    final totalSteps = circle.memberCapacity > 0 ? circle.memberCapacity : 1;
+    int currentStep = 0;
+    int totalSteps = 1;
+    String status = circle.status?.toString() ?? '';
+    String title = circle.title?.toString() ?? '';
+
+    if (circle is MyCircleModel) {
+      currentStep = circle.currentInstallment;
+      totalSteps = circle.totalInstallments > 0 ? circle.totalInstallments : 1;
+    } else if (circle is CircleSummaryModel) {
+      currentStep = circle.currentMembersCount;
+      totalSteps = circle.memberCapacity > 0 ? circle.memberCapacity : 1;
+    }
 
     return Container(
       width: double.infinity,
@@ -41,9 +49,9 @@ class CircleProgressCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              StatusBadge(status: circle.status),
+              StatusBadge(status: status),
               Text(
-                circle.title,
+                title,
                 style: AppTextStyles.body.copyWith(
                   fontWeight: FontWeight.w700,
                   color: AppColors.textPrimary,

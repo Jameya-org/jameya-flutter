@@ -272,7 +272,7 @@ class _OtpVerificationViewState extends State<OtpVerificationView> {
                                 child: Text(
                                   _canResend
                                       ? 'إعادة الإرسال'
-                                      : 'إعادة الإرسال (${_secondsRemaining}ث)',
+                                      : 'إعادة الإرسال ($_secondsRemainingث)',
                                   style: AppTextStyles.bodySmall.copyWith(
                                     color: _canResend
                                         ? AppColors.primary

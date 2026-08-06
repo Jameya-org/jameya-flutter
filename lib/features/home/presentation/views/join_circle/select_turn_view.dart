@@ -7,13 +7,11 @@ import '../../../../../core/routing/routes.dart';
 import '../../../../../core/utils/app_colors.dart';
 import '../../../../../core/utils/app_text_styles.dart';
 import '../../../../../core/widgets/custom_button.dart';
-import '../../../../../features/home/data/models/home_dashboard_model.dart';
 import '../../cubit/join_circle_cubit.dart';
 import '../../cubit/join_circle_state.dart';
 import '../../widgets/join_flow_shared.dart';
 import '../../widgets/join_step_indicator.dart';
 import '../../widgets/turn_card.dart';
-import 'eligibility_blocked_view.dart';
 
 /// Step 2/7 — Select Turn.
 ///
@@ -134,7 +132,7 @@ class _SelectTurnViewState extends State<SelectTurnView> {
     return ListView.separated(
       padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 4.h),
       itemCount: positions.length,
-      separatorBuilder: (_, __) => SizedBox(height: 12.h),
+      separatorBuilder: (_, _) => SizedBox(height: 12.h),
       itemBuilder: (context, index) {
         final pos = positions[index];
         final isSelected =

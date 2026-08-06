@@ -15,7 +15,7 @@ class HomeRepo {
     return HomeEligibilityModel.fromJson(data);
   }
 
-  /// GET /customer/my-circles → List<MyCircleModel>
+  /// GET /customer/my-circles → List of MyCircleModel
   /// Uses the new response shape: { data: [...] }
   Future<List<MyCircleModel>> getMyCircles() async {
     final list = await homeService.getMyCircles();

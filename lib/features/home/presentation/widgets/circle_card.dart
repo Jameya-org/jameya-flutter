@@ -10,12 +10,28 @@ import '../../data/models/home_dashboard_model.dart';
 import 'status_badge.dart';
 
 /// Reusable card for displaying a circle summary in lists.
-/// Used in: home screen (inline preview), available circles page.
+/// Used in: home screen (inline preview), available circles page, my circles page.
 class CircleCard extends StatelessWidget {
-  final CircleSummaryModel circle;
+  final dynamic circle;
   final VoidCallback? onTap;
 
   const CircleCard({super.key, required this.circle, this.onTap});
+
+  String get _title => circle.title?.toString() ?? '';
+  String get _status => circle.status?.toString() ?? '';
+  String get _contributionAmount => circle.contributionAmount?.toString() ?? '0';
+
+  String get _startDate {
+    if (circle is CircleSummaryModel) return circle.startDate;
+    if (circle is MyCircleModel) return circle.nextDueDate;
+    return '';
+  }
+
+  int get _membersCount {
+    if (circle is CircleSummaryModel) return circle.currentMembersCount;
+    if (circle is MyCircleModel) return circle.totalInstallments;
+    return 0;
+  }
 
   String _formatStartDate(String dateStr) {
     if (dateStr.isEmpty) return '—';
@@ -32,7 +48,7 @@ class CircleCard extends StatelessWidget {
       'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
       'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر',
     ];
-    return months[month - 1];
+    return months[(month - 1).clamp(0, 11)];
   }
 
   String _formatAmount(String amount) {
@@ -74,7 +90,7 @@ class CircleCard extends StatelessWidget {
               children: [
                 // First child = right in RTL → Circle title
                 Text(
-                  circle.title,
+                  _title,
                   style: AppTextStyles.body.copyWith(
                     fontWeight: FontWeight.w700,
                     color: AppColors.textPrimary,
@@ -82,7 +98,7 @@ class CircleCard extends StatelessWidget {
                   ),
                 ),
                 // Last child = left in RTL → Status badge
-                StatusBadge(status: circle.status),
+                StatusBadge(status: _status),
               ],
             ),
 
@@ -106,7 +122,7 @@ class CircleCard extends StatelessWidget {
                     ),
                     SizedBox(height: 3.h),
                     Text(
-                      _formatAmount(circle.contributionAmount),
+                      _formatAmount(_contributionAmount),
                       style: AppTextStyles.body.copyWith(
                         fontWeight: FontWeight.w700,
                         color: AppColors.primary,
@@ -122,13 +138,12 @@ class CircleCard extends StatelessWidget {
                   children: [
                     _InfoChip(
                       icon: Assets.iconsGroupOfUsers,
-                      label:
-                          '${circle.currentMembersCount} عضو',
+                      label: '$_membersCount عضو',
                     ),
                     SizedBox(height: 6.h),
                     _InfoChip(
                       icon: Assets.iconsCalendarDots,
-                      label: _formatStartDate(circle.startDate),
+                      label: _formatStartDate(_startDate),
                     ),
                   ],
                 ),

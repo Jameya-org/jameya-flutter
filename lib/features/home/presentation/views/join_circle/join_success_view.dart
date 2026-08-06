@@ -7,9 +7,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../../../core/routing/routes.dart';
 import '../../../../../core/utils/app_colors.dart';
 import '../../../../../core/utils/app_text_styles.dart';
-import '../../../../../core/widgets/custom_button.dart';
 import '../../cubit/join_circle_cubit.dart';
-import '../../cubit/join_circle_state.dart';
 
 /// Step 7/7 — Join Success.
 ///
