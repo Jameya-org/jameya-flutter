@@ -1,6 +1,5 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/app_text_styles.dart';
@@ -29,7 +28,6 @@ class TermsCheckbox extends StatelessWidget {
           onChanged: onChanged,
           activeColor: AppColors.primary,
         ),
-
         Expanded(
           child: RichText(
             textAlign: TextAlign.right,
@@ -47,8 +45,7 @@ class TermsCheckbox extends StatelessWidget {
                     color: AppColors.primary,
                     decoration: TextDecoration.underline,
                   ),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = onTermsTap,
+                  recognizer: TapGestureRecognizer()..onTap = onTermsTap,
                 ),
                 const TextSpan(
                   text: ' و ',
@@ -59,8 +56,7 @@ class TermsCheckbox extends StatelessWidget {
                     color: AppColors.primary,
                     decoration: TextDecoration.underline,
                   ),
-                  recognizer: TapGestureRecognizer()
-                    ..onTap = onPrivacyTap,
+                  recognizer: TapGestureRecognizer()..onTap = onPrivacyTap,
                 ),
               ],
             ),

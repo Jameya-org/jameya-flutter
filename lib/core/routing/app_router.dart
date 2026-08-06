@@ -1,28 +1,28 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
-import 'package:jameya/core/animations/smart_animate_transition.dart';
-import 'package:jameya/core/routing/routes.dart';
-import 'package:jameya/features/auth/presentation/views/otp_view.dart';
-import 'package:jameya/features/onboarding/presentation/view/onboarding_view.dart';
-import 'package:jameya/features/onboarding/presentation/viewmodel/onboarding_cubit.dart';
-import 'package:jameya/features/splash/view/splash_view.dart';
 
-import '../../features/auth/presentation/cubit/auth_cubit.dart';
+import '../animations/smart_animate_transition.dart';
+import '../routing/routes.dart';
 import '../../features/auth/presentation/views/create_account_view.dart';
 import '../../features/auth/presentation/views/email_view.dart';
-import '../services/services_locator.dart';
+import '../../features/auth/presentation/views/otp_view.dart';
+import '../../features/info/presentation/views/terms_and_conditions_view.dart';
+import '../../features/kyc/presentation/views/kyc_verification_view.dart';
+import '../../features/onboarding/presentation/cubit/onboarding_cubit.dart';
+import '../../features/onboarding/presentation/views/onboarding_view.dart';
+import '../../features/payment/presentation/views/add_card_view.dart';
+import '../../features/payment/presentation/views/payment_methods_view.dart';
+import '../../features/profile/presentation/views/profile_details_view.dart';
+import '../../features/profile/presentation/views/profile_view.dart';
+import '../../features/splash/views/splash_view.dart';
 
-// Defines the app's navigation using GoRouter
 abstract final class AppRouter {
   static final router = GoRouter(
     routes: [
-      //* ── Splash ─────────────────────────────────────
       GoRoute(
         path: AppRoutes.kSplashView,
         builder: (context, state) => const SplashView(),
       ),
-
-      //* ── Onboarding ──────────────────────────────────
       GoRoute(
         path: AppRoutes.kOnboardingView,
         pageBuilder: (context, state) => SmartAnimateTransition.buildPage(
@@ -33,9 +33,6 @@ abstract final class AppRouter {
           ),
         ),
       ),
-
-
-//* --- Email ---
       GoRoute(
         path: AppRoutes.kEmailView,
         pageBuilder: (context, state) {
@@ -45,18 +42,14 @@ abstract final class AppRouter {
           );
         },
       ),
-
-//* --- OTP ---
       GoRoute(
         path: AppRoutes.kOtpView,
         builder: (context, state) {
           final email = state.extra as String;
-
-          return OtpView(
-            email: email,
-          );
+          return OtpView(email: email);
         },
-      ),  GoRoute(
+      ),
+      GoRoute(
         path: AppRoutes.kCreateAccountView,
         pageBuilder: (context, state) {
           return SmartAnimateTransition.buildPage(
@@ -65,7 +58,60 @@ abstract final class AppRouter {
           );
         },
       ),
-
-   ]);
-
+      GoRoute(
+        path: AppRoutes.kProfileView,
+        pageBuilder: (context, state) {
+          return SmartAnimateTransition.buildPage(
+            state: state,
+            child: const ProfileView(),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.kProfileDetailsView,
+        pageBuilder: (context, state) {
+          return SmartAnimateTransition.buildPage(
+            state: state,
+            child: const ProfileDetailsView(),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.kPaymentMethodsView,
+        pageBuilder: (context, state) {
+          return SmartAnimateTransition.buildPage(
+            state: state,
+            child: const PaymentMethodsView(),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.kAddCardView,
+        pageBuilder: (context, state) {
+          return SmartAnimateTransition.buildPage(
+            state: state,
+            child: const AddCardView(),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.kKycVerificationView,
+        pageBuilder: (context, state) {
+          return SmartAnimateTransition.buildPage(
+            state: state,
+            child: const KycVerificationView(),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.kTermsAndConditionsView,
+        pageBuilder: (context, state) {
+          return SmartAnimateTransition.buildPage(
+            state: state,
+            child: const TermsAndConditionsView(),
+          );
+        },
+      ),
+    ],
+  );
 }
