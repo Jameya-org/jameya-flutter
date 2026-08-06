@@ -1,3 +1,4 @@
+import 'package:email_validator/email_validator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -29,6 +30,7 @@ class _EmailViewState extends State<EmailView>
   late final Animation<double> _buttonAnimation;
 
   final TextEditingController _emailController = TextEditingController();
+
   bool _isButtonEnabled = false;
 
   @override
@@ -40,63 +42,49 @@ class _EmailViewState extends State<EmailView>
       duration: const Duration(milliseconds: 1500),
     );
 
-    _containerAnimation = Tween<Offset>(
-      begin: const Offset(0, 1),
-      end: Offset.zero,
-    ).animate(
-      CurvedAnimation(
-        parent: _controller,
-        curve: const Interval(
-          0.0,
-          0.45,
-          curve: Curves.easeOutCubic,
-        ),
-      ),
-    );
+    _containerAnimation =
+        Tween<Offset>(begin: const Offset(0, 1), end: Offset.zero).animate(
+          CurvedAnimation(
+            parent: _controller,
+            curve: const Interval(0.0, 0.45, curve: Curves.easeOutCubic),
+          ),
+        );
 
     _headerAnimation = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(
-        0.45,
-        0.65,
-        curve: Curves.easeIn,
-      ),
+      curve: const Interval(0.45, 0.65, curve: Curves.easeIn),
     );
 
     _fieldAnimation = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(
-        0.65,
-        0.85,
-        curve: Curves.easeIn,
-      ),
+      curve: const Interval(0.65, 0.85, curve: Curves.easeIn),
     );
 
     _buttonAnimation = CurvedAnimation(
       parent: _controller,
-      curve: const Interval(
-        0.85,
-        1.0,
-        curve: Curves.easeIn,
-      ),
+      curve: const Interval(0.85, 1.0, curve: Curves.easeIn),
     );
 
     _controller.forward();
 
-    _emailController.addListener(() {
-      final email = _emailController.text.trim();
+    _emailController.addListener(_validateEmail);
+  }
+
+  void _validateEmail() {
+    final isValid = EmailValidator.validate(_emailController.text.trim());
+
+    if (_isButtonEnabled != isValid) {
       setState(() {
-        _isButtonEnabled = RegExp(
-          r'^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$',
-        ).hasMatch(email);
+        _isButtonEnabled = isValid;
       });
-    });
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    _emailController.removeListener(_validateEmail);
     _emailController.dispose();
+    _controller.dispose();
     super.dispose();
   }
 
@@ -105,18 +93,13 @@ class _EmailViewState extends State<EmailView>
     return BlocConsumer<AuthCubit, AuthState>(
       listener: (context, state) {
         if (state is RequestOtpSuccess) {
-          context.push(
-            AppRoutes.kOtpView,
-            extra: _emailController.text.trim(),
-          );
+          context.push(AppRoutes.kOtpView, extra: _emailController.text.trim());
         }
 
         if (state is RequestOtpFailure) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text(state.message),
-            ),
-          );
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(SnackBar(content: Text(state.message)));
         }
       },
       builder: (context, state) {
@@ -128,9 +111,7 @@ class _EmailViewState extends State<EmailView>
               crossAxisAlignment: CrossAxisAlignment.end,
               children: [
                 SizedBox(height: 2.h),
-                AuthBackButton(
-                  onPressed: () => context.pop(),
-                ),
+                AuthBackButton(onPressed: () => context.pop()),
                 SizedBox(height: 4.h),
                 const AuthTitleSection(
                   title: 'ادخل بريدك الإلكتروني',
@@ -142,35 +123,53 @@ class _EmailViewState extends State<EmailView>
           ),
           child: Padding(
             padding: EdgeInsets.symmetric(horizontal: 24.w),
-            child: Column(
-              children: [
-                SizedBox(height: 32.h),
-                FadeTransition(
-                  opacity: _fieldAnimation,
-                  child: EmailField(
-                    controller: _emailController,
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                final contentMinHeight = constraints.maxHeight - 56.h;
+
+                return SingleChildScrollView(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  padding: EdgeInsets.only(top: 32.h, bottom: 24.h),
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: contentMinHeight > 0 ? contentMinHeight : 0,
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Column(
+                          children: [
+                            FadeTransition(
+                              opacity: _fieldAnimation,
+                              child: EmailField(controller: _emailController),
+                            ),
+                            SizedBox(height: 24.h),
+                          ],
+                        ),
+                        FadeTransition(
+                          opacity: _buttonAnimation,
+                          child: PrimaryButton(
+                            text: state is RequestOtpLoading
+                                ? 'جاري الإرسال...'
+                                : 'التالي',
+                            isEnabled:
+                                _isButtonEnabled && state is! RequestOtpLoading,
+                            onPressed: _isButtonEnabled
+                                ? () {
+                                    context.read<AuthCubit>().requestOtp(
+                                      email: _emailController.text.trim(),
+                                    );
+                                  }
+                                : null,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const Spacer(),
-                FadeTransition(
-                  opacity: _buttonAnimation,
-                  child: PrimaryButton(
-                    text: state is RequestOtpLoading
-                        ? 'جاري الإرسال...'
-                        : 'التالي',
-                    isEnabled:
-                        _isButtonEnabled && state is! RequestOtpLoading,
-                    onPressed: _isButtonEnabled
-                        ? () {
-                            context.read<AuthCubit>().requestOtp(
-                                  email: _emailController.text.trim(),
-                                );
-                          }
-                        : null,
-                  ),
-                ),
-                SizedBox(height: 24.h),
-              ],
+                );
+              },
             ),
           ),
         );

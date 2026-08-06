@@ -36,15 +36,22 @@ class SettingsTile extends StatelessWidget {
               child: Icon(icon, color: iconColor, size: 20),
             ),
             const SizedBox(width: 12),
-            Text(
-              title,
-              style: const TextStyle(fontSize: 15, color: Colors.black87),
+            Expanded(
+              child: Text(
+                title,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(fontSize: 15, color: Colors.black87),
+              ),
             ),
-            const Spacer(),
             if (trailingText != null)
-              Text(
-                trailingText!,
-                style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+              Flexible(
+                child: Text(
+                  trailingText!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 13, color: Colors.grey.shade500),
+                ),
               )
             else
               const Icon(Icons.arrow_back_ios, size: 16, color: Colors.grey),

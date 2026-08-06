@@ -20,11 +20,20 @@ class KycInfoRow extends StatelessWidget {
         borderRadius: BorderRadius.circular(10),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(value, style: const TextStyle(fontWeight: FontWeight.w600)),
+          Expanded(
+            child: Text(
+              value,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+          const SizedBox(width: 12),
           Text(
             label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(color: Colors.grey.shade600, fontSize: 13),
           ),
         ],

@@ -1,4 +1,5 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -48,73 +49,94 @@ class _KycUploadViewState extends State<KycUploadView> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(16),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          padding: const EdgeInsets.all(20),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minHeight: constraints.maxHeight > 12
+                  ? constraints.maxHeight - 12
+                  : 0,
             ),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'رفع المستندات',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Text(
+                        'رفع المستندات',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      KycUploadTile(
+                        label: 'الهوية الوطنية',
+                        file: widget.provider.nationalIdFile,
+                        onTap: () => _pickFile(true),
+                      ),
+                      const SizedBox(height: 12),
+                      KycUploadTile(
+                        label: 'إثبات مرتب',
+                        file: widget.provider.incomeProofFile,
+                        onTap: () => _pickFile(false),
+                      ),
+                    ],
+                  ),
                 ),
-                const SizedBox(height: 16),
-                KycUploadTile(
-                  label: 'الهوية الوطنية',
-                  file: widget.provider.nationalIdFile,
-                  onTap: () => _pickFile(true),
-                ),
-                const SizedBox(height: 12),
-                KycUploadTile(
-                  label: 'إثبات مرتب',
-                  file: widget.provider.incomeProofFile,
-                  onTap: () => _pickFile(false),
+                Column(
+                  children: [
+                    const SizedBox(height: 24),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton.icon(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF1A7A6E),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                        ),
+                        icon: widget.provider.isSubmitting
+                            ? const SizedBox(
+                                width: 18,
+                                height: 18,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : const Icon(Icons.upload, color: Colors.white),
+                        onPressed: widget.provider.isSubmitting
+                            ? null
+                            : _submit,
+                        label: const Text(
+                          'تأكيد',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                  ],
                 ),
               ],
             ),
           ),
-          const Spacer(),
-          SizedBox(
-            width: double.infinity,
-            height: 52,
-            child: ElevatedButton.icon(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF1A7A6E),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-              ),
-              icon: widget.provider.isSubmitting
-                  ? const SizedBox(
-                      width: 18,
-                      height: 18,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : const Icon(Icons.upload, color: Colors.white),
-              onPressed: widget.provider.isSubmitting ? null : _submit,
-              label: const Text(
-                'تأكيد',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 12),
-        ],
-      ),
+        );
+      },
     );
   }
 }

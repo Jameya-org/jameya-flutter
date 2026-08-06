@@ -8,7 +8,7 @@ class AuthBackground extends StatelessWidget {
     super.key,
     required this.header,
     required this.child,
-     this.containerAnimation,
+    this.containerAnimation,
   });
 
   final Widget header;
@@ -17,6 +17,7 @@ class AuthBackground extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: false,
       backgroundColor: AppColors.backgroundLight,
       body: Stack(
         children: [
@@ -48,9 +49,16 @@ class AuthBackground extends StatelessWidget {
                       topRight: Radius.circular(32.r),
                     ),
                   ),
-                  child: SafeArea(
-                    top: false,
-                    child: child,
+                  child: AnimatedPadding(
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeOut,
+                    padding: EdgeInsets.only(
+                      bottom: MediaQuery.viewInsetsOf(context).bottom,
+                    ),
+                    child: SafeArea(
+                      top: false,
+                      child: child,
+                    ),
                   ),
                 );
 

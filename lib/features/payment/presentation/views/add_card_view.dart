@@ -79,7 +79,7 @@ class _AddCardViewState extends State<AddCardView> {
           backgroundColor: Colors.white,
           elevation: 0,
           title: const Text(
-            'إضافه بطاقه',
+            'Ø¥Ø¶Ø§ÙÙ‡ Ø¨Ø·Ø§Ù‚Ù‡',
             style: TextStyle(color: Colors.black87, fontSize: 16),
           ),
           leading: IconButton(
@@ -93,13 +93,18 @@ class _AddCardViewState extends State<AddCardView> {
         ),
         body: Consumer<PaymentProvider>(
           builder: (context, provider, _) {
+            final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
+            final previewCardHeight = (MediaQuery.sizeOf(context).height * 0.24)
+                .clamp(160.0, 190.0);
+
             return SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: EdgeInsets.fromLTRB(20, 20, 20, keyboardInset + 20),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Container(
-                    height: 190,
+                    height: previewCardHeight,
                     padding: const EdgeInsets.all(20),
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
@@ -133,61 +138,76 @@ class _AddCardViewState extends State<AddCardView> {
                           ],
                         ),
                         const Spacer(),
-                        Text(
-                          _cardNumberController.text.isEmpty
-                              ? '•••• •••• •••• ••••'
-                              : _cardNumberController.text,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 18,
-                            letterSpacing: 2,
+                        SizedBox(
+                          width: double.infinity,
+                          child: FittedBox(
+                            alignment: AlignmentDirectional.centerStart,
+                            fit: BoxFit.scaleDown,
+                            child: Text(
+                              _cardNumberController.text.isEmpty
+                                  ? 'â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢'
+                                  : _cardNumberController.text,
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 18,
+                                letterSpacing: 2,
+                              ),
+                            ),
                           ),
                         ),
                         const SizedBox(height: 16),
                         Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'EXPIRES',
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 10,
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'EXPIRES',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 10,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  _expiryController.text.isEmpty
-                                      ? '..../....'
-                                      : _expiryController.text,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 13,
+                                  Text(
+                                    _expiryController.text.isEmpty
+                                        ? '..../....'
+                                        : _expiryController.text,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 13,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                const Text(
-                                  'CARD HOLDER',
-                                  style: TextStyle(
-                                    color: Colors.white70,
-                                    fontSize: 10,
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  const Text(
+                                    'CARD HOLDER',
+                                    style: TextStyle(
+                                      color: Colors.white70,
+                                      fontSize: 10,
+                                    ),
                                   ),
-                                ),
-                                Text(
-                                  _holderNameController.text.isEmpty
-                                      ? '..................'
-                                      : _holderNameController.text,
-                                  style: const TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 13,
+                                  Text(
+                                    _holderNameController.text.isEmpty
+                                        ? '..................'
+                                        : _holderNameController.text,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 13,
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ],
                         ),
@@ -196,7 +216,7 @@ class _AddCardViewState extends State<AddCardView> {
                   ),
                   const SizedBox(height: 24),
                   CardFormField(
-                    label: 'رقم البطاقه',
+                    label: 'Ø±Ù‚Ù… Ø§Ù„Ø¨Ø·Ø§Ù‚Ù‡',
                     controller: _cardNumberController,
                     icon: Icons.credit_card,
                     keyboardType: TextInputType.number,
@@ -204,7 +224,7 @@ class _AddCardViewState extends State<AddCardView> {
                   ),
                   const SizedBox(height: 16),
                   CardFormField(
-                    label: 'الاسم علي البطاقه',
+                    label: 'Ø§Ù„Ø§Ø³Ù… Ø¹Ù„ÙŠ Ø§Ù„Ø¨Ø·Ø§Ù‚Ù‡',
                     controller: _holderNameController,
                     icon: Icons.person_outline,
                     onChanged: (_) => setState(() {}),
@@ -214,7 +234,7 @@ class _AddCardViewState extends State<AddCardView> {
                     children: [
                       Expanded(
                         child: CardFormField(
-                          label: 'تاريخ الانتهاء',
+                          label: 'ØªØ§Ø±ÙŠØ® Ø§Ù„Ø§Ù†ØªÙ‡Ø§Ø¡',
                           controller: _expiryController,
                           icon: Icons.calendar_today_outlined,
                           hint: 'MM/YY',
@@ -251,7 +271,7 @@ class _AddCardViewState extends State<AddCardView> {
                         SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'سيتم سحب 1 جنيه مصري للتاكد من صلاحيه الكارت',
+                            'Ø³ÙŠØªÙ… Ø³Ø­Ø¨ 1 Ø¬Ù†ÙŠÙ‡ Ù…ØµØ±ÙŠ Ù„Ù„ØªØ§ÙƒØ¯ Ù…Ù† ØµÙ„Ø§Ø­ÙŠÙ‡ Ø§Ù„ÙƒØ§Ø±Øª',
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.black87,
@@ -283,7 +303,7 @@ class _AddCardViewState extends State<AddCardView> {
                               ),
                             )
                           : const Text(
-                              'حفظ البطاقة',
+                              'Ø­ÙØ¸ Ø§Ù„Ø¨Ø·Ø§Ù‚Ø©',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -304,7 +324,7 @@ class _AddCardViewState extends State<AddCardView> {
                       ),
                       onPressed: () => context.pop(),
                       child: const Text(
-                        'رجوع',
+                        'Ø±Ø¬ÙˆØ¹',
                         style: TextStyle(
                           color: Color(0xFF1A7A6E),
                           fontSize: 16,

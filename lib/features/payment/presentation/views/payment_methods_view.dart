@@ -35,9 +35,7 @@ class _PaymentMethodsViewState extends State<PaymentMethodsView> {
     }
   }
 
-  Future<void> _confirmDelete(
-    PaymentMethodModel card,
-  ) async {
+  Future<void> _confirmDelete(PaymentMethodModel card) async {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (ctx) => Directionality(
@@ -103,271 +101,340 @@ class _PaymentMethodsViewState extends State<PaymentMethodsView> {
             ),
           ],
         ),
-        body: Consumer<PaymentProvider>(
-          builder: (context, provider, _) {
-            if (provider.isLoading) {
-              return const Center(child: CircularProgressIndicator());
-            }
+        body: LayoutBuilder(
+          builder: (context, constraints) {
+            return Consumer<PaymentProvider>(
+              builder: (context, provider, _) {
+                if (provider.isLoading) {
+                  return const Center(child: CircularProgressIndicator());
+                }
 
-            if (provider.cards.isEmpty) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.credit_card_off,
-                      size: 48,
-                      color: Colors.grey.shade400,
+                if (provider.cards.isEmpty) {
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 24,
                     ),
-                    const SizedBox(height: 12),
-                    Text(
-                      'لا توجد بطاقات محفوظة',
-                      style: TextStyle(color: Colors.grey.shade600),
-                    ),
-                    const SizedBox(height: 20),
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 40),
-                      child: SizedBox(
-                        width: double.infinity,
-                        height: 48,
-                        child: ElevatedButton.icon(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: const Color(0xFF1A7A6E),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          icon: const Icon(Icons.add, color: Colors.white),
-                          label: const Text(
-                            'إضافة بطاقة',
-                            style: TextStyle(color: Colors.white),
-                          ),
-                          onPressed: _goToAddCard,
-                        ),
+                    child: ConstrainedBox(
+                      constraints: BoxConstraints(
+                        minHeight: constraints.maxHeight > 48
+                            ? constraints.maxHeight - 48
+                            : 0,
                       ),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            final selected = provider.cards[_currentPage];
-
-            return Column(
-              children: [
-                const SizedBox(height: 20),
-                SizedBox(
-                  height: 190,
-                  child: PageView.builder(
-                    controller: _pageController,
-                    itemCount: provider.cards.length,
-                    onPageChanged: (i) => setState(() => _currentPage = i),
-                    itemBuilder: (context, index) {
-                      final card = provider.cards[index];
-                      return Container(
-                        margin: const EdgeInsets.symmetric(horizontal: 8),
-                        padding: const EdgeInsets.all(20),
-                        decoration: BoxDecoration(
-                          gradient: card.isDefault
-                              ? const LinearGradient(
-                                  colors: [
-                                    Color(0xFF1A7A6E),
-                                    Color(0xFF115C52),
-                                  ],
-                                )
-                              : LinearGradient(
-                                  colors: [
-                                    Colors.grey.shade400,
-                                    Colors.grey.shade500,
-                                  ],
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.credit_card_off,
+                            size: 48,
+                            color: Colors.grey.shade400,
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'لا توجد بطاقات محفوظة',
+                            style: TextStyle(color: Colors.grey.shade600),
+                          ),
+                          const SizedBox(height: 20),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: SizedBox(
+                              width: double.infinity,
+                              height: 48,
+                              child: ElevatedButton.icon(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF1A7A6E),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
                                 ),
-                          borderRadius: BorderRadius.circular(18),
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              card.brand.toUpperCase(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                                icon: const Icon(
+                                  Icons.add,
+                                  color: Colors.white,
+                                ),
+                                label: const Text(
+                                  'إضافة بطاقة',
+                                  style: TextStyle(color: Colors.white),
+                                ),
+                                onPressed: _goToAddCard,
                               ),
                             ),
-                            const Spacer(),
-                            Text(
-                              '•••• •••• •••• ${card.last4}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 18,
-                                letterSpacing: 2,
-                              ),
-                            ),
-                            const SizedBox(height: 12),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'EXPIRES',
-                                      style: TextStyle(
-                                        color: Colors.white70,
-                                        fontSize: 10,
-                                      ),
-                                    ),
-                                    Text(
-                                      '${card.expiryMonth}/${card.expiryYear}',
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    const Text(
-                                      'CARD HOLDER',
-                                      style: TextStyle(
-                                        color: Colors.white70,
-                                        fontSize: 10,
-                                      ),
-                                    ),
-                                    Text(
-                                      card.cardHolderName,
-                                      style: const TextStyle(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(height: 12),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(
-                    provider.cards.length,
-                    (i) => Container(
-                      margin: const EdgeInsets.symmetric(horizontal: 3),
-                      width: 6,
-                      height: 6,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: i == _currentPage
-                            ? const Color(0xFF1A7A6E)
-                            : Colors.grey.shade300,
-                      ),
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 24),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Container(
-                    padding: const EdgeInsets.all(14),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFFE8F6F3),
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: const Color(0xFF1A7A6E).withValues(alpha: 0.3),
-                      ),
-                    ),
-                    child: const Row(
-                      children: [
-                        Icon(
-                          Icons.verified_user_outlined,
-                          color: Color(0xFF1A7A6E),
-                        ),
-                        SizedBox(width: 10),
-                        Expanded(
-                          child: Text(
-                            'سيتم استخدام هذه البطاقة تلقائياً عند سداد أقساط الجمعيات والمبالغ المستحقة.',
-                            style: TextStyle(fontSize: 13),
-                            textAlign: TextAlign.right,
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 20),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: CardActionButton(
-                          icon: Icons.add,
-                          label: 'إضافة بطاقة',
-                          color: const Color(0xFFD5F5E3),
-                          iconColor: const Color(0xFF1A7A6E),
-                          onTap: _goToAddCard,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: CardActionButton(
-                          icon: Icons.delete_outline,
-                          label: 'حذف البطاقة',
-                          color: const Color(0xFFFFEBEB),
-                          iconColor: Colors.red,
-                          onTap: () => _confirmDelete(selected),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const Spacer(),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: Row(
-                    children: const [
-                      Icon(Icons.lock_outline, size: 16, color: Colors.grey),
-                      SizedBox(width: 6),
-                      Expanded(
-                        child: Text(
-                          'بياناتك مشفرة وآمنة ولا يتم الاحتفاظ برقم البطاقة بالكامل.',
-                          style: TextStyle(fontSize: 12, color: Colors.grey),
-                          textAlign: TextAlign.right,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  child: SizedBox(
-                    height: 52,
-                    child: ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1A7A6E),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                      ),
-                      onPressed: () => context.pop(),
-                      child: const Text(
-                        'تم',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                        ),
+                        ],
                       ),
                     ),
+                  );
+                }
+
+                final selectedIndex = _currentPage < provider.cards.length
+                    ? _currentPage
+                    : provider.cards.length - 1;
+                final selected = provider.cards[selectedIndex];
+                final cardHeight = (constraints.maxHeight * 0.28).clamp(
+                  160.0,
+                  190.0,
+                );
+
+                return SingleChildScrollView(
+                  child: ConstrainedBox(
+                    constraints: BoxConstraints(
+                      minHeight: constraints.maxHeight > 44
+                          ? constraints.maxHeight - 44
+                          : 0,
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(20, 20, 20, 24),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Column(
+                            children: [
+                              SizedBox(
+                                height: cardHeight,
+                                child: PageView.builder(
+                                  controller: _pageController,
+                                  itemCount: provider.cards.length,
+                                  onPageChanged: (i) =>
+                                      setState(() => _currentPage = i),
+                                  itemBuilder: (context, index) {
+                                    final card = provider.cards[index];
+                                    return Container(
+                                      margin: const EdgeInsets.symmetric(
+                                        horizontal: 8,
+                                      ),
+                                      padding: const EdgeInsets.all(20),
+                                      decoration: BoxDecoration(
+                                        gradient: card.isDefault
+                                            ? const LinearGradient(
+                                                colors: [
+                                                  Color(0xFF1A7A6E),
+                                                  Color(0xFF115C52),
+                                                ],
+                                              )
+                                            : LinearGradient(
+                                                colors: [
+                                                  Colors.grey.shade400,
+                                                  Colors.grey.shade500,
+                                                ],
+                                              ),
+                                        borderRadius: BorderRadius.circular(18),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            card.brand.toUpperCase(),
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                          const Spacer(),
+                                          SizedBox(
+                                            width: double.infinity,
+                                            child: FittedBox(
+                                              alignment: AlignmentDirectional
+                                                  .centerStart,
+                                              fit: BoxFit.scaleDown,
+                                              child: Text(
+                                                '•••• •••• •••• ${card.last4}',
+                                                style: const TextStyle(
+                                                  color: Colors.white,
+                                                  fontSize: 18,
+                                                  letterSpacing: 2,
+                                                ),
+                                              ),
+                                            ),
+                                          ),
+                                          const SizedBox(height: 12),
+                                          Row(
+                                            children: [
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    const Text(
+                                                      'EXPIRES',
+                                                      style: TextStyle(
+                                                        color: Colors.white70,
+                                                        fontSize: 10,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      '${card.expiryMonth}/${card.expiryYear}',
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              const SizedBox(width: 12),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.end,
+                                                  children: [
+                                                    const Text(
+                                                      'CARD HOLDER',
+                                                      style: TextStyle(
+                                                        color: Colors.white70,
+                                                        fontSize: 10,
+                                                      ),
+                                                    ),
+                                                    Text(
+                                                      card.cardHolderName,
+                                                      maxLines: 1,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      style: const TextStyle(
+                                                        color: Colors.white,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    );
+                                  },
+                                ),
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: List.generate(
+                                  provider.cards.length,
+                                  (i) => Container(
+                                    margin: const EdgeInsets.symmetric(
+                                      horizontal: 3,
+                                    ),
+                                    width: 6,
+                                    height: 6,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.circle,
+                                      color: i == selectedIndex
+                                          ? const Color(0xFF1A7A6E)
+                                          : Colors.grey.shade300,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+                              Container(
+                                padding: const EdgeInsets.all(14),
+                                decoration: BoxDecoration(
+                                  color: const Color(0xFFE8F6F3),
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: const Color(
+                                      0xFF1A7A6E,
+                                    ).withValues(alpha: 0.3),
+                                  ),
+                                ),
+                                child: const Row(
+                                  children: [
+                                    Icon(
+                                      Icons.verified_user_outlined,
+                                      color: Color(0xFF1A7A6E),
+                                    ),
+                                    SizedBox(width: 10),
+                                    Expanded(
+                                      child: Text(
+                                        'سيتم استخدام هذه البطاقة تلقائياً عند سداد أقساط الجمعيات والمبالغ المستحقة.',
+                                        style: TextStyle(fontSize: 13),
+                                        textAlign: TextAlign.right,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(height: 20),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: CardActionButton(
+                                      icon: Icons.add,
+                                      label: 'إضافة بطاقة',
+                                      color: const Color(0xFFD5F5E3),
+                                      iconColor: const Color(0xFF1A7A6E),
+                                      onTap: _goToAddCard,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: CardActionButton(
+                                      icon: Icons.delete_outline,
+                                      label: 'حذف البطاقة',
+                                      color: const Color(0xFFFFEBEB),
+                                      iconColor: Colors.red,
+                                      onTap: () => _confirmDelete(selected),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 24),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              const Row(
+                                children: [
+                                  Icon(
+                                    Icons.lock_outline,
+                                    size: 16,
+                                    color: Colors.grey,
+                                  ),
+                                  SizedBox(width: 6),
+                                  Expanded(
+                                    child: Text(
+                                      'بياناتك مشفرة وآمنة ولا يتم الاحتفاظ برقم البطاقة بالكامل.',
+                                      style: TextStyle(
+                                        fontSize: 12,
+                                        color: Colors.grey,
+                                      ),
+                                      textAlign: TextAlign.right,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              SizedBox(
+                                height: 52,
+                                width: double.infinity,
+                                child: ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: const Color(0xFF1A7A6E),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  onPressed: () => context.pop(),
+                                  child: const Text(
+                                    'تم',
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
-                const SizedBox(height: 24),
-              ],
+                );
+              },
             );
           },
         ),

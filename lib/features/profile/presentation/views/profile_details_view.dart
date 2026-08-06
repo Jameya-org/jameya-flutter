@@ -140,8 +140,10 @@ class _ProfileDetailsViewState extends State<ProfileDetailsView> {
         body: Consumer<ProfileProvider>(
           builder: (context, provider, _) {
             final profile = provider.profile;
+            final keyboardInset = MediaQuery.viewInsetsOf(context).bottom;
             return SingleChildScrollView(
-              padding: const EdgeInsets.all(20),
+              keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+              padding: EdgeInsets.fromLTRB(20, 20, 20, keyboardInset + 24),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -170,6 +172,8 @@ class _ProfileDetailsViewState extends State<ProfileDetailsView> {
                         const SizedBox(height: 12),
                         Text(
                           profile?.name ?? '',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: const TextStyle(
                             fontSize: 20,
                             fontWeight: FontWeight.bold,
@@ -178,6 +182,8 @@ class _ProfileDetailsViewState extends State<ProfileDetailsView> {
                         const SizedBox(height: 4),
                         Text(
                           profile?.email ?? '',
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey.shade600,

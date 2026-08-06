@@ -203,18 +203,30 @@ class _ProfileHeaderState extends State<ProfileHeader> {
           ],
         ),
         const SizedBox(height: 12),
-        Text(
-          widget.profile.name,
-          style: const TextStyle(
-            fontSize: 20,
-            fontWeight: FontWeight.bold,
-            color: Colors.black87,
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Text(
+            widget.profile.name,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.bold,
+              color: Colors.black87,
+            ),
           ),
         ),
         const SizedBox(height: 4),
-        Text(
-          widget.profile.email,
-          style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Text(
+            widget.profile.email,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            textAlign: TextAlign.center,
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade600),
+          ),
         ),
         const SizedBox(height: 24),
       ],
