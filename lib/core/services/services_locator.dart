@@ -1,7 +1,6 @@
 import 'package:dio/dio.dart';
 import 'package:get_it/get_it.dart';
 import '../cache/cache_helper.dart';
-import '../cache/cache_key.dart';
 import '../localization/cubit/localization_cubit.dart';
 import '../network/dio_helper.dart';
 import '../../features/auth/data/repos/auth_repo.dart';
@@ -28,19 +27,12 @@ Future<void> setupServiceLocator() async {
   );
 
   getIt.registerLazySingleton<DioHelper>(
-    () => DioHelper(),
+    () => DioHelper(getIt<CacheHelper>()),
   );
 
   getIt.registerLazySingleton<Dio>(
     () => getIt<DioHelper>().dio,
   );
-
-  // Restore the persisted auth token so API calls stay authorized
-  // after an app restart.
-  final savedToken = cacheHelper.getString(key: CacheKey.accessToken);
-  if (savedToken != null && savedToken.isNotEmpty) {
-    getIt<DioHelper>().setToken(savedToken);
-  }
 
   // Auth
   getIt.registerLazySingleton<AuthService>(
