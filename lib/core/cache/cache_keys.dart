@@ -5,6 +5,10 @@ abstract final class CacheKeys {
   static const accessToken = 'accessToken';
   static const refreshToken = 'refreshToken';
 
+  // App preferences
+  static const onBoardingViewed = 'onBoardingViewed';
+  static const languageCode = 'languageCode';
+
   // Persisted user profile fields
   static const email = 'profile_email';
   static const legalName = 'profile_legal_name';

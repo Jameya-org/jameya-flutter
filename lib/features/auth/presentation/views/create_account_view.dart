@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/cache/cache_helper.dart';
 import '../../../../core/cache/cache_keys.dart';
+import '../../../../core/network/dio_error_utils.dart';
 import '../../../../core/routing/routes.dart';
 import '../../../../core/services/services_locator.dart';
 import '../../data/services/auth_service.dart';
@@ -207,7 +208,7 @@ class _CreateAccountViewState extends State<CreateAccountView> {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              e.response?.data['message'] ?? 'حدث خطأ في إنشاء الحساب',
+              dioErrorMessage(e, fallback: 'حدث خطأ في إنشاء الحساب'),
             ),
           ),
         );

@@ -40,11 +40,6 @@ class AuthService {
       'legalName': '$firstName $lastName',
       'dateOfBirth': dateOfBirth,
       'nationalIdNumber': nationalId,
-      'address': {
-        'governorate': 'Dakahlia',
-        'city': 'Talkha',
-        'streetAddress': 'Unknown',
-      },
       'mobileNumber': mobileNumber,
     };
 

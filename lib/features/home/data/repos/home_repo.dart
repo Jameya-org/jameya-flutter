@@ -1,5 +1,3 @@
-import 'package:flutter/foundation.dart';
-
 import '../models/home_dashboard_model.dart';
 import '../models/join_circle_models.dart';
 import '../services/home_service.dart';
@@ -30,19 +28,13 @@ class HomeRepo {
   /// GET /customer/circles → reads from response.data array
   Future<List<CircleSummaryModel>> getAvailableCircles() async {
     final list = await homeService.getAvailableCircles();
-    debugPrint('[TRACE 4] DTO parsing starting for ${list.length} raw items');
 
-    final models = list.map((e) {
+    return list.map((e) {
       final map = e is Map<String, dynamic>
           ? e
           : Map<String, dynamic>.from(e as Map);
-      final model = CircleSummaryModel.fromJson(map);
-      debugPrint('[TRACE 5] Parsed CircleModel: id=${model.id}, title="${model.title}", status="${model.status}"');
-      return model;
+      return CircleSummaryModel.fromJson(map);
     }).toList();
-
-    debugPrint('[TRACE 6] Repository output length: ${models.length}');
-    return models;
   }
 
   /// GET /customer/circles/{id}

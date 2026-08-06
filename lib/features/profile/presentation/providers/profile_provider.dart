@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import '../../../../core/cache/cache_helper.dart';
-import '../../../../core/cache/cache_key.dart';
 import '../../../../core/cache/cache_keys.dart';
 import '../../../../core/routing/routes.dart';
 import '../../../../core/services/services_locator.dart';
@@ -95,8 +94,8 @@ class ProfileProvider extends ChangeNotifier {
       final cache = getIt<CacheHelper>();
       // Clear the session tokens and persisted profile fields, but keep
       // non-session preferences (language, onboarding completion) intact.
-      await cache.deleteData(key: CacheKey.accessToken);
-      await cache.deleteData(key: CacheKey.refreshToken);
+      await cache.deleteData(key: CacheKeys.accessToken);
+      await cache.deleteData(key: CacheKeys.refreshToken);
       await cache.deleteData(key: CacheKeys.email);
       await cache.deleteData(key: CacheKeys.legalName);
       await cache.deleteData(key: CacheKeys.phone);

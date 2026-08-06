@@ -21,6 +21,20 @@ class CircleCard extends StatelessWidget {
   String get _status => circle.status?.toString() ?? '';
   String get _contributionAmount => circle.contributionAmount?.toString() ?? '0';
 
+  /// Members/installments chip — value depends on the model type.
+  String get _countValue {
+    if (circle is MyCircleModel) {
+      return '${circle.currentInstallment}/${circle.totalInstallments}';
+    }
+    return '$_membersCount عضو';
+  }
+
+  /// Date chip — label and value depend on the model type.
+  String get _dateLabel {
+    if (circle is MyCircleModel) return 'القسط القادم';
+    return 'بداية الجمعية';
+  }
+
   String get _startDate {
     if (circle is CircleSummaryModel) return circle.startDate;
     if (circle is MyCircleModel) return circle.nextDueDate;
@@ -138,12 +152,13 @@ class CircleCard extends StatelessWidget {
                   children: [
                     _InfoChip(
                       icon: Assets.iconsGroupOfUsers,
-                      label: '$_membersCount عضو',
+                      label: _countValue,
                     ),
                     SizedBox(height: 6.h),
                     _InfoChip(
                       icon: Assets.iconsCalendarDots,
-                      label: _formatStartDate(_startDate),
+                      label:
+                          '$_dateLabel · ${_formatStartDate(_startDate)}',
                     ),
                   ],
                 ),

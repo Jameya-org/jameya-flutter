@@ -29,14 +29,17 @@ abstract final class JoinCircleLauncher {
       ),
     );
 
-    bool isProfileComplete = false;
+    bool? isProfileComplete;
     try {
       final kycService = getIt<KycService>();
       final data = await kycService.getKycStatus();
       final model = KycStatusModel.fromJson(data);
       isProfileComplete = (model.status == KycStatus.verified);
     } catch (_) {
-      isProfileComplete = false;
+      // Request failed (offline/server error). We cannot determine the
+      // profile state, so don't block the user — the backend join-intent
+      // check will return a 422 with the real missing steps if needed.
+      isProfileComplete = null;
     } finally {
       if (context.mounted) {
         Navigator.of(context, rootNavigator: true).pop(); // dismiss progress overlay
@@ -45,7 +48,7 @@ abstract final class JoinCircleLauncher {
 
     if (!context.mounted) return;
 
-    if (isProfileComplete) {
+    if (isProfileComplete != false) {
       final cubit = getIt<JoinCircleCubit>();
       context.push(
         AppRoutes.circleDetailPath(circleId),

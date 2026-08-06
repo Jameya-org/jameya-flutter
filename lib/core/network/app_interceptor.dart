@@ -2,7 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import '../cache/cache_helper.dart';
-import '../cache/cache_key.dart';
+import '../cache/cache_keys.dart';
 
 class _QueuedRequest {
   final RequestOptions options;
@@ -34,14 +34,14 @@ class AppInterceptor extends Interceptor {
         );
 
   Future<String?> _getAccessToken() async {
-    String? token = await _cacheHelper.getSecureData(key: CacheKey.accessToken);
-    token ??= _cacheHelper.getString(key: CacheKey.accessToken);
+    String? token = await _cacheHelper.getSecureData(key: CacheKeys.accessToken);
+    token ??= _cacheHelper.getString(key: CacheKeys.accessToken);
     return token;
   }
 
   Future<String?> _getRefreshToken() async {
-    String? token = await _cacheHelper.getSecureData(key: CacheKey.refreshToken);
-    token ??= _cacheHelper.getString(key: CacheKey.refreshToken);
+    String? token = await _cacheHelper.getSecureData(key: CacheKeys.refreshToken);
+    token ??= _cacheHelper.getString(key: CacheKeys.refreshToken);
     return token;
   }
 
@@ -49,18 +49,18 @@ class AppInterceptor extends Interceptor {
     required String accessToken,
     String? refreshToken,
   }) async {
-    await _cacheHelper.saveData(key: CacheKey.accessToken, value: accessToken);
-    await _cacheHelper.saveSecureData(key: CacheKey.accessToken, value: accessToken);
+    await _cacheHelper.saveData(key: CacheKeys.accessToken, value: accessToken);
+    await _cacheHelper.saveSecureData(key: CacheKeys.accessToken, value: accessToken);
 
     if (refreshToken != null && refreshToken.isNotEmpty) {
-      await _cacheHelper.saveData(key: CacheKey.refreshToken, value: refreshToken);
-      await _cacheHelper.saveSecureData(key: CacheKey.refreshToken, value: refreshToken);
+      await _cacheHelper.saveData(key: CacheKeys.refreshToken, value: refreshToken);
+      await _cacheHelper.saveSecureData(key: CacheKeys.refreshToken, value: refreshToken);
     }
   }
 
   Future<void> _clearSession() async {
-    await _cacheHelper.deleteData(key: CacheKey.accessToken);
-    await _cacheHelper.deleteData(key: CacheKey.refreshToken);
+    await _cacheHelper.deleteData(key: CacheKeys.accessToken);
+    await _cacheHelper.deleteData(key: CacheKeys.refreshToken);
     await _cacheHelper.deleteAllSecureData();
   }
 

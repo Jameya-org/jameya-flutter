@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/cache/cache_helper.dart';
-import '../../../../core/cache/cache_key.dart';
+import '../../../../core/cache/cache_keys.dart';
 import '../../../../core/routing/routes.dart';
 import '../../../../core/services/services_locator.dart';
 import '../../data/models/onboarding_model.dart';
@@ -25,7 +25,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
 
   Future<void> completeOnboarding(BuildContext context) async {
     await getIt<CacheHelper>().saveData(
-      key: CacheKey.onBoardingViewed,
+      key: CacheKeys.onBoardingViewed,
       value: true,
     );
     if (context.mounted) {

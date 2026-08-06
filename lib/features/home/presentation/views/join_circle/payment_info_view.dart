@@ -164,7 +164,7 @@ class PaymentInfoView extends StatelessWidget {
 
               // ── Bottom button ─────────────────────────────────────
               JoinFlowBottomBar(
-                label: 'الي بوابة الدفع',
+                label: 'متابعة',
                 enabled: true,
                 onTap: () => context.push(
                   AppRoutes.subscriptionReviewPath(circleId),
