@@ -92,7 +92,7 @@ class PhoneNumberField extends StatelessWidget {
                   keyboardType: TextInputType.phone,
                   textAlign: TextAlign.right,
                   textAlignVertical: TextAlignVertical.center,
-                  style: AppTextStyles.displayMedium,
+                  style: AppTextStyles.body2,
                   onChanged: onChanged,
                   decoration: InputDecoration(
                     hintText: '01xxxxxxxxx',
