@@ -79,7 +79,7 @@ class _AddCardViewState extends State<AddCardView> {
           backgroundColor: Colors.white,
           elevation: 0,
           title: const Text(
-            'Ø¥Ø¶Ø§ÙÙ‡ Ø¨Ø·Ø§Ù‚Ù‡',
+            'إضافة بطاقة',
             style: TextStyle(color: Colors.black87, fontSize: 16),
           ),
           leading: IconButton(
@@ -145,7 +145,7 @@ class _AddCardViewState extends State<AddCardView> {
                             fit: BoxFit.scaleDown,
                             child: Text(
                               _cardNumberController.text.isEmpty
-                                  ? 'â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢ â€¢â€¢â€¢â€¢'
+                                  ? '•••• •••• •••• ••••'
                                   : _cardNumberController.text,
                               style: const TextStyle(
                                 color: Colors.white,
@@ -216,7 +216,7 @@ class _AddCardViewState extends State<AddCardView> {
                   ),
                   const SizedBox(height: 24),
                   CardFormField(
-                    label: 'Ø±Ù‚Ù… Ø§Ù„Ø¨Ø·Ø§Ù‚Ù‡',
+                    label: 'رقم البطاقة',
                     controller: _cardNumberController,
                     icon: Icons.credit_card,
                     keyboardType: TextInputType.number,
@@ -224,7 +224,7 @@ class _AddCardViewState extends State<AddCardView> {
                   ),
                   const SizedBox(height: 16),
                   CardFormField(
-                    label: 'Ø§Ù„Ø§Ø³Ù… Ø¹Ù„ÙŠ Ø§Ù„Ø¨Ø·Ø§Ù‚Ù‡',
+                    label: 'الاسم على البطاقة',
                     controller: _holderNameController,
                     icon: Icons.person_outline,
                     onChanged: (_) => setState(() {}),
@@ -234,7 +234,7 @@ class _AddCardViewState extends State<AddCardView> {
                     children: [
                       Expanded(
                         child: CardFormField(
-                          label: 'ØªØ§Ø±ÙŠØ® Ø§Ù„Ø§Ù†ØªÙ‡Ø§Ø¡',
+                          label: 'تاريخ الانتهاء',
                           controller: _expiryController,
                           icon: Icons.calendar_today_outlined,
                           hint: 'MM/YY',
@@ -271,7 +271,7 @@ class _AddCardViewState extends State<AddCardView> {
                         SizedBox(width: 8),
                         Expanded(
                           child: Text(
-                            'Ø³ÙŠØªÙ… Ø³Ø­Ø¨ 1 Ø¬Ù†ÙŠÙ‡ Ù…ØµØ±ÙŠ Ù„Ù„ØªØ§ÙƒØ¯ Ù…Ù† ØµÙ„Ø§Ø­ÙŠÙ‡ Ø§Ù„ÙƒØ§Ø±Øª',
+                            'سيتم سحب 1 جنيه مصري للتأكد من صلاحية الكارت',
                             style: TextStyle(
                               fontSize: 12,
                               color: Colors.black87,
@@ -303,7 +303,7 @@ class _AddCardViewState extends State<AddCardView> {
                               ),
                             )
                           : const Text(
-                              'Ø­ÙØ¸ Ø§Ù„Ø¨Ø·Ø§Ù‚Ø©',
+                              'حفظ البطاقة',
                               style: TextStyle(
                                 color: Colors.white,
                                 fontSize: 16,
@@ -324,7 +324,7 @@ class _AddCardViewState extends State<AddCardView> {
                       ),
                       onPressed: () => context.pop(),
                       child: const Text(
-                        'Ø±Ø¬ÙˆØ¹',
+                        'رجوع',
                         style: TextStyle(
                           color: Color(0xFF1A7A6E),
                           fontSize: 16,

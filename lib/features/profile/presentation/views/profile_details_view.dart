@@ -31,12 +31,22 @@ class _ProfileDetailsViewState extends State<ProfileDetailsView> {
     _nameController = TextEditingController(text: profile?.name ?? '');
     _emailController = TextEditingController(text: profile?.email ?? '');
     _phoneController = TextEditingController(text: profile?.phone ?? '');
-    _nationalIdController = TextEditingController();
-    _governorateController = TextEditingController();
-    _cityController = TextEditingController();
-    _streetController = TextEditingController();
+    _nationalIdController = TextEditingController(
+      text: profile?.nationalId ?? '',
+    );
+    _governorateController = TextEditingController(
+      text: profile?.governorate ?? '',
+    );
+    _cityController = TextEditingController(text: profile?.city ?? '');
+    _streetController = TextEditingController(
+      text: profile?.streetAddress ?? '',
+    );
+    final storedBirthDate = _parseStoredBirthDate(profile?.birthDate);
+    _selectedBirthDate = storedBirthDate;
     _birthDateController = TextEditingController(
-      text: profile?.birthDate ?? '',
+      text: storedBirthDate != null
+          ? _formatDate(storedBirthDate)
+          : (profile?.birthDate ?? ''),
     );
   }
 
@@ -65,10 +75,27 @@ class _ProfileDetailsViewState extends State<ProfileDetailsView> {
     if (picked != null) {
       setState(() {
         _selectedBirthDate = picked;
-        _birthDateController.text =
-            '${picked.day}/${picked.month}/${picked.year}';
+        _birthDateController.text = _formatDate(picked);
       });
     }
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.day}/${date.month}/${date.year}';
+  }
+
+  DateTime? _parseStoredBirthDate(String? raw) {
+    if (raw == null || raw.isEmpty) return null;
+    final parts = raw.split('/');
+    if (parts.length == 3) {
+      final day = int.tryParse(parts[0]);
+      final month = int.tryParse(parts[1]);
+      final year = int.tryParse(parts[2]);
+      if (day != null && month != null && year != null) {
+        return DateTime(year, month, day);
+      }
+    }
+    return DateTime.tryParse(raw);
   }
 
   Future<void> _save() async {

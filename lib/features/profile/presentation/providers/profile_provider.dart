@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../../core/cache/cache_helper.dart';
+import '../../../../core/cache/cache_keys.dart';
 import '../../../../core/services/services_locator.dart';
 import '../../data/models/profile_model.dart';
 import '../../data/services/customer_service.dart';
@@ -17,11 +18,17 @@ class ProfileProvider extends ChangeNotifier {
     error = null;
     notifyListeners();
 
+    _applyCachedProfile();
+
     try {
       final data = await _customerService.getProfile();
-      profile = ProfileModel.fromJson(data);
+      final remote = ProfileModel.fromJson(data);
+      profile = _mergeWithCached(remote);
+      await _cacheProfile(profile!);
     } catch (e) {
-      error = 'حدث خطأ في تحميل البيانات';
+      if (profile == null) {
+        error = 'حدث خطأ في تحميل البيانات';
+      }
     } finally {
       isLoading = false;
       notifyListeners();
@@ -55,15 +62,22 @@ class ProfileProvider extends ChangeNotifier {
         streetAddress: streetAddress,
       );
 
-      if (profile != null) {
-        profile = profile!.copyWith(
-          name: legalName,
-          phone: mobileNumber,
-          address: '$streetAddress، $city، $governorate',
-          birthDate:
-              '${dateOfBirth.day}/${dateOfBirth.month}/${dateOfBirth.year}',
-        );
+      if (profile == null) {
+        _applyCachedProfile();
       }
+      final base = profile ?? ProfileModel(name: legalName, email: '');
+      profile = base.copyWith(
+        name: legalName,
+        phone: mobileNumber,
+        nationalId: nationalIdNumber,
+        address: '$streetAddress، $city، $governorate',
+        birthDate:
+            '${dateOfBirth.day}/${dateOfBirth.month}/${dateOfBirth.year}',
+        governorate: governorate,
+        city: city,
+        streetAddress: streetAddress,
+      );
+      await _cacheProfile(profile!);
       return true;
     } catch (e) {
       error = 'فشل حفظ التعديلات';
@@ -84,6 +98,84 @@ class ProfileProvider extends ChangeNotifier {
     } catch (e) {
       error = 'فشل تسجيل الخروج';
       notifyListeners();
+    }
+  }
+
+  /// Loads locally persisted profile fields so data survives across launches.
+  void _applyCachedProfile() {
+    final cache = getIt<CacheHelper>();
+    final email = cache.getString(key: CacheKeys.email);
+    final name = cache.getString(key: CacheKeys.legalName);
+    final phone = cache.getString(key: CacheKeys.phone);
+    final nationalId = cache.getString(key: CacheKeys.nationalId);
+    final birthDate = cache.getString(key: CacheKeys.birthDate);
+    final governorate = cache.getString(key: CacheKeys.governorate);
+    final city = cache.getString(key: CacheKeys.city);
+    final street = cache.getString(key: CacheKeys.streetAddress);
+
+    if (email == null && name == null && phone == null && nationalId == null) {
+      return;
+    }
+
+    profile = ProfileModel(
+      name: name ?? '',
+      email: email ?? '',
+      phone: phone,
+      nationalId: nationalId,
+      birthDate: birthDate,
+      governorate: governorate,
+      city: city,
+      streetAddress: street,
+    );
+  }
+
+  /// Merges the API profile with locally cached fields, keeping cached values
+  /// for fields the API does not return.
+  ProfileModel _mergeWithCached(ProfileModel remote) {
+    final cached = profile;
+    if (cached == null) return remote;
+    return ProfileModel(
+      name: remote.name.isNotEmpty ? remote.name : cached.name,
+      email: remote.email.isNotEmpty ? remote.email : cached.email,
+      phone: remote.phone ?? cached.phone,
+      avatarUrl: remote.avatarUrl,
+      kycStatus: remote.kycStatus,
+      address: remote.address,
+      birthDate: remote.birthDate ?? cached.birthDate,
+      nationalId: cached.nationalId,
+      governorate: cached.governorate,
+      city: cached.city,
+      streetAddress: cached.streetAddress,
+    );
+  }
+
+  Future<void> _cacheProfile(ProfileModel value) async {
+    final cache = getIt<CacheHelper>();
+    await cache.saveData(key: CacheKeys.email, value: value.email);
+    await cache.saveData(key: CacheKeys.legalName, value: value.name);
+    if (value.phone != null) {
+      await cache.saveData(key: CacheKeys.phone, value: value.phone!);
+    }
+    if (value.nationalId != null) {
+      await cache.saveData(key: CacheKeys.nationalId, value: value.nationalId!);
+    }
+    if (value.birthDate != null) {
+      await cache.saveData(key: CacheKeys.birthDate, value: value.birthDate!);
+    }
+    if (value.governorate != null) {
+      await cache.saveData(
+        key: CacheKeys.governorate,
+        value: value.governorate!,
+      );
+    }
+    if (value.city != null) {
+      await cache.saveData(key: CacheKeys.city, value: value.city!);
+    }
+    if (value.streetAddress != null) {
+      await cache.saveData(
+        key: CacheKeys.streetAddress,
+        value: value.streetAddress!,
+      );
     }
   }
 }

@@ -6,6 +6,10 @@ class ProfileModel {
   final String? kycStatus;
   final String? address;
   final String? birthDate;
+  final String? nationalId;
+  final String? governorate;
+  final String? city;
+  final String? streetAddress;
 
   ProfileModel({
     required this.name,
@@ -15,6 +19,10 @@ class ProfileModel {
     this.kycStatus,
     this.address,
     this.birthDate,
+    this.nationalId,
+    this.governorate,
+    this.city,
+    this.streetAddress,
   });
 
   factory ProfileModel.fromJson(Map<String, dynamic> json) {
@@ -34,6 +42,10 @@ class ProfileModel {
     String? phone,
     String? address,
     String? birthDate,
+    String? nationalId,
+    String? governorate,
+    String? city,
+    String? streetAddress,
   }) {
     return ProfileModel(
       name: name ?? this.name,
@@ -43,6 +55,10 @@ class ProfileModel {
       kycStatus: kycStatus,
       address: address ?? this.address,
       birthDate: birthDate ?? this.birthDate,
+      nationalId: nationalId ?? this.nationalId,
+      governorate: governorate ?? this.governorate,
+      city: city ?? this.city,
+      streetAddress: streetAddress ?? this.streetAddress,
     );
   }
 }

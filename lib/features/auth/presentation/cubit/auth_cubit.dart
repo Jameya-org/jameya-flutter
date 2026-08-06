@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/cache/cache_helper.dart';
+import '../../../../core/cache/cache_keys.dart';
 import '../../../../core/network/dio_helper.dart';
 import '../../../../core/services/services_locator.dart';
 import '../../data/models/request_otp_model.dart';
@@ -58,6 +59,11 @@ class AuthCubit extends Cubit<AuthState> {
         }
         getIt<DioHelper>().setToken(accessToken);
       }
+
+      await getIt<CacheHelper>().saveData(
+        key: CacheKeys.email,
+        value: email,
+      );
 
       emit(VerifyOtpSuccess());
     } on DioException catch (e) {

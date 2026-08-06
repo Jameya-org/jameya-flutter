@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/cache/cache_helper.dart';
+import '../../../../core/cache/cache_keys.dart';
 import '../../../../core/routing/routes.dart';
 import '../../../../core/services/services_locator.dart';
 import '../../data/services/auth_service.dart';
@@ -174,13 +176,29 @@ class _CreateAccountViewState extends State<CreateAccountView> {
 
   Future<void> _register() async {
     try {
+      final mobileNumber = '$countryCode${phoneController.text}';
+      final legalName = '${firstNameController.text} ${lastNameController.text}';
+
       await getIt<AuthService>().completeProfile(
         firstName: firstNameController.text,
         lastName: lastNameController.text,
         nationalId: nationalIdController.text,
         dateOfBirth: birthDateController.text,
-        mobileNumber: '$countryCode${phoneController.text}',
+        mobileNumber: mobileNumber,
       );
+
+      final cache = getIt<CacheHelper>();
+      await cache.saveData(key: CacheKeys.legalName, value: legalName);
+      await cache.saveData(key: CacheKeys.phone, value: mobileNumber);
+      await cache.saveData(
+        key: CacheKeys.nationalId,
+        value: nationalIdController.text,
+      );
+      await cache.saveData(
+        key: CacheKeys.birthDate,
+        value: birthDateController.text,
+      );
+
       if (mounted) {
         context.go(AppRoutes.kProfileView);
       }
