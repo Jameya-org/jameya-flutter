@@ -68,12 +68,11 @@ class ProfileProvider extends ChangeNotifier {
       if (profile == null) {
         _applyCachedProfile();
       }
-      final base = profile ?? ProfileModel(name: legalName, email: '');
+      final base = profile ?? ProfileModel(legalName: legalName, email: '');
       profile = base.copyWith(
-        name: legalName,
-        phone: mobileNumber,
+        legalName: legalName,
+        mobileNumber: mobileNumber,
         nationalId: nationalIdNumber,
-        address: '$streetAddress، $city، $governorate',
         birthDate:
             '${dateOfBirth.day}/${dateOfBirth.month}/${dateOfBirth.year}',
         governorate: governorate,
@@ -120,7 +119,7 @@ class ProfileProvider extends ChangeNotifier {
   void _applyCachedProfile() {
     final cache = getIt<CacheHelper>();
     final email = cache.getString(key: CacheKeys.email);
-    final name = cache.getString(key: CacheKeys.legalName);
+    final legalName = cache.getString(key: CacheKeys.legalName);
     final phone = cache.getString(key: CacheKeys.phone);
     final nationalId = cache.getString(key: CacheKeys.nationalId);
     final birthDate = cache.getString(key: CacheKeys.birthDate);
@@ -128,14 +127,14 @@ class ProfileProvider extends ChangeNotifier {
     final city = cache.getString(key: CacheKeys.city);
     final street = cache.getString(key: CacheKeys.streetAddress);
 
-    if (email == null && name == null && phone == null && nationalId == null) {
+    if (email == null && legalName == null && phone == null && nationalId == null) {
       return;
     }
 
     profile = ProfileModel(
-      name: name ?? '',
+      legalName: legalName ?? '',
       email: email ?? '',
-      phone: phone,
+      mobileNumber: phone ?? '',
       nationalId: nationalId,
       birthDate: birthDate,
       governorate: governorate,
@@ -150,14 +149,19 @@ class ProfileProvider extends ChangeNotifier {
     final cached = profile;
     if (cached == null) return remote;
     return ProfileModel(
-      name: remote.name.isNotEmpty ? remote.name : cached.name,
+      id: remote.id.isNotEmpty ? remote.id : cached.id,
+      legalName:
+          remote.legalName.isNotEmpty ? remote.legalName : cached.legalName,
       email: remote.email.isNotEmpty ? remote.email : cached.email,
-      phone: remote.phone ?? cached.phone,
-      avatarUrl: remote.avatarUrl,
+      mobileNumber: remote.mobileNumber.isNotEmpty
+          ? remote.mobileNumber
+          : cached.mobileNumber,
+      status: remote.status,
+      locale: remote.locale,
+      createdAt: remote.createdAt,
       kycStatus: remote.kycStatus,
-      address: remote.address,
-      birthDate: remote.birthDate ?? cached.birthDate,
       nationalId: cached.nationalId,
+      birthDate: cached.birthDate,
       governorate: cached.governorate,
       city: cached.city,
       streetAddress: cached.streetAddress,
@@ -167,9 +171,9 @@ class ProfileProvider extends ChangeNotifier {
   Future<void> _cacheProfile(ProfileModel value) async {
     final cache = getIt<CacheHelper>();
     await cache.saveData(key: CacheKeys.email, value: value.email);
-    await cache.saveData(key: CacheKeys.legalName, value: value.name);
-    if (value.phone != null) {
-      await cache.saveData(key: CacheKeys.phone, value: value.phone!);
+    await cache.saveData(key: CacheKeys.legalName, value: value.legalName);
+    if (value.mobileNumber.isNotEmpty) {
+      await cache.saveData(key: CacheKeys.phone, value: value.mobileNumber);
     }
     if (value.nationalId != null) {
       await cache.saveData(key: CacheKeys.nationalId, value: value.nationalId!);

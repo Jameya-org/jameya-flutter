@@ -2,8 +2,8 @@ import 'package:dio/dio.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/cache/cache_helper.dart';
+import '../../../../core/cache/cache_key.dart';
 import '../../../../core/cache/cache_keys.dart';
-import '../../../../core/network/dio_helper.dart';
 import '../../../../core/services/services_locator.dart';
 import '../../data/models/request_otp_model.dart';
 import '../../data/models/verify_otp_model.dart';
@@ -43,24 +43,34 @@ class AuthCubit extends Cubit<AuthState> {
         VerifyOtpModel(email: email, otp: otp),
       );
 
-      final accessToken = response.data['accessToken'] as String?;
-      final refreshToken = response.data['refreshToken'] as String?;
+      final accessToken = (response.data['accessToken'] ?? response.data['access_token'])?.toString();
+      final refreshToken = (response.data['refreshToken'] ?? response.data['refresh_token'])?.toString();
 
-      if (accessToken != null) {
-        await getIt<CacheHelper>().saveData(
-          key: 'accessToken',
+      final cache = getIt<CacheHelper>();
+
+      if (accessToken != null && accessToken.isNotEmpty) {
+        await cache.saveData(
+          key: CacheKey.accessToken,
           value: accessToken,
         );
-        if (refreshToken != null) {
-          await getIt<CacheHelper>().saveData(
-            key: 'refreshToken',
-            value: refreshToken,
-          );
-        }
-        getIt<DioHelper>().setToken(accessToken);
+        await cache.saveSecureData(
+          key: CacheKey.accessToken,
+          value: accessToken,
+        );
       }
 
-      await getIt<CacheHelper>().saveData(
+      if (refreshToken != null && refreshToken.isNotEmpty) {
+        await cache.saveData(
+          key: CacheKey.refreshToken,
+          value: refreshToken,
+        );
+        await cache.saveSecureData(
+          key: CacheKey.refreshToken,
+          value: refreshToken,
+        );
+      }
+
+      await cache.saveData(
         key: CacheKeys.email,
         value: email,
       );
@@ -72,6 +82,8 @@ class AuthCubit extends Cubit<AuthState> {
           e.response?.data['message'] ?? 'حدث خطأ',
         ),
       );
+    } catch (e) {
+      emit(VerifyOtpFailure(e.toString()));
     }
   }
 }

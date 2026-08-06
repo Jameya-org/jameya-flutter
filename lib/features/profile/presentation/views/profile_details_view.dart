@@ -28,9 +28,9 @@ class _ProfileDetailsViewState extends State<ProfileDetailsView> {
   void initState() {
     super.initState();
     final profile = context.read<ProfileProvider>().profile;
-    _nameController = TextEditingController(text: profile?.name ?? '');
+    _nameController = TextEditingController(text: profile?.legalName ?? '');
     _emailController = TextEditingController(text: profile?.email ?? '');
-    _phoneController = TextEditingController(text: profile?.phone ?? '');
+    _phoneController = TextEditingController(text: profile?.mobileNumber ?? '');
     _nationalIdController = TextEditingController(
       text: profile?.nationalId ?? '',
     );
@@ -180,25 +180,20 @@ class _ProfileDetailsViewState extends State<ProfileDetailsView> {
                         CircleAvatar(
                           radius: 52,
                           backgroundColor: Colors.grey.shade200,
-                          backgroundImage: profile?.avatarUrl != null
-                              ? NetworkImage(profile!.avatarUrl!)
-                              : null,
-                          child: profile?.avatarUrl == null
-                              ? Text(
-                                  (profile?.name.isNotEmpty ?? false)
-                                      ? profile!.name[0].toUpperCase()
-                                      : '؟',
-                                  style: const TextStyle(
-                                    fontSize: 36,
-                                    fontWeight: FontWeight.bold,
-                                    color: Color(0xFF1A7A6E),
-                                  ),
-                                )
-                              : null,
+                          child: Text(
+                            (profile?.legalName.isNotEmpty ?? false)
+                                ? profile!.legalName[0].toUpperCase()
+                                : '؟',
+                            style: const TextStyle(
+                              fontSize: 36,
+                              fontWeight: FontWeight.bold,
+                              color: Color(0xFF1A7A6E),
+                            ),
+                          ),
                         ),
                         const SizedBox(height: 12),
                         Text(
-                          profile?.name ?? '',
+                          profile?.legalName ?? '',
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(

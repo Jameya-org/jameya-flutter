@@ -1,9 +1,12 @@
 import 'package:dio/dio.dart';
 
+import '../cache/cache_helper.dart';
+import 'app_interceptor.dart';
+
 class DioHelper {
   late Dio dio;
 
-  DioHelper() {
+  DioHelper(CacheHelper cacheHelper) {
     dio = Dio(
       BaseOptions(
         baseUrl: 'https://jameya-backend.onrender.com',
@@ -15,8 +18,9 @@ class DioHelper {
         },
       ),
     );
-  }
-  void setToken(String token) {
-    dio.options.headers['Authorization'] = 'Bearer $token';
+
+    // Attach the single interceptor that handles both auth injection
+    // and structured request / response / error logging.
+    dio.interceptors.add(AppInterceptor(cacheHelper));
   }
 }

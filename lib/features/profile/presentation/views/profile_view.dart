@@ -6,7 +6,6 @@ import '../../../../core/routing/routes.dart';
 import '../providers/profile_provider.dart';
 import '../widgets/logout_button.dart';
 import '../widgets/profile_header.dart';
-import '../widgets/profile_nav_item.dart';
 import '../widgets/settings_tile.dart';
 
 class ProfileView extends StatefulWidget {
@@ -160,54 +159,6 @@ class _ProfileViewState extends State<ProfileView> {
               ),
             );
           },
-        ),
-        bottomNavigationBar: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                blurRadius: 8,
-                offset: const Offset(0, -2),
-              ),
-            ],
-          ),
-          child: SafeArea(
-            child: Row(
-              textDirection: TextDirection.ltr,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: const [
-                Expanded(
-                  child: ProfileNavItem(
-                    icon: Icons.person,
-                    label: 'حسابي',
-                    selected: true,
-                  ),
-                ),
-                Expanded(
-                  child: ProfileNavItem(
-                    icon: Icons.payments_outlined,
-                    label: 'سجل التعاملات',
-                    selected: false,
-                  ),
-                ),
-                Expanded(
-                  child: ProfileNavItem(
-                    icon: Icons.sync,
-                    label: 'جمعياتي',
-                    selected: false,
-                  ),
-                ),
-                Expanded(
-                  child: ProfileNavItem(
-                    icon: Icons.home_outlined,
-                    label: 'الرئيسية',
-                    selected: false,
-                  ),
-                ),
-              ],
-            ),
-          ),
         ),
       ),
     );
