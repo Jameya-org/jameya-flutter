@@ -21,11 +21,7 @@ class _ProgressViewState extends State<ProgressView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<CirclesCubit>().loadMyCircles();
-      }
-    });
+    context.read<CirclesCubit>().loadMyCircles();
   }
 
   Future<void> _onRefresh() async {
@@ -74,8 +70,13 @@ class _ProgressViewState extends State<ProgressView> {
               // Body
               Expanded(
                 child: BlocBuilder<CirclesCubit, CirclesState>(
-                  builder: (context, state) {
-                    if (state is CirclesLoading) {
+                  builder: (context, circlesState) {
+                    final cubit = context.read<CirclesCubit>();
+                    final circles = (circlesState is MyCirclesSuccess)
+                        ? circlesState.circles
+                        : cubit.myCircles;
+
+                    if (circlesState is MyCirclesLoading && circles.isEmpty) {
                       return const Center(
                         child: CircularProgressIndicator(
                           color: AppColors.primary,
@@ -83,13 +84,13 @@ class _ProgressViewState extends State<ProgressView> {
                       );
                     }
 
-                    if (state is CirclesFailure) {
+                    if (circlesState is CirclesFailure && circles.isEmpty) {
                       return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              state.message,
+                              circlesState.message,
                               style: AppTextStyles.body.copyWith(
                                 color: AppColors.error,
                               ),
@@ -116,40 +117,35 @@ class _ProgressViewState extends State<ProgressView> {
                       );
                     }
 
-                    if (state is CirclesSuccess) {
-                      if (state.circles.isEmpty) {
-                        return Center(
-                          child: Text(
-                            'لا توجد جمعيات',
-                            style: AppTextStyles.body.copyWith(
-                              color: AppColors.textHint,
-                            ),
+                    if (circles.isEmpty) {
+                      return Center(
+                        child: Text(
+                          'لا توجد جمعيات',
+                          style: AppTextStyles.body.copyWith(
+                            color: AppColors.textHint,
                           ),
-                        );
-                      }
-
-                      return RefreshIndicator(
-                        color: AppColors.primary,
-                        onRefresh: _onRefresh,
-                        child: ListView.separated(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 20.w,
-                            vertical: 8.h,
-                          ),
-                          itemCount: state.circles.length,
-                          separatorBuilder: (_, _) =>
-                              SizedBox(height: 12.h),
-                          itemBuilder: (context, index) {
-                            return CircleProgressCard(
-                              circle: state.circles[index],
-                            );
-                          },
                         ),
                       );
                     }
 
-                    return const SizedBox.shrink();
+                    return RefreshIndicator(
+                      color: AppColors.primary,
+                      onRefresh: _onRefresh,
+                      child: ListView.separated(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 20.w,
+                          vertical: 8.h,
+                        ),
+                        itemCount: circles.length,
+                        separatorBuilder: (_, _) => SizedBox(height: 12.h),
+                        itemBuilder: (context, index) {
+                          return CircleProgressCard(
+                            circle: circles[index],
+                          );
+                        },
+                      ),
+                    );
                   },
                 ),
               ),

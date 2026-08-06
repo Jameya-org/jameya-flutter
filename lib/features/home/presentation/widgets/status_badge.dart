@@ -9,6 +9,7 @@ import '../../../../core/utils/app_text_styles.dart';
 /// Supported statuses:
 ///  - "ACTIVE"   → teal background, "نشطة"
 ///  - "FINISHED" → outlined, "منتهية"
+///  - "UPCOMING" → light teal background + green dot, "متاح الانضمام"
 ///  - "OPEN"     → light teal background + green dot, "متاح الانضمام"
 class StatusBadge extends StatelessWidget {
   final String status;
@@ -26,6 +27,7 @@ class StatusBadge extends StatelessWidget {
         );
       case 'FINISHED':
         return _buildOutlinedBadge(label: 'منتهية');
+      case 'UPCOMING':
       case 'OPEN':
       default:
         return _buildDotBadge(label: 'متاح الانضمام');

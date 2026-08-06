@@ -11,7 +11,6 @@ import '../../../../core/utils/assets.dart';
 import '../cubit/circles_cubit.dart';
 import '../cubit/circles_state.dart';
 import '../cubit/home_cubit.dart';
-import '../cubit/home_state.dart';
 import '../widgets/circle_card.dart';
 import '../widgets/empty_circle_card.dart';
 import '../widgets/section_header.dart';
@@ -51,137 +50,99 @@ class _HomeViewState extends State<HomeView> {
               // ── Fixed greeting header ──
               const _HomeGreetingHeader(),
 
-              // ── Scrollable body ──
+              // ── Scrollable body (always mounted so BlocBuilders listen live) ──
               Expanded(
-                child: BlocBuilder<HomeCubit, HomeState>(
-                  builder: (context, state) {
-                    if (state is HomeLoading) {
-                      return const Center(
-                        child: CircularProgressIndicator(
-                          color: AppColors.primary,
-                        ),
-                      );
-                    }
+                child: RefreshIndicator(
+                  color: AppColors.primary,
+                  onRefresh: _onRefresh,
+                  child: SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: EdgeInsets.symmetric(horizontal: 20.w),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        SizedBox(height: 12.h),
 
-                    if (state is HomeFailure) {
-                      return Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              state.message,
-                              style: AppTextStyles.body.copyWith(
-                                color: AppColors.error,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                            SizedBox(height: 16.h),
-                            ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: AppColors.primary,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12.r),
+                        // "ابدأ أول جمعية لك" card — always visible
+                        EmptyCircleCard(
+                          onBrowseCircles: () => context
+                              .push(AppRoutes.kAvailableCirclesView),
+                        ),
+
+                        SizedBox(height: 32.h),
+
+                        // Section header
+                        SectionHeader(
+                          title: 'الجمعيات المتاحة',
+                          actionLabel: 'عرض المزيد',
+                          onActionTap: () => context
+                              .push(AppRoutes.kAvailableCirclesView),
+                        ),
+
+                        SizedBox(height: 14.h),
+
+                        // Inline available circles from CirclesCubit — ONLY reads availableCircles!
+                        BlocBuilder<CirclesCubit, CirclesState>(
+                          builder: (context, circlesState) {
+                            final cubit = context.read<CirclesCubit>();
+                            final circles =
+                                (circlesState is AvailableCirclesSuccess)
+                                    ? circlesState.circles
+                                    : cubit.availableCircles;
+
+                            if (circlesState is AvailableCirclesLoading &&
+                                circles.isEmpty) {
+                              return Padding(
+                                padding:
+                                    EdgeInsets.symmetric(vertical: 24.h),
+                                child: const Center(
+                                  child: CircularProgressIndicator(
+                                    color: AppColors.primary,
+                                  ),
                                 ),
-                              ),
-                              onPressed: _onRefresh,
-                              child: Text(
-                                'إعادة المحاولة',
-                                style: AppTextStyles.bodySmall.copyWith(
-                                  color: Colors.white,
+                              );
+                            }
+
+                            if (circles.isNotEmpty) {
+                              final preview = circles.take(5).toList();
+                              return Column(
+                                children: List.generate(
+                                  preview.length,
+                                  (i) => Padding(
+                                    padding: EdgeInsets.only(
+                                      bottom: i < preview.length - 1
+                                          ? 12.h
+                                          : 0,
+                                    ),
+                                    child: CircleCard(circle: preview[i]),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ],
+                              );
+                            }
+
+                            if (circlesState is CirclesFailure &&
+                                circles.isEmpty) {
+                              return Padding(
+                                padding:
+                                    EdgeInsets.symmetric(vertical: 16.h),
+                                child: Text(
+                                  circlesState.message,
+                                  style: AppTextStyles.body.copyWith(
+                                    color: AppColors.error,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              );
+                            }
+
+                            return const SizedBox.shrink();
+                          },
                         ),
-                      );
-                    }
 
-                    if (state is HomeSuccess) {
-                      return RefreshIndicator(
-                        color: AppColors.primary,
-                        onRefresh: _onRefresh,
-                        child: SingleChildScrollView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          padding: EdgeInsets.symmetric(horizontal: 20.w),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              SizedBox(height: 12.h),
-
-                              // "ابدأ أول جمعية لك" card — always visible
-                              EmptyCircleCard(
-                                onBrowseCircles: () => context
-                                    .push(AppRoutes.kAvailableCirclesView),
-                              ),
-
-                              SizedBox(height: 32.h),
-
-                              // Section header
-                              SectionHeader(
-                                title: 'الجمعيات المتاحة',
-                                actionLabel: 'عرض المزيد',
-                                onActionTap: () => context
-                                    .push(AppRoutes.kAvailableCirclesView),
-                              ),
-
-                              SizedBox(height: 14.h),
-
-                              // Inline available circles from CirclesCubit
-                              BlocBuilder<CirclesCubit, CirclesState>(
-                                builder: (context, circlesState) {
-                                  final cubit = context.read<CirclesCubit>();
-                                  final circles =
-                                      (circlesState is AvailableCirclesSuccess)
-                                          ? circlesState.circles
-                                          : (circlesState is CirclesSuccess)
-                                              ? circlesState.circles
-                                              : cubit.availableCircles;
-
-                                  if (circlesState is CirclesLoading &&
-                                      circles.isEmpty) {
-                                    return Padding(
-                                      padding:
-                                          EdgeInsets.symmetric(vertical: 24.h),
-                                      child: const Center(
-                                        child: CircularProgressIndicator(
-                                          color: AppColors.primary,
-                                        ),
-                                      ),
-                                    );
-                                  }
-
-                                  if (circles.isNotEmpty) {
-                                    final preview =
-                                        circles.take(5).toList();
-                                    return Column(
-                                      children: List.generate(
-                                        preview.length,
-                                        (i) => Padding(
-                                          padding: EdgeInsets.only(
-                                            bottom: i < preview.length - 1
-                                                ? 12.h
-                                                : 0,
-                                          ),
-                                          child:
-                                              CircleCard(circle: preview[i]),
-                                        ),
-                                      ),
-                                    );
-                                  }
-
-                                  return const SizedBox.shrink();
-                                },
-                              ),
-
-                              SizedBox(height: 32.h),
-                            ],
-                          ),
-                        ),
-                      );
-                    }
-
-                    return const SizedBox.shrink();
-                  },
+                        SizedBox(height: 32.h),
+                      ],
+                    ),
+                  ),
                 ),
               ),
             ],

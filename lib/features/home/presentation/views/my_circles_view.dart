@@ -25,11 +25,6 @@ class _MyCirclesViewState extends State<MyCirclesView>
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this, initialIndex: 0);
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<CirclesCubit>().loadMyCircles();
-      }
-    });
   }
 
   @override
@@ -119,8 +114,13 @@ class _MyCirclesViewState extends State<MyCirclesView>
               // Tab views
               Expanded(
                 child: BlocBuilder<CirclesCubit, CirclesState>(
-                  builder: (context, state) {
-                    if (state is CirclesLoading) {
+                  builder: (context, circlesState) {
+                    final cubit = context.read<CirclesCubit>();
+                    final circles = (circlesState is MyCirclesSuccess)
+                        ? circlesState.circles
+                        : cubit.myCircles;
+
+                    if (circlesState is MyCirclesLoading && circles.isEmpty) {
                       return const Center(
                         child: CircularProgressIndicator(
                           color: AppColors.primary,
@@ -128,13 +128,13 @@ class _MyCirclesViewState extends State<MyCirclesView>
                       );
                     }
 
-                    if (state is CirclesFailure) {
+                    if (circlesState is CirclesFailure && circles.isEmpty) {
                       return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              state.message,
+                              circlesState.message,
                               style: AppTextStyles.body.copyWith(
                                 color: AppColors.error,
                               ),
@@ -161,93 +161,89 @@ class _MyCirclesViewState extends State<MyCirclesView>
                       );
                     }
 
-                    if (state is CirclesSuccess) {
-                      final active = state.circles
-                          .where((c) => c.status.toUpperCase() == 'ACTIVE')
-                          .toList();
-                      final finished = state.circles
-                          .where(
-                            (c) => c.status.toUpperCase() == 'FINISHED',
-                          )
-                          .toList();
+                    final active = circles
+                        .where((c) => c.status.toUpperCase() == 'ACTIVE')
+                        .toList();
+                    final finished = circles
+                        .where(
+                          (c) => c.status.toUpperCase() == 'FINISHED',
+                        )
+                        .toList();
 
-                      return TabBarView(
-                        controller: _tabController,
-                        children: [
-                          // Tab 1: Active / Available
-                          RefreshIndicator(
-                            color: AppColors.primary,
-                            onRefresh: _onRefresh,
-                            child: active.isEmpty
-                                ? ListView(
-                                    physics:
-                                        const AlwaysScrollableScrollPhysics(),
-                                    children: [
-                                      SizedBox(height: 80.h),
-                                      Center(
-                                        child: Text(
-                                          'لا توجد جمعيات نشطة',
-                                          style: AppTextStyles.body.copyWith(
-                                            color: AppColors.textHint,
-                                          ),
+                    return TabBarView(
+                      controller: _tabController,
+                      children: [
+                        // Tab 1: Active / Available
+                        RefreshIndicator(
+                          color: AppColors.primary,
+                          onRefresh: _onRefresh,
+                          child: active.isEmpty
+                              ? ListView(
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  children: [
+                                    SizedBox(height: 80.h),
+                                    Center(
+                                      child: Text(
+                                        'لا توجد جمعيات نشطة',
+                                        style: AppTextStyles.body.copyWith(
+                                          color: AppColors.textHint,
                                         ),
                                       ),
-                                    ],
-                                  )
-                                : ListView.separated(
-                                    physics:
-                                        const AlwaysScrollableScrollPhysics(),
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 20.w,
-                                      vertical: 4.h,
                                     ),
-                                    itemCount: active.length,
-                                    separatorBuilder: (_, _) =>
-                                        SizedBox(height: 12.h),
-                                    itemBuilder: (context, index) =>
-                                        CircleCard(circle: active[index]),
+                                  ],
+                                )
+                              : ListView.separated(
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 20.w,
+                                    vertical: 4.h,
                                   ),
-                          ),
+                                  itemCount: active.length,
+                                  separatorBuilder: (_, _) =>
+                                      SizedBox(height: 12.h),
+                                  itemBuilder: (context, index) =>
+                                      CircleCard(circle: active[index]),
+                                ),
+                        ),
 
-                          // Tab 2: Finished
-                          RefreshIndicator(
-                            color: AppColors.primary,
-                            onRefresh: _onRefresh,
-                            child: finished.isEmpty
-                                ? ListView(
-                                    physics:
-                                        const AlwaysScrollableScrollPhysics(),
-                                    children: [
-                                      SizedBox(height: 80.h),
-                                      Center(
-                                        child: Text(
-                                          'لا توجد جمعيات منتهية',
-                                          style: AppTextStyles.body.copyWith(
-                                            color: AppColors.textHint,
-                                          ),
+                        // Tab 2: Finished
+                        RefreshIndicator(
+                          color: AppColors.primary,
+                          onRefresh: _onRefresh,
+                          child: finished.isEmpty
+                              ? ListView(
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  children: [
+                                    SizedBox(height: 80.h),
+                                    Center(
+                                      child: Text(
+                                        'لا توجد جمعيات منتهية',
+                                        style: AppTextStyles.body.copyWith(
+                                          color: AppColors.textHint,
                                         ),
                                       ),
-                                    ],
-                                  )
-                                : ListView.separated(
-                                    physics:
-                                        const AlwaysScrollableScrollPhysics(),
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 20.w,
-                                      vertical: 4.h,
                                     ),
-                                    itemCount: finished.length,
-                                    separatorBuilder: (_, _) =>
-                                        SizedBox(height: 12.h),
-                                    itemBuilder: (context, index) =>
-                                        CircleCard(circle: finished[index]),
+                                  ],
+                                )
+                              : ListView.separated(
+                                  physics:
+                                      const AlwaysScrollableScrollPhysics(),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 20.w,
+                                    vertical: 4.h,
                                   ),
-                          ),
-                        ],
-                      );
-                    }
-
-                    return const SizedBox.shrink();
+                                  itemCount: finished.length,
+                                  separatorBuilder: (_, _) =>
+                                      SizedBox(height: 12.h),
+                                  itemBuilder: (context, index) =>
+                                      CircleCard(circle: finished[index]),
+                                ),
+                        ),
+                      ],
+                    );
                   },
                 ),
               ),

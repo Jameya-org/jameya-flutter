@@ -21,11 +21,7 @@ class _AvailableCirclesViewState extends State<AvailableCirclesView> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) {
-        context.read<CirclesCubit>().loadAvailableCircles();
-      }
-    });
+    context.read<CirclesCubit>().loadAvailableCircles();
   }
 
   Future<void> _onRefresh() async {
@@ -73,8 +69,14 @@ class _AvailableCirclesViewState extends State<AvailableCirclesView> {
               // Body
               Expanded(
                 child: BlocBuilder<CirclesCubit, CirclesState>(
-                  builder: (context, state) {
-                    if (state is CirclesLoading) {
+                  builder: (context, circlesState) {
+                    final cubit = context.read<CirclesCubit>();
+                    final circles = (circlesState is AvailableCirclesSuccess)
+                        ? circlesState.circles
+                        : cubit.availableCircles;
+
+                    if (circlesState is AvailableCirclesLoading &&
+                        circles.isEmpty) {
                       return const Center(
                         child: CircularProgressIndicator(
                           color: AppColors.primary,
@@ -82,13 +84,13 @@ class _AvailableCirclesViewState extends State<AvailableCirclesView> {
                       );
                     }
 
-                    if (state is CirclesFailure) {
+                    if (circlesState is CirclesFailure && circles.isEmpty) {
                       return Center(
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
                             Text(
-                              state.message,
+                              circlesState.message,
                               style: AppTextStyles.body.copyWith(
                                 color: AppColors.error,
                               ),
@@ -115,18 +117,19 @@ class _AvailableCirclesViewState extends State<AvailableCirclesView> {
                       );
                     }
 
-                    if (state is CirclesSuccess) {
-                      if (state.circles.isEmpty) {
-                        return Center(
-                          child: Text(
-                            'لا توجد جمعيات متاحة',
-                            style: AppTextStyles.body.copyWith(
-                              color: AppColors.textHint,
-                            ),
+                    if (circles.isEmpty &&
+                        circlesState is AvailableCirclesSuccess) {
+                      return Center(
+                        child: Text(
+                          'لا توجد جمعيات متاحة',
+                          style: AppTextStyles.body.copyWith(
+                            color: AppColors.textHint,
                           ),
-                        );
-                      }
+                        ),
+                      );
+                    }
 
+                    if (circles.isNotEmpty) {
                       return RefreshIndicator(
                         color: AppColors.primary,
                         onRefresh: _onRefresh,
@@ -136,12 +139,11 @@ class _AvailableCirclesViewState extends State<AvailableCirclesView> {
                             horizontal: 20.w,
                             vertical: 8.h,
                           ),
-                          itemCount: state.circles.length,
-                          separatorBuilder: (_, _) =>
-                              SizedBox(height: 12.h),
+                          itemCount: circles.length,
+                          separatorBuilder: (_, _) => SizedBox(height: 12.h),
                           itemBuilder: (context, index) {
                             return CircleCard(
-                              circle: state.circles[index],
+                              circle: circles[index],
                             );
                           },
                         ),

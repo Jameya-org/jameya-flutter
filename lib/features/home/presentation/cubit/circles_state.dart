@@ -6,11 +6,9 @@ class CirclesInitial extends CirclesState {}
 
 class CirclesLoading extends CirclesState {}
 
-class CirclesSuccess extends CirclesState {
-  final List<CircleSummaryModel> circles;
+class AvailableCirclesLoading extends CirclesState {}
 
-  CirclesSuccess(this.circles);
-}
+class MyCirclesLoading extends CirclesState {}
 
 class AvailableCirclesSuccess extends CirclesState {
   final List<CircleSummaryModel> circles;
