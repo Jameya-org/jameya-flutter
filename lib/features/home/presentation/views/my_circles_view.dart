@@ -202,7 +202,7 @@ class _MyCirclesViewState extends State<MyCirclesView>
                                       vertical: 4.h,
                                     ),
                                     itemCount: active.length,
-                                    separatorBuilder: (_, __) =>
+                                    separatorBuilder: (_, _) =>
                                         SizedBox(height: 12.h),
                                     itemBuilder: (context, index) =>
                                         CircleCard(circle: active[index]),
@@ -237,7 +237,7 @@ class _MyCirclesViewState extends State<MyCirclesView>
                                       vertical: 4.h,
                                     ),
                                     itemCount: finished.length,
-                                    separatorBuilder: (_, __) =>
+                                    separatorBuilder: (_, _) =>
                                         SizedBox(height: 12.h),
                                     itemBuilder: (context, index) =>
                                         CircleCard(circle: finished[index]),

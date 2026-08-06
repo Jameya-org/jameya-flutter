@@ -137,7 +137,7 @@ class _AvailableCirclesViewState extends State<AvailableCirclesView> {
                             vertical: 8.h,
                           ),
                           itemCount: state.circles.length,
-                          separatorBuilder: (_, __) =>
+                          separatorBuilder: (_, _) =>
                               SizedBox(height: 12.h),
                           itemBuilder: (context, index) {
                             return CircleCard(

@@ -27,7 +27,6 @@ class ProgressDotsIndicator extends StatelessWidget {
           final turnNumber = index + 1;
           final isCompleted = turnNumber < currentTurn;
           final isCurrent = turnNumber == currentTurn;
-          final isRemaining = turnNumber > currentTurn;
 
           if (isCurrent) {
             return Expanded(

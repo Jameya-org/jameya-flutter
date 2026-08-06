@@ -1,7 +1,5 @@
 import 'package:dio/dio.dart';
 
-import '../models/home_dashboard_model.dart';
-
 class HomeService {
   final Dio dio;
 
