@@ -21,11 +21,12 @@ class LanguageButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         // Save the selected language then navigate forward
-        context.read<LocaleCubit>().changeLanguage(localeCode);
-
-        context.push(AppRoutes.kOnboardingView);
+        await context.read<LocaleCubit>().changeLanguage(localeCode);
+        if (context.mounted) {
+          context.push(AppRoutes.kOnboardingView);
+        }
       },
       child: Container(
         height: 52.h,

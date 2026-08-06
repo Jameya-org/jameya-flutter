@@ -1,14 +1,13 @@
 import 'package:dio/dio.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/cache/cache_helper.dart';
+import '../../../../core/cache/cache_keys.dart';
 import '../../../../core/network/dio_helper.dart';
 import '../../../../core/services/services_locator.dart';
-import '../../data/ models/request_otp_model.dart';
-import '../../data/ models/verify_otp_model.dart';
-import '../../data/ repos/auth_repo.dart';
-
+import '../../data/models/request_otp_model.dart';
+import '../../data/models/verify_otp_model.dart';
+import '../../data/repos/auth_repo.dart';
 import 'auth_state.dart';
 
 class AuthCubit extends Cubit<AuthState> {
@@ -16,44 +15,20 @@ class AuthCubit extends Cubit<AuthState> {
 
   final AuthRepo authRepo;
 
-  Future<void> requestOtp({
-    required String email,
-  }) async {
+  Future<void> requestOtp({required String email}) async {
     emit(RequestOtpLoading());
 
     try {
-      print('before api');
-
-      final response = await authRepo.requestOtp(
-        RequestOtpModel(
-          email: email,
-        ),
-      );
-
-      print('status code: ${response.statusCode}');
-      print('response: ${response.data}');
-
+      await authRepo.requestOtp(RequestOtpModel(email: email));
       emit(RequestOtpSuccess());
     } on DioException catch (e) {
-      print('TYPE: ${e.type}');
-      print('MESSAGE: ${e.message}');
-      print('STATUS: ${e.response?.statusCode}');
-      print('DATA: ${e.response?.data}');
-
       emit(
         RequestOtpFailure(
-          e.response?.data['message'] ??
-              e.message ??'حدث خطأ',
+          e.response?.data['message'] ?? e.message ?? 'حدث خطأ',
         ),
       );
     } catch (e) {
-      print(e);
-
-      emit(
-        RequestOtpFailure(
-          e.toString(),
-        ),
-      );
+      emit(RequestOtpFailure(e.toString()));
     }
   }
 
@@ -65,24 +40,29 @@ class AuthCubit extends Cubit<AuthState> {
 
     try {
       final response = await authRepo.verifyOtp(
-        VerifyOtpModel(
-          email: email,
-          otp: otp,
-        ),
+        VerifyOtpModel(email: email, otp: otp),
       );
 
-      print(response.data);
-      await getIt<CacheHelper>().saveData(
-        key: 'accessToken',
-        value: response.data['accessToken'],
-      );
+      final accessToken = response.data['accessToken'] as String?;
+      final refreshToken = response.data['refreshToken'] as String?;
+
+      if (accessToken != null) {
+        await getIt<CacheHelper>().saveData(
+          key: 'accessToken',
+          value: accessToken,
+        );
+        if (refreshToken != null) {
+          await getIt<CacheHelper>().saveData(
+            key: 'refreshToken',
+            value: refreshToken,
+          );
+        }
+        getIt<DioHelper>().setToken(accessToken);
+      }
 
       await getIt<CacheHelper>().saveData(
-        key: 'refreshToken',
-        value: response.data['refreshToken'],
-      );
-      getIt<DioHelper>().setToken(
-        response.data['accessToken'],
+        key: CacheKeys.email,
+        value: email,
       );
 
       emit(VerifyOtpSuccess());
