@@ -11,6 +11,7 @@ import '../../../../core/utils/assets.dart';
 import '../cubit/circles_cubit.dart';
 import '../cubit/circles_state.dart';
 import '../cubit/home_cubit.dart';
+import '../utils/join_circle_launcher.dart';
 import '../widgets/circle_card.dart';
 import '../widgets/empty_circle_card.dart';
 import '../widgets/section_header.dart';
@@ -114,7 +115,13 @@ class _HomeViewState extends State<HomeView> {
                                           ? 12.h
                                           : 0,
                                     ),
-                                    child: CircleCard(circle: preview[i]),
+                                    child: CircleCard(
+                                      circle: preview[i],
+                                      onTap: () => JoinCircleLauncher.startJoinFlow(
+                                        context,
+                                        circleId: preview[i].id,
+                                      ),
+                                    ),
                                   ),
                                 ),
                               );
