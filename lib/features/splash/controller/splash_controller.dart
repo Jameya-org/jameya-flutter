@@ -68,7 +68,7 @@ class SplashController extends ChangeNotifier {
         cache.getBool(key: CacheKey.onBoardingViewed) ?? false;
 
     if (hasToken) {
-      destinationRoute = AppRoutes.kProfileView;
+      destinationRoute = AppRoutes.kHomeView;
     } else if (onboardingSeen) {
       destinationRoute = AppRoutes.kEmailView;
     } else {

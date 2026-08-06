@@ -13,13 +13,10 @@ import '../../features/onboarding/presentation/views/onboarding_view.dart';
 import '../../features/payment/presentation/views/add_card_view.dart';
 import '../../features/payment/presentation/views/payment_methods_view.dart';
 import '../../features/profile/presentation/views/profile_details_view.dart';
-import '../../features/profile/presentation/views/profile_view.dart';
 import '../../features/splash/views/splash_view.dart';
-import '../../features/home/presentation/views/home_view.dart';
+import '../../features/home/presentation/views/main_layout_view.dart';
 import '../../features/home/presentation/views/progress_view.dart';
 import '../../features/home/presentation/views/available_circles_view.dart';
-import '../../features/home/presentation/views/my_circles_view.dart';
-import '../../features/home/presentation/cubit/home_cubit.dart';
 import '../../features/home/presentation/cubit/circles_cubit.dart';
 import '../services/services_locator.dart';
 
@@ -70,7 +67,7 @@ abstract final class AppRouter {
         pageBuilder: (context, state) {
           return SmartAnimateTransition.buildPage(
             state: state,
-            child: const ProfileView(),
+            child: const MainLayoutView(initialIndex: 3),
           );
         },
       ),
@@ -126,10 +123,7 @@ abstract final class AppRouter {
         pageBuilder: (context, state) {
           return SmartAnimateTransition.buildPage(
             state: state,
-            child: BlocProvider(
-              create: (_) => getIt<HomeCubit>(),
-              child: const HomeView(),
-            ),
+            child: const MainLayoutView(initialIndex: 0),
           );
         },
       ),
@@ -162,10 +156,7 @@ abstract final class AppRouter {
         pageBuilder: (context, state) {
           return SmartAnimateTransition.buildPage(
             state: state,
-            child: BlocProvider(
-              create: (_) => getIt<CirclesCubit>(),
-              child: const MyCirclesView(),
-            ),
+            child: const MainLayoutView(initialIndex: 1),
           );
         },
       ),
