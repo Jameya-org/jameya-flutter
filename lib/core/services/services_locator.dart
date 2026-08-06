@@ -10,6 +10,10 @@ import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/profile/data/services/customer_service.dart';
 import '../../features/payment/data/services/payment_service.dart';
 import '../../features/kyc/data/services/kyc_service.dart';
+import '../../features/home/data/services/home_service.dart';
+import '../../features/home/data/repos/home_repo.dart';
+import '../../features/home/presentation/cubit/home_cubit.dart';
+import '../../features/home/presentation/cubit/circles_cubit.dart';
 
 final getIt = GetIt.instance;
 
@@ -64,5 +68,22 @@ Future<void> setupServiceLocator() async {
   // KYC
   getIt.registerLazySingleton<KycService>(
     () => KycService(getIt<Dio>()),
+  );
+
+  // Home
+  getIt.registerLazySingleton<HomeService>(
+    () => HomeService(getIt<Dio>()),
+  );
+
+  getIt.registerLazySingleton<HomeRepo>(
+    () => HomeRepo(getIt<HomeService>()),
+  );
+
+  getIt.registerFactory<HomeCubit>(
+    () => HomeCubit(getIt<HomeRepo>()),
+  );
+
+  getIt.registerFactory<CirclesCubit>(
+    () => CirclesCubit(getIt<HomeRepo>()),
   );
 }

@@ -10,4 +10,10 @@ abstract final class AppRoutes {
   static const kAddCardView = '/add-card';
   static const kKycVerificationView = '/kyc-verification';
   static const kTermsAndConditionsView = '/terms';
+
+  // Home feature
+  static const kHomeView = '/home';
+  static const kProgressView = '/home/progress';
+  static const kAvailableCirclesView = '/home/circles';
+  static const kMyCirclesView = '/home/my-circles';
 }

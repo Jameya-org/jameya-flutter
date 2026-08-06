@@ -15,6 +15,13 @@ import '../../features/payment/presentation/views/payment_methods_view.dart';
 import '../../features/profile/presentation/views/profile_details_view.dart';
 import '../../features/profile/presentation/views/profile_view.dart';
 import '../../features/splash/views/splash_view.dart';
+import '../../features/home/presentation/views/home_view.dart';
+import '../../features/home/presentation/views/progress_view.dart';
+import '../../features/home/presentation/views/available_circles_view.dart';
+import '../../features/home/presentation/views/my_circles_view.dart';
+import '../../features/home/presentation/cubit/home_cubit.dart';
+import '../../features/home/presentation/cubit/circles_cubit.dart';
+import '../services/services_locator.dart';
 
 abstract final class AppRouter {
   static final router = GoRouter(
@@ -109,6 +116,56 @@ abstract final class AppRouter {
           return SmartAnimateTransition.buildPage(
             state: state,
             child: const TermsAndConditionsView(),
+          );
+        },
+      ),
+
+      // ── Home Feature ──────────────────────────────────
+      GoRoute(
+        path: AppRoutes.kHomeView,
+        pageBuilder: (context, state) {
+          return SmartAnimateTransition.buildPage(
+            state: state,
+            child: BlocProvider(
+              create: (_) => getIt<HomeCubit>(),
+              child: const HomeView(),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.kProgressView,
+        pageBuilder: (context, state) {
+          return SmartAnimateTransition.buildPage(
+            state: state,
+            child: BlocProvider(
+              create: (_) => getIt<CirclesCubit>(),
+              child: const ProgressView(),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.kAvailableCirclesView,
+        pageBuilder: (context, state) {
+          return SmartAnimateTransition.buildPage(
+            state: state,
+            child: BlocProvider(
+              create: (_) => getIt<CirclesCubit>(),
+              child: const AvailableCirclesView(),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.kMyCirclesView,
+        pageBuilder: (context, state) {
+          return SmartAnimateTransition.buildPage(
+            state: state,
+            child: BlocProvider(
+              create: (_) => getIt<CirclesCubit>(),
+              child: const MyCirclesView(),
+            ),
           );
         },
       ),
