@@ -18,6 +18,15 @@ import '../../features/home/presentation/views/main_layout_view.dart';
 import '../../features/home/presentation/views/progress_view.dart';
 import '../../features/home/presentation/views/available_circles_view.dart';
 import '../../features/home/presentation/cubit/circles_cubit.dart';
+import '../../features/home/presentation/cubit/join_circle_cubit.dart';
+import '../../features/home/presentation/views/join_circle/circle_detail_view.dart';
+import '../../features/home/presentation/views/join_circle/select_turn_view.dart';
+import '../../features/home/presentation/views/join_circle/payment_info_view.dart';
+import '../../features/home/presentation/views/join_circle/subscription_review_view.dart';
+import '../../features/home/presentation/views/join_circle/contract_review_view.dart';
+import '../../features/home/presentation/views/join_circle/otp_verification_view.dart';
+import '../../features/home/presentation/views/join_circle/join_success_view.dart';
+import '../../features/home/presentation/views/join_circle/eligibility_blocked_view.dart';
 import '../services/services_locator.dart';
 
 abstract final class AppRouter {
@@ -117,7 +126,7 @@ abstract final class AppRouter {
         },
       ),
 
-      // ── Home Feature ──────────────────────────────────
+      // ── Home Feature ──────────────────────────────────────────
       GoRoute(
         path: AppRoutes.kHomeView,
         pageBuilder: (context, state) {
@@ -157,6 +166,124 @@ abstract final class AppRouter {
           return SmartAnimateTransition.buildPage(
             state: state,
             child: const MainLayoutView(initialIndex: 1),
+          );
+        },
+      ),
+
+      // ── Join Circle Flow ──────────────────────────────────────
+      // Each screen receives the shared JoinCircleCubit via state.extra.
+      // The cubit is created once at the entry point (AvailableCirclesView)
+      // and passed forward — preserving all state across Back navigation.
+
+      GoRoute(
+        path: AppRoutes.kCircleDetailView,
+        pageBuilder: (context, state) {
+          final circleId = state.pathParameters['circleId']!;
+          final cubit = state.extra as JoinCircleCubit;
+          return SmartAnimateTransition.buildPage(
+            state: state,
+            child: BlocProvider.value(
+              value: cubit,
+              child: CircleDetailView(circleId: circleId),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.kSelectTurnView,
+        pageBuilder: (context, state) {
+          final circleId = state.pathParameters['circleId']!;
+          final cubit = state.extra as JoinCircleCubit;
+          return SmartAnimateTransition.buildPage(
+            state: state,
+            child: BlocProvider.value(
+              value: cubit,
+              child: SelectTurnView(circleId: circleId),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.kPaymentInfoView,
+        pageBuilder: (context, state) {
+          final circleId = state.pathParameters['circleId']!;
+          final cubit = state.extra as JoinCircleCubit;
+          return SmartAnimateTransition.buildPage(
+            state: state,
+            child: BlocProvider.value(
+              value: cubit,
+              child: PaymentInfoView(circleId: circleId),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.kSubscriptionReview,
+        pageBuilder: (context, state) {
+          final circleId = state.pathParameters['circleId']!;
+          final cubit = state.extra as JoinCircleCubit;
+          return SmartAnimateTransition.buildPage(
+            state: state,
+            child: BlocProvider.value(
+              value: cubit,
+              child: SubscriptionReviewView(circleId: circleId),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.kContractReview,
+        pageBuilder: (context, state) {
+          final circleId = state.pathParameters['circleId']!;
+          final cubit = state.extra as JoinCircleCubit;
+          return SmartAnimateTransition.buildPage(
+            state: state,
+            child: BlocProvider.value(
+              value: cubit,
+              child: ContractReviewView(circleId: circleId),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.kJoinOtpView,
+        pageBuilder: (context, state) {
+          final circleId = state.pathParameters['circleId']!;
+          final cubit = state.extra as JoinCircleCubit;
+          return SmartAnimateTransition.buildPage(
+            state: state,
+            child: BlocProvider.value(
+              value: cubit,
+              child: OtpVerificationView(circleId: circleId),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.kJoinSuccessView,
+        pageBuilder: (context, state) {
+          final circleId = state.pathParameters['circleId']!;
+          final cubit = state.extra as JoinCircleCubit;
+          return SmartAnimateTransition.buildPage(
+            state: state,
+            child: BlocProvider.value(
+              value: cubit,
+              child: JoinSuccessView(circleId: circleId),
+            ),
+          );
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.kEligibilityBlocked,
+        pageBuilder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>;
+          return SmartAnimateTransition.buildPage(
+            state: state,
+            child: EligibilityBlockedView(
+              reason: extra['reason'] as String? ?? '',
+              missingSteps:
+                  (extra['missingSteps'] as List?)?.cast<String>() ?? [],
+            ),
           );
         },
       ),

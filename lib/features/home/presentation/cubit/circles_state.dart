@@ -17,7 +17,7 @@ class AvailableCirclesSuccess extends CirclesState {
 }
 
 class MyCirclesSuccess extends CirclesState {
-  final List<CircleSummaryModel> circles;
+  final List<MyCircleModel> circles;
 
   MyCirclesSuccess(this.circles);
 }

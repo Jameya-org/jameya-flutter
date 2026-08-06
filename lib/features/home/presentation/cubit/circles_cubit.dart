@@ -12,7 +12,7 @@ class CirclesCubit extends Cubit<CirclesState> {
   final HomeRepo homeRepo;
 
   List<CircleSummaryModel> availableCircles = [];
-  List<CircleSummaryModel> myCircles = [];
+  List<MyCircleModel> myCircles = [];
 
   Future<void> loadMyCircles() async {
     debugPrint('[CirclesCubit] loadMyCircles starting...');

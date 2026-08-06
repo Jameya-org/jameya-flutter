@@ -3,10 +3,13 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/routing/routes.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/app_text_styles.dart';
+import '../../../../core/services/services_locator.dart';
 import '../cubit/circles_cubit.dart';
 import '../cubit/circles_state.dart';
+import '../cubit/join_circle_cubit.dart';
 import '../widgets/circle_card.dart';
 
 /// Case 4: Full page listing all available circles.
@@ -142,8 +145,16 @@ class _AvailableCirclesViewState extends State<AvailableCirclesView> {
                           itemCount: circles.length,
                           separatorBuilder: (_, _) => SizedBox(height: 12.h),
                           itemBuilder: (context, index) {
+                            final circle = circles[index];
                             return CircleCard(
-                              circle: circles[index],
+                              circle: circle,
+                              onTap: () {
+                                final cubit = getIt<JoinCircleCubit>();
+                                context.push(
+                                  AppRoutes.circleDetailPath(circle.id),
+                                  extra: cubit,
+                                );
+                              },
                             );
                           },
                         ),

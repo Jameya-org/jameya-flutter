@@ -1,6 +1,7 @@
 import 'package:flutter/foundation.dart';
 
 import '../models/home_dashboard_model.dart';
+import '../models/join_circle_models.dart';
 import '../services/home_service.dart';
 
 class HomeRepo {
@@ -14,16 +15,15 @@ class HomeRepo {
     return HomeEligibilityModel.fromJson(data);
   }
 
-  /// GET /customer/my-circles → reads from response.circles or response.data
-  Future<List<CircleSummaryModel>> getMyCircles() async {
+  /// GET /customer/my-circles → List<MyCircleModel>
+  /// Uses the new response shape: { data: [...] }
+  Future<List<MyCircleModel>> getMyCircles() async {
     final list = await homeService.getMyCircles();
     return list.map((e) {
-      if (e is Map<String, dynamic>) {
-        return CircleSummaryModel.fromJson(e);
-      } else if (e is Map) {
-        return CircleSummaryModel.fromJson(Map<String, dynamic>.from(e));
-      }
-      throw FormatException('Element in my circles list is not a Map: $e');
+      final map = e is Map<String, dynamic>
+          ? e
+          : Map<String, dynamic>.from(e as Map);
+      return MyCircleModel.fromJson(map);
     }).toList();
   }
 
@@ -55,5 +55,64 @@ class HomeRepo {
   Future<CirclePositionsModel> getCirclePositions(String id) async {
     final data = await homeService.getCirclePositions(id);
     return CirclePositionsModel.fromJson(data);
+  }
+
+  // ── Join Circle Flow ────────────────────────────────────────
+
+  /// POST /customer/circles/{id}/join-intent
+  Future<JoinIntentResponseModel> checkJoinIntent(String id) async {
+    final data = await homeService.checkJoinIntent(id);
+    return JoinIntentResponseModel.fromJson(data);
+  }
+
+  /// POST /customer/circles/{id}/join
+  Future<JoinReservationModel> joinCircle(
+    String id,
+    int position, {
+    String? paymentMethodId,
+    String? cardToken,
+  }) async {
+    final data = await homeService.joinCircle(
+      id,
+      position,
+      paymentMethodId: paymentMethodId,
+      cardToken: cardToken,
+    );
+    return JoinReservationModel.fromJson(data);
+  }
+
+  /// POST /customer/join/{membershipId}/contract/accept
+  Future<AcceptContractResponseModel> acceptContract(
+    String membershipId, {
+    required bool agreedToTerms,
+    required bool agreedToInstallmentSchedule,
+    required bool agreedToLateFees,
+  }) async {
+    final data = await homeService.acceptContract(
+      membershipId,
+      agreedToTerms: agreedToTerms,
+      agreedToInstallmentSchedule: agreedToInstallmentSchedule,
+      agreedToLateFees: agreedToLateFees,
+    );
+    return AcceptContractResponseModel.fromJson(data);
+  }
+
+  /// POST /customer/join/{membershipId}/contract/verify-otp
+  Future<VerifyOtpResponseModel> verifyJoinOtp(
+    String membershipId,
+    String otp,
+  ) async {
+    final data = await homeService.verifyJoinOtp(membershipId, otp);
+    return VerifyOtpResponseModel.fromJson(data);
+  }
+
+  /// GET /customer/contracts/{membershipId}/download
+  /// Returns raw bytes — caller handles opening the PDF.
+  Future<List<int>> downloadContract(String membershipId) async {
+    final response = await homeService.downloadContract(membershipId);
+    final bytes = response.data;
+    if (bytes is List<int>) return bytes;
+    if (bytes is List) return bytes.cast<int>();
+    throw StateError('Unexpected contract download response type: ${bytes.runtimeType}');
   }
 }

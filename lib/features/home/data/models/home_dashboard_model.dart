@@ -294,3 +294,56 @@ class CirclePositionsModel {
     );
   }
 }
+
+// ─────────────────────────────────────────────────────────────
+// GET /customer/my-circles
+// Separate model — includes membership-specific fields that
+// CircleSummaryModel (available circles) does not have.
+// ─────────────────────────────────────────────────────────────
+
+class MyCircleModel {
+  final String membershipId;
+  final String circleId;
+  final String title;
+  final String amount;
+  final String contributionAmount;
+  final int durationMonths;
+  final int currentInstallment;
+  final int totalInstallments;
+  final int payoutPosition;
+  final int progress;
+  final String nextDueDate;
+  final String status;
+
+  MyCircleModel({
+    required this.membershipId,
+    required this.circleId,
+    required this.title,
+    required this.amount,
+    required this.contributionAmount,
+    required this.durationMonths,
+    required this.currentInstallment,
+    required this.totalInstallments,
+    required this.payoutPosition,
+    required this.progress,
+    required this.nextDueDate,
+    required this.status,
+  });
+
+  factory MyCircleModel.fromJson(Map<String, dynamic> json) {
+    return MyCircleModel(
+      membershipId: json['membershipId']?.toString() ?? '',
+      circleId: json['circleId']?.toString() ?? '',
+      title: json['title']?.toString() ?? '',
+      amount: json['amount']?.toString() ?? '0',
+      contributionAmount: json['contributionAmount']?.toString() ?? '0',
+      durationMonths: CircleSummaryModel._parseInt(json['durationMonths']),
+      currentInstallment: CircleSummaryModel._parseInt(json['currentInstallment']),
+      totalInstallments: CircleSummaryModel._parseInt(json['totalInstallments']),
+      payoutPosition: CircleSummaryModel._parseInt(json['payoutPosition']),
+      progress: CircleSummaryModel._parseInt(json['progress']),
+      nextDueDate: json['nextDueDate']?.toString() ?? '',
+      status: json['status']?.toString() ?? '',
+    );
+  }
+}

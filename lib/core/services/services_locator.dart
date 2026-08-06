@@ -13,6 +13,7 @@ import '../../features/home/data/services/home_service.dart';
 import '../../features/home/data/repos/home_repo.dart';
 import '../../features/home/presentation/cubit/home_cubit.dart';
 import '../../features/home/presentation/cubit/circles_cubit.dart';
+import '../../features/home/presentation/cubit/join_circle_cubit.dart';
 
 final getIt = GetIt.instance;
 
@@ -77,5 +78,9 @@ Future<void> setupServiceLocator() async {
 
   getIt.registerFactory<CirclesCubit>(
     () => CirclesCubit(getIt<HomeRepo>()),
+  );
+
+  getIt.registerFactory<JoinCircleCubit>(
+    () => JoinCircleCubit(getIt<HomeRepo>()),
   );
 }
