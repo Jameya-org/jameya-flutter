@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import '../../../../core/cache/cache_helper.dart';
+import '../../../../core/cache/cache_key.dart';
 import '../../../../core/cache/cache_keys.dart';
+import '../../../../core/routing/routes.dart';
 import '../../../../core/services/services_locator.dart';
 import '../../data/models/profile_model.dart';
 import '../../data/services/customer_service.dart';
@@ -90,10 +93,22 @@ class ProfileProvider extends ChangeNotifier {
 
   Future<void> logout(BuildContext context) async {
     try {
-      await getIt<CacheHelper>().clearAllData();
-      await getIt<CacheHelper>().deleteAllSecureData();
+      final cache = getIt<CacheHelper>();
+      // Clear the session tokens and persisted profile fields, but keep
+      // non-session preferences (language, onboarding completion) intact.
+      await cache.deleteData(key: CacheKey.accessToken);
+      await cache.deleteData(key: CacheKey.refreshToken);
+      await cache.deleteData(key: CacheKeys.email);
+      await cache.deleteData(key: CacheKeys.legalName);
+      await cache.deleteData(key: CacheKeys.phone);
+      await cache.deleteData(key: CacheKeys.nationalId);
+      await cache.deleteData(key: CacheKeys.birthDate);
+      await cache.deleteData(key: CacheKeys.governorate);
+      await cache.deleteData(key: CacheKeys.city);
+      await cache.deleteData(key: CacheKeys.streetAddress);
+      await cache.deleteAllSecureData();
       if (context.mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+        context.go(AppRoutes.kEmailView);
       }
     } catch (e) {
       error = 'فشل تسجيل الخروج';

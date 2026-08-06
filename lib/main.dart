@@ -31,7 +31,9 @@ class JameyaApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => PaymentProvider()),
         ChangeNotifierProvider(create: (_) => KycProvider()),
         BlocProvider<AuthCubit>(create: (_) => getIt<AuthCubit>()),
-        BlocProvider<LocaleCubit>(create: (_) => getIt<LocaleCubit>()..loadSavedLanguage()),
+        BlocProvider<LocaleCubit>(
+          create: (_) => getIt<LocaleCubit>()..loadSavedLanguage(),
+        ),
       ],
       child: ScreenUtilInit(
         designSize: const Size(375, 812),

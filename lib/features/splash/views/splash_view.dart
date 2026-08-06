@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
 
 import '../controller/splash_controller.dart';
 import '../widgets/animated_logo.dart';
@@ -14,6 +15,7 @@ class SplashView extends StatefulWidget {
 
 class _SplashViewState extends State<SplashView> {
   final SplashController controller = SplashController();
+  bool _navigated = false;
 
   @override
   void initState() {
@@ -22,6 +24,16 @@ class _SplashViewState extends State<SplashView> {
     controller.addListener(() {
       if (mounted) {
         setState(() {});
+      }
+
+      final destination = controller.destinationRoute;
+      if (destination != null && !_navigated) {
+        _navigated = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted) {
+            context.go(destination);
+          }
+        });
       }
     });
 
