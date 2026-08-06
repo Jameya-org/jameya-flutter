@@ -1,13 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/routing/routes.dart';
 import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/app_text_styles.dart';
+import '../../../../core/utils/assets.dart';
+import '../cubit/circles_cubit.dart';
+import '../cubit/circles_state.dart';
 import '../cubit/home_cubit.dart';
 import '../cubit/home_state.dart';
+import '../widgets/circle_card.dart';
 import '../widgets/empty_circle_card.dart';
 import '../widgets/section_header.dart';
 
@@ -25,12 +30,16 @@ class _HomeViewState extends State<HomeView> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
         context.read<HomeCubit>().loadHomeDashboard();
+        context.read<CirclesCubit>().loadAvailableCircles();
       }
     });
   }
 
   Future<void> _onRefresh() async {
-    await context.read<HomeCubit>().loadHomeDashboard();
+    await Future.wait([
+      context.read<HomeCubit>().loadHomeDashboard(),
+      context.read<CirclesCubit>().loadAvailableCircles(),
+    ]);
   }
 
   @override
@@ -40,100 +49,136 @@ class _HomeViewState extends State<HomeView> {
       child: Scaffold(
         backgroundColor: AppColors.background,
         body: SafeArea(
-          child: BlocBuilder<HomeCubit, HomeState>(
-            builder: (context, state) {
-              if (state is HomeLoading) {
-                return const Center(
-                  child: CircularProgressIndicator(
-                    color: AppColors.primary,
-                  ),
-                );
-              }
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              // ── Fixed greeting header ──
+              const _HomeGreetingHeader(),
 
-              if (state is HomeFailure) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        state.message,
-                        style: AppTextStyles.body.copyWith(
-                          color: AppColors.error,
+              // ── Scrollable body ──
+              Expanded(
+                child: BlocBuilder<HomeCubit, HomeState>(
+                  builder: (context, state) {
+                    if (state is HomeLoading) {
+                      return const Center(
+                        child: CircularProgressIndicator(
+                          color: AppColors.primary,
                         ),
-                        textAlign: TextAlign.center,
-                      ),
-                      SizedBox(height: 16.h),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primary,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12.r),
+                      );
+                    }
+
+                    if (state is HomeFailure) {
+                      return Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              state.message,
+                              style: AppTextStyles.body.copyWith(
+                                color: AppColors.error,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            SizedBox(height: 16.h),
+                            ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.primary,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12.r),
+                                ),
+                              ),
+                              onPressed: _onRefresh,
+                              child: Text(
+                                'إعادة المحاولة',
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }
+
+                    if (state is HomeSuccess) {
+                      return RefreshIndicator(
+                        color: AppColors.primary,
+                        onRefresh: _onRefresh,
+                        child: SingleChildScrollView(
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: EdgeInsets.symmetric(horizontal: 20.w),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              SizedBox(height: 12.h),
+
+                              // "ابدأ أول جمعية لك" card — always visible
+                              EmptyCircleCard(
+                                onBrowseCircles: () => context
+                                    .push(AppRoutes.kAvailableCirclesView),
+                              ),
+
+                              SizedBox(height: 32.h),
+
+                              // Section header
+                              SectionHeader(
+                                title: 'الجمعيات المتاحة',
+                                actionLabel: 'عرض المزيد',
+                                onActionTap: () => context
+                                    .push(AppRoutes.kAvailableCirclesView),
+                              ),
+
+                              SizedBox(height: 14.h),
+
+                              // Inline available circles from CirclesCubit
+                              BlocBuilder<CirclesCubit, CirclesState>(
+                                builder: (context, circlesState) {
+                                  if (circlesState is CirclesLoading) {
+                                    return Padding(
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 24.h),
+                                      child: const Center(
+                                        child: CircularProgressIndicator(
+                                          color: AppColors.primary,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                  if (circlesState is CirclesSuccess &&
+                                      circlesState.circles.isNotEmpty) {
+                                    final preview =
+                                        circlesState.circles.take(5).toList();
+                                    return Column(
+                                      children: List.generate(
+                                        preview.length,
+                                        (i) => Padding(
+                                          padding: EdgeInsets.only(
+                                            bottom: i < preview.length - 1
+                                                ? 12.h
+                                                : 0,
+                                          ),
+                                          child:
+                                              CircleCard(circle: preview[i]),
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                  return const SizedBox.shrink();
+                                },
+                              ),
+
+                              SizedBox(height: 32.h),
+                            ],
                           ),
                         ),
-                        onPressed: _onRefresh,
-                        child: Text(
-                          'إعادة المحاولة',
-                          style: AppTextStyles.bodySmall.copyWith(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              }
+                      );
+                    }
 
-              if (state is HomeSuccess) {
-                final eligibility = state.eligibility;
-                return RefreshIndicator(
-                  color: AppColors.primary,
-                  onRefresh: _onRefresh,
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 20.w,
-                      vertical: 16.h,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        // Greeting header (static — profile loaded separately)
-                        _HomeGreetingHeader(),
-                        SizedBox(height: 24.h),
-
-                        // Eligibility / onboarding state
-                        if (!eligibility.eligible)
-                          _EligibilityBanner(
-                            reason: eligibility.reason,
-                            missingSteps: eligibility.missingSteps,
-                          ),
-
-                        SizedBox(height: 28.h),
-
-                        // Available circles section
-                        SectionHeader(
-                          title: 'الجمعيات المتاحة',
-                          actionLabel: 'عرض المزيد',
-                          onActionTap: () =>
-                              context.push(AppRoutes.kAvailableCirclesView),
-                        ),
-                        SizedBox(height: 14.h),
-
-                        // Show empty state — circles are loaded separately
-                        // from /customer/circles in AvailableCirclesView
-                        EmptyCircleCard(
-                          onBrowseCircles: () =>
-                              context.push(AppRoutes.kAvailableCirclesView),
-                        ),
-                        SizedBox(height: 24.h),
-                      ],
-                    ),
-                  ),
-                );
-              }
-
-              return const SizedBox.shrink();
-            },
+                    return const SizedBox.shrink();
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -142,176 +187,104 @@ class _HomeViewState extends State<HomeView> {
 }
 
 // ─────────────────────────────────────────────
-// Static greeting header (no backend user data from home endpoint)
+// Greeting header — always visible above the scroll
 // ─────────────────────────────────────────────
 
 class _HomeGreetingHeader extends StatelessWidget {
+  const _HomeGreetingHeader();
+
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        // Notification bell placeholder
-        Container(
-          width: 44.w,
-          height: 44.w,
-          decoration: const BoxDecoration(
-            color: AppColors.grey100,
-            shape: BoxShape.circle,
-          ),
-          child: const Icon(
-            Icons.notifications_none_rounded,
-            color: AppColors.textPrimary,
-          ),
-        ),
-
-        // Greeting text
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: 20.w, vertical: 20.h),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          // ── Left: notification bell in light-teal circle ──
+          Stack(
+            clipBehavior: Clip.none,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Text('👋', style: TextStyle(fontSize: 18.sp)),
-                  SizedBox(width: 4.w),
-                  Text(
-                    'أهلاً بك',
-                    style: AppTextStyles.body.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
-                      fontSize: 16.sp,
+              Container(
+                width: 46.w,
+                height: 46.w,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFE6F7F7),
+                  shape: BoxShape.circle,
+                ),
+                child: Center(
+                  child: SvgPicture.asset(
+                    Assets.iconsBell,
+                    width: 22.w,
+                    height: 22.w,
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.primary,
+                      BlendMode.srcIn,
                     ),
                   ),
-                ],
+                ),
               ),
-              SizedBox(height: 2.h),
-              Text(
-                'كل ما يخص جمعيتك في مكان واحد.',
-                style: AppTextStyles.label.copyWith(
-                  color: AppColors.textHint,
+              // Orange notification dot
+              Positioned(
+                top: 4,
+                left: 4,
+                child: Container(
+                  width: 9.w,
+                  height: 9.w,
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFE87D3E),
+                    shape: BoxShape.circle,
+                  ),
                 ),
               ),
             ],
           ),
-        ),
 
-        // Avatar fallback — default icon
-        CircleAvatar(
-          radius: 22.r,
-          backgroundColor: AppColors.grey200,
-          child: Text(
-            '؟',
-            style: TextStyle(
-              fontSize: 16.sp,
-              fontWeight: FontWeight.bold,
-              color: AppColors.primary,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// ─────────────────────────────────────────────
-// Eligibility banner shown when user is not yet eligible
-// ─────────────────────────────────────────────
-
-class _EligibilityBanner extends StatelessWidget {
-  final String reason;
-  final List<String> missingSteps;
-
-  const _EligibilityBanner({
-    required this.reason,
-    required this.missingSteps,
-  });
-
-  String _translateStep(String step) {
-    switch (step) {
-      case 'identity_verification':
-        return 'التحقق من الهوية';
-      case 'proof_of_income':
-        return 'إثبات الدخل';
-      case 'eligibility_decision':
-        return 'قرار الأهلية';
-      default:
-        return step;
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(16.w),
-      decoration: BoxDecoration(
-        color: AppColors.surface,
-        borderRadius: BorderRadius.circular(12.r),
-        border: Border.all(
-          color: const Color(0xFFE87D3E).withValues(alpha: 0.4),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 1),
-          ),
-        ],
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.end,
-            children: [
-              Text(
-                'الحساب غير مؤهل بعد',
-                style: AppTextStyles.body.copyWith(
-                  fontWeight: FontWeight.w700,
-                  color: AppColors.textPrimary,
-                  fontSize: 15.sp,
-                ),
-              ),
-              SizedBox(width: 8.w),
-              const Icon(
-                Icons.info_outline_rounded,
-                color: Color(0xFFE87D3E),
-                size: 20,
-              ),
-            ],
-          ),
-          if (missingSteps.isNotEmpty) ...[
-            SizedBox(height: 10.h),
-            Text(
-              'الخطوات المطلوبة:',
-              style: AppTextStyles.label.copyWith(color: AppColors.textHint),
-            ),
-            SizedBox(height: 6.h),
-            ...missingSteps.map(
-              (step) => Padding(
-                padding: EdgeInsets.only(bottom: 4.h),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
+          // ── Center: greeting text ──
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: [
+                    Text('👋', style: TextStyle(fontSize: 20.sp)),
+                    SizedBox(width: 4.w),
                     Text(
-                      _translateStep(step),
-                      style: AppTextStyles.bodySmall.copyWith(
+                      'أهلاً بك',
+                      style: AppTextStyles.body.copyWith(
+                        fontWeight: FontWeight.w700,
                         color: AppColors.textPrimary,
+                        fontSize: 20.sp,
                       ),
-                    ),
-                    SizedBox(width: 6.w),
-                    const Icon(
-                      Icons.radio_button_unchecked,
-                      size: 14,
-                      color: Color(0xFFE87D3E),
                     ),
                   ],
                 ),
+                SizedBox(height: 4.h),
+                Text(
+                  'كل ما يخص جمعيتك في مكان واحد.',
+                  style: AppTextStyles.label.copyWith(
+                    color: AppColors.textHint,
+                    fontSize: 13.sp,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // ── Right: user avatar ──
+          CircleAvatar(
+            radius: 24.r,
+            backgroundColor: AppColors.grey200,
+            child: Text(
+              '؟',
+              style: TextStyle(
+                fontSize: 18.sp,
+                fontWeight: FontWeight.bold,
+                color: AppColors.primary,
               ),
             ),
-          ],
+          ),
         ],
       ),
     );

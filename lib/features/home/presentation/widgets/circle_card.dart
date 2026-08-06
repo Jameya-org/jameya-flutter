@@ -10,7 +10,7 @@ import '../../data/models/home_dashboard_model.dart';
 import 'status_badge.dart';
 
 /// Reusable card for displaying a circle summary in lists.
-/// Used in: available circles, recommended circles.
+/// Used in: home screen (inline preview), available circles page.
 class CircleCard extends StatelessWidget {
   final CircleSummaryModel circle;
   final VoidCallback? onTap;
@@ -51,27 +51,49 @@ class CircleCard extends StatelessWidget {
       onTap: onTap,
       child: Container(
         width: double.infinity,
-        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 14.h),
+        padding: EdgeInsets.symmetric(horizontal: 16.w, vertical: 18.h),
         decoration: BoxDecoration(
           color: AppColors.surface,
-          borderRadius: BorderRadius.circular(12.r),
+          borderRadius: BorderRadius.circular(16.r),
+          border: Border.all(color: AppColors.grey200, width: 1),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withValues(alpha: 0.04),
-              blurRadius: 8,
-              offset: const Offset(0, 1),
+              blurRadius: 12,
+              offset: const Offset(0, 2),
             ),
           ],
         ),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.end,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Top row: title + contribution amount
+            // ── Top row: title (right) | status badge (left) ──
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                // Contribution amount (monthly instalment)
+                // First child = right in RTL → Circle title
+                Text(
+                  circle.title,
+                  style: AppTextStyles.body.copyWith(
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.textPrimary,
+                    fontSize: 17.sp,
+                  ),
+                ),
+                // Last child = left in RTL → Status badge
+                StatusBadge(status: circle.status),
+              ],
+            ),
+
+            SizedBox(height: 16.h),
+
+            // ── Bottom row: amount (right) | members+date (left) ──
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                // First child = right in RTL → Monthly instalment
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -79,52 +101,37 @@ class CircleCard extends StatelessWidget {
                       'القسط الشهري',
                       style: AppTextStyles.label.copyWith(
                         color: AppColors.textHint,
+                        fontSize: 11.sp,
                       ),
                     ),
-                    SizedBox(height: 2.h),
+                    SizedBox(height: 3.h),
                     Text(
                       _formatAmount(circle.contributionAmount),
                       style: AppTextStyles.body.copyWith(
                         fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                        color: AppColors.primary,
+                        fontSize: 20.sp,
                       ),
                     ),
                   ],
                 ),
-                // Title
-                Text(
-                  circle.title,
-                  style: AppTextStyles.body.copyWith(
-                    fontWeight: FontWeight.w700,
-                    color: AppColors.textPrimary,
-                    fontSize: 18.sp,
-                  ),
-                ),
-              ],
-            ),
-            SizedBox(height: 10.h),
 
-            // Bottom row: status badge + members + start date
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                // Members + date on the left
-                Row(
+                // Last child = left in RTL → Members count + start date
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
+                    _InfoChip(
+                      icon: Assets.iconsGroupOfUsers,
+                      label:
+                          '${circle.currentMembersCount} عضو',
+                    ),
+                    SizedBox(height: 6.h),
                     _InfoChip(
                       icon: Assets.iconsCalendarDots,
                       label: _formatStartDate(circle.startDate),
                     ),
-                    SizedBox(width: 12.w),
-                    _InfoChip(
-                      icon: Assets.iconsGroupOfUsers,
-                      label:
-                          '${circle.currentMembersCount}/${circle.memberCapacity} عضو',
-                    ),
                   ],
                 ),
-                // Status badge on the right
-                StatusBadge(status: circle.status),
               ],
             ),
           ],
@@ -143,14 +150,17 @@ class _InfoChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Row(
+      mainAxisSize: MainAxisSize.min,
       children: [
+        // Last child in RTL Row = left side (text reads right to icon)
         Text(
           label,
           style: AppTextStyles.label.copyWith(
             color: AppColors.textHint,
+            fontSize: 12.sp,
           ),
         ),
-        SizedBox(width: 4.w),
+        SizedBox(width: 5.w),
         SvgPicture.asset(
           icon,
           width: 14.w,

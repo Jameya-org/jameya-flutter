@@ -24,14 +24,14 @@ class CustomBottomNavBar extends StatelessWidget {
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
-            blurRadius: 10,
+            blurRadius: 12,
             offset: const Offset(0, -2),
           ),
         ],
       ),
       child: SafeArea(
         child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 8.h),
+          padding: EdgeInsets.symmetric(vertical: 10.h),
           child: Row(
             textDirection: TextDirection.ltr,
             mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -95,14 +95,11 @@ class _NavBarItem extends StatelessWidget {
           children: [
             SvgPicture.asset(
               iconPath,
-              width: 22.w,
-              height: 22.w,
-              colorFilter: ColorFilter.mode(
-                color,
-                BlendMode.srcIn,
-              ),
+              width: 24.w,
+              height: 24.w,
+              colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
             ),
-            SizedBox(height: 4.h),
+            SizedBox(height: 5.h),
             Text(
               label,
               maxLines: 1,

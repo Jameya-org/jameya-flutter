@@ -22,75 +22,79 @@ class EmptyCircleCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(16.r),
+        border: Border.all(color: AppColors.grey200, width: 1),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 12,
-            offset: const Offset(0, 2),
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 16,
+            offset: const Offset(0, 4),
           ),
         ],
       ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Title row with wallet icon
+          // ── Title row: text (right) | wallet icon (left) ──
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              // Wallet icon container
-              Container(
-                width: 44.w,
-                height: 44.w,
-                decoration: BoxDecoration(
-                  color: AppColors.grey100,
-                  borderRadius: BorderRadius.circular(12.r),
-                ),
-                child: Center(
-                  child: SvgPicture.asset(
-                    Assets.iconsWallet,
-                    width: 24.w,
-                    height: 24.w,
-                    colorFilter: const ColorFilter.mode(
-                      AppColors.textHint,
-                      BlendMode.srcIn,
+              // Text section — first child = right side in RTL
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'ابدأ أول جمعية لك',
+                      style: AppTextStyles.body.copyWith(
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                        fontSize: 18.sp,
+                      ),
                     ),
-                  ),
-                ),
-              ),
-              // Text
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Text(
-                    'ابدأ أول جمعية لك',
-                    style: AppTextStyles.body.copyWith(
-                      fontWeight: FontWeight.w700,
-                      color: AppColors.textPrimary,
-                    ),
-                  ),
-                  SizedBox(height: 4.h),
-                  SizedBox(
-                    width: 200.w,
-                    child: Text(
+                    SizedBox(height: 6.h),
+                    Text(
                       'انضم إلى جمعية تناسبك وابدأ الادخار بخطوات بسيطة.',
-                      textAlign: TextAlign.right,
                       style: AppTextStyles.label.copyWith(
                         color: AppColors.textHint,
                         height: 1.5,
                       ),
                     ),
+                  ],
+                ),
+              ),
+              SizedBox(width: 16.w),
+
+              // Wallet icon container — last child = left side in RTL
+              Container(
+                width: 48.w,
+                height: 48.w,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFE6F7F7),
+                  borderRadius: BorderRadius.circular(12.r),
+                ),
+                child: Center(
+                  child: SvgPicture.asset(
+                    Assets.iconsWallet,
+                    width: 26.w,
+                    height: 26.w,
+                    colorFilter: const ColorFilter.mode(
+                      AppColors.primary,
+                      BlendMode.srcIn,
+                    ),
                   ),
-                ],
+                ),
               ),
             ],
           ),
-          SizedBox(height: 16.h),
-          // CTA button
+
+          SizedBox(height: 20.h),
+
+          // ── CTA button — full width ──
           CustomButton(
             text: 'عرض الجمعيات',
             onPressed: onBrowseCircles,
-            height: 48.h,
+            height: 52.h,
             borderRadius: 12.r,
           ),
         ],

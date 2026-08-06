@@ -7,9 +7,9 @@ import '../../../../core/utils/app_text_styles.dart';
 /// Pill-shaped status badge matching the UI designs.
 ///
 /// Supported statuses:
-///  - "ACTIVE"   → green background, "نشطة"
+///  - "ACTIVE"   → teal background, "نشطة"
 ///  - "FINISHED" → outlined, "منتهية"
-///  - "OPEN"     → green dot + tint, "متاح للانضمام"
+///  - "OPEN"     → light teal background + green dot, "متاح الانضمام"
 class StatusBadge extends StatelessWidget {
   final String status;
 
@@ -28,7 +28,7 @@ class StatusBadge extends StatelessWidget {
         return _buildOutlinedBadge(label: 'منتهية');
       case 'OPEN':
       default:
-        return _buildDotBadge(label: 'متاح للانضمام');
+        return _buildDotBadge(label: 'متاح الانضمام');
     }
   }
 
@@ -38,7 +38,7 @@ class StatusBadge extends StatelessWidget {
     required Color textColor,
   }) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
       decoration: BoxDecoration(
         color: backgroundColor,
         borderRadius: BorderRadius.circular(20.r),
@@ -48,6 +48,7 @@ class StatusBadge extends StatelessWidget {
         style: AppTextStyles.label.copyWith(
           color: textColor,
           fontWeight: FontWeight.w600,
+          fontSize: 12.sp,
         ),
       ),
     );
@@ -55,7 +56,7 @@ class StatusBadge extends StatelessWidget {
 
   Widget _buildOutlinedBadge({required String label}) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
       decoration: BoxDecoration(
         color: Colors.transparent,
         borderRadius: BorderRadius.circular(20.r),
@@ -66,6 +67,7 @@ class StatusBadge extends StatelessWidget {
         style: AppTextStyles.label.copyWith(
           color: AppColors.textHint,
           fontWeight: FontWeight.w500,
+          fontSize: 12.sp,
         ),
       ),
     );
@@ -73,20 +75,21 @@ class StatusBadge extends StatelessWidget {
 
   Widget _buildDotBadge({required String label}) {
     return Container(
-      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 4.h),
+      padding: EdgeInsets.symmetric(horizontal: 10.w, vertical: 5.h),
       decoration: BoxDecoration(
-        color: AppColors.primary.withValues(alpha: 0.08),
+        color: const Color(0xFFE6F7F7),
         borderRadius: BorderRadius.circular(20.r),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Green dot
           Container(
-            width: 6.w,
-            height: 6.w,
+            width: 7.w,
+            height: 7.w,
             decoration: const BoxDecoration(
               shape: BoxShape.circle,
-              color: AppColors.primary,
+              color: Color(0xFF2DB87A),
             ),
           ),
           SizedBox(width: 5.w),
@@ -95,6 +98,7 @@ class StatusBadge extends StatelessWidget {
             style: AppTextStyles.label.copyWith(
               color: AppColors.primary,
               fontWeight: FontWeight.w600,
+              fontSize: 12.sp,
             ),
           ),
         ],
