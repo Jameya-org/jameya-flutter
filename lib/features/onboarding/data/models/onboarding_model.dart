@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:jameya/core/utils/app_images.dart';
+import 'package:jameya/core/utils/assets.dart';
 import 'package:jameya/generated/l10n.dart';
 
 class OnboardingModel {
@@ -18,17 +18,17 @@ class OnboardingModel {
   static List<OnboardingModel> getPages(BuildContext context) {
     return [
       OnboardingModel(
-        image: AppImages.onboardingOne,
+        image: Assets.imagesOnboardingOne,
         title: S.of(context).onboardingTitle1,
         subtitle: S.of(context).onboardingSubtitle1,
       ),
       OnboardingModel(
-        image: AppImages.onboardingTwo,
+        image: Assets.imagesOnboardingTwo,
         title: S.of(context).onboardingTitle2,
         subtitle: S.of(context).onboardingSubtitle2,
       ),
       OnboardingModel(
-        image: AppImages.onboardingThree,
+        image: Assets.imagesOnboardingThree,
         title: S.of(context).onboardingTitle3,
         subtitle: S.of(context).onboardingSubtitle3,
       ),
