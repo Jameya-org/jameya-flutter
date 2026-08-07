@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-
 import 'core/localization/cubit/localization_cubit.dart';
 import 'core/localization/cubit/localization_state.dart';
 import 'core/routing/app_router.dart';
