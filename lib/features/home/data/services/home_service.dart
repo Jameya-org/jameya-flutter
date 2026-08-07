@@ -1,9 +1,8 @@
 import 'package:dio/dio.dart';
 
 class HomeService {
-  final Dio dio;
-
   HomeService(this.dio);
+  final Dio dio;
 
   /// GET /customer/home
   /// Real response: { eligible, reason, missingSteps }
@@ -12,7 +11,9 @@ class HomeService {
     final data = response.data;
     if (data is Map<String, dynamic>) return data;
     if (data is Map) return Map<String, dynamic>.from(data);
-    throw StateError('Unexpected home dashboard response format: ${data.runtimeType}');
+    throw StateError(
+      'Unexpected home dashboard response format: ${data.runtimeType}',
+    );
   }
 
   /// GET /customer/my-circles
@@ -26,7 +27,9 @@ class HomeService {
       return [];
     }
     if (data is List) return data;
-    throw StateError('Unexpected my-circles response format: ${data.runtimeType}');
+    throw StateError(
+      'Unexpected my-circles response format: ${data.runtimeType}',
+    );
   }
 
   /// GET /customer/circles
@@ -54,7 +57,9 @@ class HomeService {
     final data = response.data;
     if (data is Map<String, dynamic>) return data;
     if (data is Map) return Map<String, dynamic>.from(data);
-    throw StateError('Unexpected circle detail response format: ${data.runtimeType}');
+    throw StateError(
+      'Unexpected circle detail response format: ${data.runtimeType}',
+    );
   }
 
   /// GET /customer/circles/{id}/positions
@@ -63,7 +68,9 @@ class HomeService {
     final data = response.data;
     if (data is Map<String, dynamic>) return data;
     if (data is Map) return Map<String, dynamic>.from(data);
-    throw StateError('Unexpected circle positions response format: ${data.runtimeType}');
+    throw StateError(
+      'Unexpected circle positions response format: ${data.runtimeType}',
+    );
   }
 
   // ── Join Circle Flow ────────────────────────────────────────
@@ -76,7 +83,9 @@ class HomeService {
     final data = response.data;
     if (data is Map<String, dynamic>) return data;
     if (data is Map) return Map<String, dynamic>.from(data);
-    throw StateError('Unexpected join-intent response format: ${data.runtimeType}');
+    throw StateError(
+      'Unexpected join-intent response format: ${data.runtimeType}',
+    );
   }
 
   /// POST /customer/circles/{id}/join
@@ -120,7 +129,9 @@ class HomeService {
     final data = response.data;
     if (data is Map<String, dynamic>) return data;
     if (data is Map) return Map<String, dynamic>.from(data);
-    throw StateError('Unexpected acceptContract response format: ${data.runtimeType}');
+    throw StateError(
+      'Unexpected acceptContract response format: ${data.runtimeType}',
+    );
   }
 
   /// POST /customer/join/{membershipId}/contract/verify-otp
@@ -137,13 +148,15 @@ class HomeService {
     final data = response.data;
     if (data is Map<String, dynamic>) return data;
     if (data is Map) return Map<String, dynamic>.from(data);
-    throw StateError('Unexpected verifyOtp response format: ${data.runtimeType}');
+    throw StateError(
+      'Unexpected verifyOtp response format: ${data.runtimeType}',
+    );
   }
 
   /// GET /customer/contracts/{membershipId}/download
   /// Returns raw PDF bytes — do NOT parse as JSON.
   Future<Response<dynamic>> downloadContract(String membershipId) async {
-    return await dio.get(
+    return dio.get(
       '/customer/contracts/$membershipId/download',
       options: Options(responseType: ResponseType.bytes),
     );

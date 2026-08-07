@@ -3,14 +3,6 @@
 // ─────────────────────────────────────────────────────────────
 
 class HomeUserModel {
-  final String id;
-  final String legalName;
-  final String email;
-  final String mobileNumber;
-  final String status;
-  final String locale;
-  final String createdAt;
-
   HomeUserModel({
     required this.id,
     required this.legalName,
@@ -32,6 +24,13 @@ class HomeUserModel {
       createdAt: json['createdAt'] ?? '',
     );
   }
+  final String id;
+  final String legalName;
+  final String email;
+  final String mobileNumber;
+  final String status;
+  final String locale;
+  final String createdAt;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -39,10 +38,6 @@ class HomeUserModel {
 // ─────────────────────────────────────────────────────────────
 
 class HomeEligibilityModel {
-  final bool eligible;
-  final String reason;
-  final List<String> missingSteps;
-
   HomeEligibilityModel({
     required this.eligible,
     required this.reason,
@@ -58,6 +53,9 @@ class HomeEligibilityModel {
           .toList(),
     );
   }
+  final bool eligible;
+  final String reason;
+  final List<String> missingSteps;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -66,17 +64,6 @@ class HomeEligibilityModel {
 // ─────────────────────────────────────────────────────────────
 
 class CircleSummaryModel {
-  final String id;
-  final String title;
-  final String amount;
-  final String contributionAmount;
-  final int durationMonths;
-  final String cycleFrequency;
-  final int memberCapacity;
-  final int currentMembersCount;
-  final String startDate;
-  final String status;
-
   CircleSummaryModel({
     required this.id,
     required this.title,
@@ -104,6 +91,16 @@ class CircleSummaryModel {
       status: json['status'] ?? '',
     );
   }
+  final String id;
+  final String title;
+  final String amount;
+  final String contributionAmount;
+  final int durationMonths;
+  final String cycleFrequency;
+  final int memberCapacity;
+  final int currentMembersCount;
+  final String startDate;
+  final String status;
 
   static int _parseInt(dynamic value) {
     if (value == null) return 0;
@@ -119,11 +116,6 @@ class CircleSummaryModel {
 // ─────────────────────────────────────────────────────────────
 
 class PaginationMeta {
-  final int total;
-  final int page;
-  final int limit;
-  final int totalPages;
-
   PaginationMeta({
     required this.total,
     required this.page,
@@ -139,6 +131,10 @@ class PaginationMeta {
       totalPages: json['totalPages'] ?? 1,
     );
   }
+  final int total;
+  final int page;
+  final int limit;
+  final int totalPages;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -146,12 +142,6 @@ class PaginationMeta {
 // ─────────────────────────────────────────────────────────────
 
 class MembershipModel {
-  final String displayName;
-  final int payoutPosition;
-  final String currentCyclePaymentStatus;
-  final String joinedAt;
-  final bool isYou;
-
   MembershipModel({
     required this.displayName,
     required this.payoutPosition,
@@ -169,23 +159,14 @@ class MembershipModel {
       isYou: json['isYou'] ?? false,
     );
   }
+  final String displayName;
+  final int payoutPosition;
+  final String currentCyclePaymentStatus;
+  final String joinedAt;
+  final bool isYou;
 }
 
 class CircleDetailModel {
-  final String id;
-  final String title;
-  final String amount;
-  final String contributionAmount;
-  final int durationMonths;
-  final String cycleFrequency;
-  final int memberCapacity;
-  final int currentMembersCount;
-  final String startDate;
-  final String? endDate;
-  final String status;
-  final String? feePolicyId;
-  final List<MembershipModel> memberships;
-
   CircleDetailModel({
     required this.id,
     required this.title,
@@ -211,8 +192,9 @@ class CircleDetailModel {
       durationMonths: CircleSummaryModel._parseInt(json['durationMonths']),
       cycleFrequency: json['cycleFrequency'] ?? '',
       memberCapacity: CircleSummaryModel._parseInt(json['memberCapacity']),
-      currentMembersCount:
-          CircleSummaryModel._parseInt(json['currentMembersCount']),
+      currentMembersCount: CircleSummaryModel._parseInt(
+        json['currentMembersCount'],
+      ),
       startDate: json['startDate']?.toString() ?? '',
       endDate: json['endDate']?.toString(),
       status: json['status'] ?? '',
@@ -222,6 +204,19 @@ class CircleDetailModel {
           .toList(),
     );
   }
+  final String id;
+  final String title;
+  final String amount;
+  final String contributionAmount;
+  final int durationMonths;
+  final String cycleFrequency;
+  final int memberCapacity;
+  final int currentMembersCount;
+  final String startDate;
+  final String? endDate;
+  final String status;
+  final String? feePolicyId;
+  final List<MembershipModel> memberships;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -229,11 +224,6 @@ class CircleDetailModel {
 // ─────────────────────────────────────────────────────────────
 
 class FeePreviewModel {
-  final String gross;
-  final String feeAmount;
-  final String net;
-  final String feePercentage;
-
   FeePreviewModel({
     required this.gross,
     required this.feeAmount,
@@ -249,13 +239,13 @@ class FeePreviewModel {
       feePercentage: json['feePercentage']?.toString() ?? '0',
     );
   }
+  final String gross;
+  final String feeAmount;
+  final String net;
+  final String feePercentage;
 }
 
 class PositionModel {
-  final int position;
-  final bool isAvailable;
-  final FeePreviewModel feePreview;
-
   PositionModel({
     required this.position,
     required this.isAvailable,
@@ -271,13 +261,12 @@ class PositionModel {
       ),
     );
   }
+  final int position;
+  final bool isAvailable;
+  final FeePreviewModel feePreview;
 }
 
 class CirclePositionsModel {
-  final String circleId;
-  final int durationMonths;
-  final List<PositionModel> positions;
-
   CirclePositionsModel({
     required this.circleId,
     required this.durationMonths,
@@ -293,6 +282,9 @@ class CirclePositionsModel {
           .toList(),
     );
   }
+  final String circleId;
+  final int durationMonths;
+  final List<PositionModel> positions;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -302,19 +294,6 @@ class CirclePositionsModel {
 // ─────────────────────────────────────────────────────────────
 
 class MyCircleModel {
-  final String membershipId;
-  final String circleId;
-  final String title;
-  final String amount;
-  final String contributionAmount;
-  final int durationMonths;
-  final int currentInstallment;
-  final int totalInstallments;
-  final int payoutPosition;
-  final int progress;
-  final String nextDueDate;
-  final String status;
-
   MyCircleModel({
     required this.membershipId,
     required this.circleId,
@@ -338,12 +317,28 @@ class MyCircleModel {
       amount: json['amount']?.toString() ?? '0',
       contributionAmount: json['contributionAmount']?.toString() ?? '0',
       durationMonths: CircleSummaryModel._parseInt(json['durationMonths']),
-      currentInstallment: CircleSummaryModel._parseInt(json['currentInstallment']),
-      totalInstallments: CircleSummaryModel._parseInt(json['totalInstallments']),
+      currentInstallment: CircleSummaryModel._parseInt(
+        json['currentInstallment'],
+      ),
+      totalInstallments: CircleSummaryModel._parseInt(
+        json['totalInstallments'],
+      ),
       payoutPosition: CircleSummaryModel._parseInt(json['payoutPosition']),
       progress: CircleSummaryModel._parseInt(json['progress']),
       nextDueDate: json['nextDueDate']?.toString() ?? '',
       status: json['status']?.toString() ?? '',
     );
   }
+  final String membershipId;
+  final String circleId;
+  final String title;
+  final String amount;
+  final String contributionAmount;
+  final int durationMonths;
+  final int currentInstallment;
+  final int totalInstallments;
+  final int payoutPosition;
+  final int progress;
+  final String nextDueDate;
+  final String status;
 }

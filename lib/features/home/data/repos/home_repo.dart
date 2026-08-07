@@ -3,9 +3,9 @@ import '../models/join_circle_models.dart';
 import '../services/home_service.dart';
 
 class HomeRepo {
-  final HomeService homeService;
 
   HomeRepo(this.homeService);
+  final HomeService homeService;
 
   /// GET /customer/home → HomeEligibilityModel
   Future<HomeEligibilityModel> getHomeDashboard() async {

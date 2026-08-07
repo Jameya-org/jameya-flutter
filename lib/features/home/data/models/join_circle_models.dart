@@ -4,15 +4,6 @@
 // ─────────────────────────────────────────────────────────────
 
 class JoinIntentResponseModel {
-  final bool canJoin;
-  final String circleId;
-  final bool eligible;
-  final bool capacityAvailable;
-  final bool hasPendingReservation;
-  final bool requiresKyc;
-  final bool requiresDocuments;
-  final String message;
-
   JoinIntentResponseModel({
     required this.canJoin,
     required this.circleId,
@@ -36,6 +27,14 @@ class JoinIntentResponseModel {
       message: json['message']?.toString() ?? '',
     );
   }
+  final bool canJoin;
+  final String circleId;
+  final bool eligible;
+  final bool capacityAvailable;
+  final bool hasPendingReservation;
+  final bool requiresKyc;
+  final bool requiresDocuments;
+  final String message;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -44,13 +43,7 @@ class JoinIntentResponseModel {
 // ─────────────────────────────────────────────────────────────
 
 class JoinIntentFailureModel {
-  final String reason;
-  final List<String> missingSteps;
-
-  JoinIntentFailureModel({
-    required this.reason,
-    required this.missingSteps,
-  });
+  JoinIntentFailureModel({required this.reason, required this.missingSteps});
 
   factory JoinIntentFailureModel.fromJson(Map<String, dynamic> json) {
     return JoinIntentFailureModel(
@@ -60,6 +53,8 @@ class JoinIntentFailureModel {
           .toList(),
     );
   }
+  final String reason;
+  final List<String> missingSteps;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -68,10 +63,6 @@ class JoinIntentFailureModel {
 // ─────────────────────────────────────────────────────────────
 
 class EmbeddedContractModel {
-  final String id;
-  final int version;
-  final String downloadUrl;
-
   EmbeddedContractModel({
     required this.id,
     required this.version,
@@ -85,6 +76,9 @@ class EmbeddedContractModel {
       downloadUrl: json['downloadUrl']?.toString() ?? '',
     );
   }
+  final String id;
+  final int version;
+  final String downloadUrl;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -93,12 +87,6 @@ class EmbeddedContractModel {
 // ─────────────────────────────────────────────────────────────
 
 class JoinReservationModel {
-  final String membershipId;
-  final String reservationId;
-  final String reservationExpiresAt;
-  final String status;
-  final EmbeddedContractModel contract;
-
   JoinReservationModel({
     required this.membershipId,
     required this.reservationId,
@@ -118,6 +106,11 @@ class JoinReservationModel {
       ),
     );
   }
+  final String membershipId;
+  final String reservationId;
+  final String reservationExpiresAt;
+  final String status;
+  final EmbeddedContractModel contract;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -126,12 +119,6 @@ class JoinReservationModel {
 // ─────────────────────────────────────────────────────────────
 
 class AcceptContractResponseModel {
-  final bool success;
-  final String membershipId;
-  final bool otpSent;
-  final int expiresIn;
-  final String message;
-
   AcceptContractResponseModel({
     required this.success,
     required this.membershipId,
@@ -149,6 +136,11 @@ class AcceptContractResponseModel {
       message: json['message']?.toString() ?? '',
     );
   }
+  final bool success;
+  final String membershipId;
+  final bool otpSent;
+  final int expiresIn;
+  final String message;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -157,12 +149,6 @@ class AcceptContractResponseModel {
 // ─────────────────────────────────────────────────────────────
 
 class VerifyOtpResponseModel {
-  final bool success;
-  final String membershipId;
-  final String status;
-  final String joinedAt;
-  final String message;
-
   VerifyOtpResponseModel({
     required this.success,
     required this.membershipId,
@@ -180,6 +166,11 @@ class VerifyOtpResponseModel {
       message: json['message']?.toString() ?? '',
     );
   }
+  final bool success;
+  final String membershipId;
+  final String status;
+  final String joinedAt;
+  final String message;
 }
 
 // ─────────────────────────────────────────────────────────────
@@ -187,13 +178,6 @@ class VerifyOtpResponseModel {
 // ─────────────────────────────────────────────────────────────
 
 class ContractModel {
-  final String id;
-  final String membershipId;
-  final String status;
-  final String? signedAt;
-  final int version;
-  final String downloadUrl;
-
   ContractModel({
     required this.id,
     required this.membershipId,
@@ -213,4 +197,10 @@ class ContractModel {
       downloadUrl: json['downloadUrl']?.toString() ?? '',
     );
   }
+  final String id;
+  final String membershipId;
+  final String status;
+  final String? signedAt;
+  final int version;
+  final String downloadUrl;
 }
