@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
+import '../../../../features/kyc/presentation/providers/kyc_provider.dart';
 import '../providers/profile_provider.dart';
 import '../widgets/profile_form_field.dart';
 
@@ -28,25 +29,34 @@ class _ProfileDetailsViewState extends State<ProfileDetailsView> {
   void initState() {
     super.initState();
     final profile = context.read<ProfileProvider>().profile;
+    // Identity fields come from KycProvider.kycStatus.identityProfile
+    final identity =
+        context.read<KycProvider>().kycStatus?.identityProfile;
+
     _nameController = TextEditingController(text: profile?.legalName ?? '');
     _emailController = TextEditingController(text: profile?.email ?? '');
-    _phoneController = TextEditingController(text: profile?.mobileNumber ?? '');
+    _phoneController = TextEditingController(
+      text: identity?.mobileNumber ?? profile?.mobileNumber ?? '',
+    );
     _nationalIdController = TextEditingController(
-      text: profile?.nationalId ?? '',
+      text: identity?.nationalIdNumber ?? '',
     );
     _governorateController = TextEditingController(
-      text: profile?.governorate ?? '',
+      text: identity?.address?.governorate ?? '',
     );
-    _cityController = TextEditingController(text: profile?.city ?? '');
+    _cityController = TextEditingController(
+      text: identity?.address?.city ?? '',
+    );
     _streetController = TextEditingController(
-      text: profile?.streetAddress ?? '',
+      text: identity?.address?.streetAddress ?? '',
     );
-    final storedBirthDate = _parseStoredBirthDate(profile?.birthDate);
+
+    final storedBirthDate = _parseStoredBirthDate(identity?.dateOfBirth);
     _selectedBirthDate = storedBirthDate;
     _birthDateController = TextEditingController(
       text: storedBirthDate != null
           ? _formatDate(storedBirthDate)
-          : (profile?.birthDate ?? ''),
+          : (identity?.dateOfBirth ?? ''),
     );
   }
 
@@ -80,12 +90,14 @@ class _ProfileDetailsViewState extends State<ProfileDetailsView> {
     }
   }
 
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
-  }
+  String _formatDate(DateTime date) =>
+      '${date.day.toString().padLeft(2, '0')}/'
+      '${date.month.toString().padLeft(2, '0')}/'
+      '${date.year}';
 
   DateTime? _parseStoredBirthDate(String? raw) {
     if (raw == null || raw.isEmpty) return null;
+    // Try dd/mm/yyyy
     final parts = raw.split('/');
     if (parts.length == 3) {
       final day = int.tryParse(parts[0]);
@@ -95,6 +107,7 @@ class _ProfileDetailsViewState extends State<ProfileDetailsView> {
         return DateTime(year, month, day);
       }
     }
+    // Fallback to ISO 8601 (yyyy-mm-dd)
     return DateTime.tryParse(raw);
   }
 
@@ -117,6 +130,7 @@ class _ProfileDetailsViewState extends State<ProfileDetailsView> {
 
     final provider = context.read<ProfileProvider>();
     final success = await provider.updateProfile(
+      context: context,
       legalName: _nameController.text.trim(),
       mobileNumber: _phoneController.text.trim(),
       nationalIdNumber: _nationalIdController.text.trim(),

@@ -5,6 +5,7 @@ class CustomerService {
 
   CustomerService(this.dio);
 
+  /// GET /customers/profile
   Future<Map<String, dynamic>> getProfile() async {
     final response = await dio.get('/customers/profile');
     final data = response.data;
@@ -13,6 +14,12 @@ class CustomerService {
     throw StateError('Unexpected profile response format');
   }
 
+  /// POST /customers/profile
+  ///
+  /// Creates or updates the customer's identity profile.
+  ///
+  /// Throws [DioException] on failure so callers can surface the backend
+  /// validation message (e.g. 400 errors) directly to the UI.
   Future<void> updateProfile({
     required String legalName,
     required String mobileNumber,
@@ -22,19 +29,23 @@ class CustomerService {
     required String city,
     required String streetAddress,
   }) async {
-    await dio.post(
-      '/customers/profile',
-      data: {
-        'legalName': legalName,
-        'mobileNumber': mobileNumber,
-        'nationalIdNumber': nationalIdNumber,
-        'dateOfBirth': dateOfBirthIso,
-        'address': {
-          'governorate': governorate,
-          'city': city,
-          'streetAddress': streetAddress,
+    try {
+      await dio.post(
+        '/customers/profile',
+        data: {
+          'legalName': legalName,
+          'dateOfBirth': dateOfBirthIso,
+          'nationalIdNumber': nationalIdNumber,
+          'address': {
+            'governorate': governorate,
+            'city': city,
+            'streetAddress': streetAddress,
+          },
+          'mobileNumber': mobileNumber,
         },
-      },
-    );
+      );
+    } on DioException {
+      rethrow;
+    }
   }
 }

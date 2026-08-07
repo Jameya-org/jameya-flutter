@@ -66,20 +66,6 @@ class KycPendingView extends StatelessWidget {
                         ),
                         child: Column(
                           children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Text(
-                                    provider.kycStatus?.submittedAt ?? '-',
-                                    maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
-                                  ),
-                                ),
-                                const SizedBox(width: 12),
-                                const Text('تم الإرسال:'),
-                              ],
-                            ),
-                            const SizedBox(height: 6),
                             const Row(
                               children: [
                                 Expanded(

@@ -11,6 +11,9 @@ class KycVerifiedView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final kyc = provider.kycStatus!;
+    final identity = kyc.identityProfile;
+    final eligibility = kyc.latestEligibility;
+
     return SingleChildScrollView(
       padding: const EdgeInsets.all(20),
       child: Container(
@@ -50,9 +53,37 @@ class KycVerifiedView extends StatelessWidget {
               style: TextStyle(color: Colors.grey),
             ),
             const SizedBox(height: 20),
-            KycInfoRow(label: 'الاسم الكامل', value: kyc.fullName ?? '-'),
-            KycInfoRow(label: 'رقم الهوية', value: kyc.idNumber ?? '-'),
-            KycInfoRow(label: 'تاريخ التوثيق', value: kyc.verifiedAt ?? '-'),
+            // Legal name from the top-level response field
+            KycInfoRow(label: 'الاسم الكامل', value: kyc.legalName ?? '-'),
+            // National ID from identity profile
+            if (identity != null)
+              KycInfoRow(
+                label: 'رقم الهوية',
+                value: identity.nationalIdNumber ?? '-',
+              ),
+            // Eligibility status
+            if (eligibility != null && eligibility.status != null)
+              KycInfoRow(label: 'حالة الأهلية', value: eligibility.status!),
+            // Uploaded documents summary
+            if (kyc.documents.isNotEmpty) ...[
+              const SizedBox(height: 12),
+              const Align(
+                alignment: Alignment.centerRight,
+                child: Text(
+                  'المستندات المرفوعة',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Color(0xFF1A7A6E),
+                  ),
+                ),
+              ),
+              ...kyc.documents.map(
+                (doc) => KycInfoRow(
+                  label: doc.docType,
+                  value: doc.status ?? '-',
+                ),
+              ),
+            ],
           ],
         ),
       ),

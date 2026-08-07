@@ -35,16 +35,16 @@ class Assets {
   static const String iconsMoney = "assets/icons/money.svg";
 
   /// Assets for iconsRefresh
-  /// assets/icons/refresh.svg
-  static const String iconsRefresh = "assets/icons/refresh.svg";
+  /// assets/icons/Refresh.svg
+  static const String iconsRefresh = "assets/icons/Refresh.svg";
 
   /// Assets for iconsUser
-  /// assets/icons/user.svg
-  static const String iconsUser = "assets/icons/user.svg";
+  /// assets/icons/User.svg
+  static const String iconsUser = "assets/icons/User.svg";
 
   /// Assets for iconsWallet
-  /// assets/icons/wallet.svg
-  static const String iconsWallet = "assets/icons/wallet.svg";
+  /// assets/icons/Wallet.svg
+  static const String iconsWallet = "assets/icons/Wallet.svg";
 
   /// Assets for images2
   /// assets/images/2.0x

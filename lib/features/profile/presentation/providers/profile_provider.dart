@@ -1,11 +1,16 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
+
 import '../../../../core/cache/cache_helper.dart';
 import '../../../../core/cache/cache_keys.dart';
+import '../../../../core/network/dio_error_utils.dart';
 import '../../../../core/routing/routes.dart';
 import '../../../../core/services/services_locator.dart';
 import '../../data/models/profile_model.dart';
 import '../../data/services/customer_service.dart';
+import '../../../kyc/presentation/providers/kyc_provider.dart';
 
 class ProfileProvider extends ChangeNotifier {
   final CustomerService _customerService = getIt<CustomerService>();
@@ -14,6 +19,8 @@ class ProfileProvider extends ChangeNotifier {
   bool isLoading = false;
   bool isSaving = false;
   String? error;
+
+  // ── Load ───────────────────────────────────────────────────────────────
 
   Future<void> loadProfile() async {
     isLoading = true;
@@ -27,7 +34,11 @@ class ProfileProvider extends ChangeNotifier {
       final remote = ProfileModel.fromJson(data);
       profile = _mergeWithCached(remote);
       await _cacheProfile(profile!);
-    } catch (e) {
+    } on DioException catch (e) {
+      if (profile == null) {
+        error = dioErrorMessage(e, fallback: 'حدث خطأ في تحميل البيانات');
+      }
+    } catch (_) {
       if (profile == null) {
         error = 'حدث خطأ في تحميل البيانات';
       }
@@ -37,7 +48,18 @@ class ProfileProvider extends ChangeNotifier {
     }
   }
 
+  // ── Update ─────────────────────────────────────────────────────────────
+
+  /// POST /customers/profile — creates or updates the identity profile.
+  ///
+  /// On success:
+  ///  1. Updates the cached profile locally.
+  ///  2. Refreshes GET /customers/kyc-status via [KycProvider] so the identity
+  ///     profile and KYC state are always up-to-date.
+  ///
+  /// On failure: surfaces the exact backend error message.
   Future<bool> updateProfile({
+    required BuildContext context,
     required String legalName,
     required String mobileNumber,
     required String nationalIdNumber,
@@ -52,7 +74,9 @@ class ProfileProvider extends ChangeNotifier {
 
     try {
       final isoDate =
-          '${dateOfBirth.year.toString().padLeft(4, '0')}-${dateOfBirth.month.toString().padLeft(2, '0')}-${dateOfBirth.day.toString().padLeft(2, '0')}';
+          '${dateOfBirth.year.toString().padLeft(4, '0')}-'
+          '${dateOfBirth.month.toString().padLeft(2, '0')}-'
+          '${dateOfBirth.day.toString().padLeft(2, '0')}';
 
       await _customerService.updateProfile(
         legalName: legalName,
@@ -64,23 +88,25 @@ class ProfileProvider extends ChangeNotifier {
         streetAddress: streetAddress,
       );
 
-      if (profile == null) {
-        _applyCachedProfile();
-      }
+      // Update the local cached profile with the new legalName & phone.
+      if (profile == null) _applyCachedProfile();
       final base = profile ?? ProfileModel(legalName: legalName, email: '');
       profile = base.copyWith(
         legalName: legalName,
         mobileNumber: mobileNumber,
-        nationalId: nationalIdNumber,
-        birthDate:
-            '${dateOfBirth.day}/${dateOfBirth.month}/${dateOfBirth.year}',
-        governorate: governorate,
-        city: city,
-        streetAddress: streetAddress,
       );
       await _cacheProfile(profile!);
+
+      // Refresh KYC status so identity profile info is current.
+      if (context.mounted) {
+        context.read<KycProvider>().loadStatus();
+      }
+
       return true;
-    } catch (e) {
+    } on DioException catch (e) {
+      error = dioErrorMessage(e, fallback: 'فشل حفظ التعديلات');
+      return false;
+    } catch (_) {
       error = 'فشل حفظ التعديلات';
       return false;
     } finally {
@@ -89,68 +115,53 @@ class ProfileProvider extends ChangeNotifier {
     }
   }
 
+  // ── Logout ─────────────────────────────────────────────────────────────
+
   Future<void> logout(BuildContext context) async {
     try {
       final cache = getIt<CacheHelper>();
-      // Clear the session tokens and persisted profile fields, but keep
-      // non-session preferences (language, onboarding completion) intact.
       await cache.deleteData(key: CacheKeys.accessToken);
       await cache.deleteData(key: CacheKeys.refreshToken);
       await cache.deleteData(key: CacheKeys.email);
       await cache.deleteData(key: CacheKeys.legalName);
       await cache.deleteData(key: CacheKeys.phone);
-      await cache.deleteData(key: CacheKeys.nationalId);
-      await cache.deleteData(key: CacheKeys.birthDate);
-      await cache.deleteData(key: CacheKeys.governorate);
-      await cache.deleteData(key: CacheKeys.city);
-      await cache.deleteData(key: CacheKeys.streetAddress);
       await cache.deleteAllSecureData();
+      profile = null;
       if (context.mounted) {
         context.go(AppRoutes.kEmailView);
       }
-    } catch (e) {
+    } catch (_) {
       error = 'فشل تسجيل الخروج';
       notifyListeners();
     }
   }
 
-  /// Loads locally persisted profile fields so data survives across launches.
+  // ── Cache helpers ──────────────────────────────────────────────────────
+
+  /// Restores basic profile fields from local cache on startup.
   void _applyCachedProfile() {
     final cache = getIt<CacheHelper>();
     final email = cache.getString(key: CacheKeys.email);
     final legalName = cache.getString(key: CacheKeys.legalName);
     final phone = cache.getString(key: CacheKeys.phone);
-    final nationalId = cache.getString(key: CacheKeys.nationalId);
-    final birthDate = cache.getString(key: CacheKeys.birthDate);
-    final governorate = cache.getString(key: CacheKeys.governorate);
-    final city = cache.getString(key: CacheKeys.city);
-    final street = cache.getString(key: CacheKeys.streetAddress);
 
-    if (email == null && legalName == null && phone == null && nationalId == null) {
-      return;
-    }
+    if (email == null && legalName == null && phone == null) return;
 
     profile = ProfileModel(
       legalName: legalName ?? '',
       email: email ?? '',
       mobileNumber: phone ?? '',
-      nationalId: nationalId,
-      birthDate: birthDate,
-      governorate: governorate,
-      city: city,
-      streetAddress: street,
     );
   }
 
-  /// Merges the API profile with locally cached fields, keeping cached values
-  /// for fields the API does not return.
+  /// Merges the API response with locally cached values for fields the API
+  /// may not always return.
   ProfileModel _mergeWithCached(ProfileModel remote) {
     final cached = profile;
     if (cached == null) return remote;
     return ProfileModel(
       id: remote.id.isNotEmpty ? remote.id : cached.id,
-      legalName:
-          remote.legalName.isNotEmpty ? remote.legalName : cached.legalName,
+      legalName: remote.legalName.isNotEmpty ? remote.legalName : cached.legalName,
       email: remote.email.isNotEmpty ? remote.email : cached.email,
       mobileNumber: remote.mobileNumber.isNotEmpty
           ? remote.mobileNumber
@@ -158,12 +169,6 @@ class ProfileProvider extends ChangeNotifier {
       status: remote.status,
       locale: remote.locale,
       createdAt: remote.createdAt,
-      kycStatus: remote.kycStatus,
-      nationalId: cached.nationalId,
-      birthDate: cached.birthDate,
-      governorate: cached.governorate,
-      city: cached.city,
-      streetAddress: cached.streetAddress,
     );
   }
 
@@ -173,27 +178,6 @@ class ProfileProvider extends ChangeNotifier {
     await cache.saveData(key: CacheKeys.legalName, value: value.legalName);
     if (value.mobileNumber.isNotEmpty) {
       await cache.saveData(key: CacheKeys.phone, value: value.mobileNumber);
-    }
-    if (value.nationalId != null) {
-      await cache.saveData(key: CacheKeys.nationalId, value: value.nationalId!);
-    }
-    if (value.birthDate != null) {
-      await cache.saveData(key: CacheKeys.birthDate, value: value.birthDate!);
-    }
-    if (value.governorate != null) {
-      await cache.saveData(
-        key: CacheKeys.governorate,
-        value: value.governorate!,
-      );
-    }
-    if (value.city != null) {
-      await cache.saveData(key: CacheKeys.city, value: value.city!);
-    }
-    if (value.streetAddress != null) {
-      await cache.saveData(
-        key: CacheKeys.streetAddress,
-        value: value.streetAddress!,
-      );
     }
   }
 }

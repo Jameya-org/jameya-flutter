@@ -9,13 +9,11 @@ abstract final class CacheKeys {
   static const onBoardingViewed = 'onBoardingViewed';
   static const languageCode = 'languageCode';
 
-  // Persisted user profile fields
+  // Persisted basic profile fields
+  // NOTE: identity-specific fields (nationalId, birthDate, governorate, city,
+  // streetAddress) are no longer cached locally — they are always fetched
+  // fresh from GET /customers/kyc-status via KycProvider.
   static const email = 'profile_email';
   static const legalName = 'profile_legal_name';
   static const phone = 'profile_phone';
-  static const nationalId = 'profile_national_id';
-  static const birthDate = 'profile_birth_date';
-  static const governorate = 'profile_governorate';
-  static const city = 'profile_city';
-  static const streetAddress = 'profile_street_address';
 }

@@ -191,14 +191,6 @@ class _CreateAccountViewState extends State<CreateAccountView> {
       final cache = getIt<CacheHelper>();
       await cache.saveData(key: CacheKeys.legalName, value: legalName);
       await cache.saveData(key: CacheKeys.phone, value: mobileNumber);
-      await cache.saveData(
-        key: CacheKeys.nationalId,
-        value: nationalIdController.text,
-      );
-      await cache.saveData(
-        key: CacheKeys.birthDate,
-        value: birthDateController.text,
-      );
 
       if (mounted) {
         context.go(AppRoutes.kProfileView);
