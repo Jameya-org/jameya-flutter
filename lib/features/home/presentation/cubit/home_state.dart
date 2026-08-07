@@ -7,13 +7,11 @@ class HomeInitial extends HomeState {}
 class HomeLoading extends HomeState {}
 
 class HomeSuccess extends HomeState {
-  final HomeEligibilityModel eligibility;
-
   HomeSuccess(this.eligibility);
+  final HomeEligibilityModel eligibility;
 }
 
 class HomeFailure extends HomeState {
-  final String message;
-
   HomeFailure(this.message);
+  final String message;
 }

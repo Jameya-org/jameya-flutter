@@ -11,19 +11,16 @@ class AvailableCirclesLoading extends CirclesState {}
 class MyCirclesLoading extends CirclesState {}
 
 class AvailableCirclesSuccess extends CirclesState {
-  final List<CircleSummaryModel> circles;
-
   AvailableCirclesSuccess(this.circles);
+  final List<CircleSummaryModel> circles;
 }
 
 class MyCirclesSuccess extends CirclesState {
-  final List<MyCircleModel> circles;
-
   MyCirclesSuccess(this.circles);
+  final List<MyCircleModel> circles;
 }
 
 class CirclesFailure extends CirclesState {
-  final String message;
-
   CirclesFailure(this.message);
+  final String message;
 }

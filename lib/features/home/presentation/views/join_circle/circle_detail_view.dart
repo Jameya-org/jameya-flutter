@@ -21,9 +21,8 @@ import 'eligibility_blocked_view.dart';
 /// On mount: calls [JoinCircleCubit.checkIntentAndLoadDetail].
 /// Navigates to [EligibilityBlockedView] on 422, shows detail on success.
 class CircleDetailView extends StatefulWidget {
-  final String circleId;
-
   const CircleDetailView({super.key, required this.circleId});
+  final String circleId;
 
   @override
   State<CircleDetailView> createState() => _CircleDetailViewState();
@@ -41,8 +40,18 @@ class _CircleDetailViewState extends State<CircleDetailView> {
     try {
       final date = DateTime.parse(dateStr);
       const arabicMonths = [
-        'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
-        'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر',
+        'يناير',
+        'فبراير',
+        'مارس',
+        'أبريل',
+        'مايو',
+        'يونيو',
+        'يوليو',
+        'أغسطس',
+        'سبتمبر',
+        'أكتوبر',
+        'نوفمبر',
+        'ديسمبر',
       ];
       return '${date.day} ${arabicMonths[date.month - 1]}';
     } catch (_) {
@@ -80,10 +89,7 @@ class _CircleDetailViewState extends State<CircleDetailView> {
         if (state is JoinCircleIntentBlocked) {
           context.push(
             AppRoutes.eligibilityBlockedPath(widget.circleId),
-            extra: {
-              'reason': state.reason,
-              'missingSteps': state.missingSteps,
-            },
+            extra: {'reason': state.reason, 'missingSteps': state.missingSteps},
           );
         }
       },
@@ -106,9 +112,7 @@ class _CircleDetailViewState extends State<CircleDetailView> {
                   SizedBox(height: 20.h),
 
                   // ── Body ─────────────────────────────────────────
-                  Expanded(
-                    child: _buildBody(context, state),
-                  ),
+                  Expanded(child: _buildBody(context, state)),
 
                   // ── Bottom button ────────────────────────────────
                   JoinFlowBottomBar(
@@ -145,7 +149,11 @@ class _CircleDetailViewState extends State<CircleDetailView> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.wifi_off_rounded, size: 48.sp, color: AppColors.textHint),
+              Icon(
+                Icons.wifi_off_rounded,
+                size: 48.sp,
+                color: AppColors.textHint,
+              ),
               SizedBox(height: 16.h),
               Text(
                 state.message,

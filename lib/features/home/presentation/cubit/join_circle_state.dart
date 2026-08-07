@@ -13,21 +13,21 @@ class JoinCircleIntentLoading extends JoinCircleState {}
 
 /// Circle details loaded and user is eligible to join.
 class JoinCircleDetailReady extends JoinCircleState {
-  final CircleDetailModel detail;
   JoinCircleDetailReady(this.detail);
+  final CircleDetailModel detail;
 }
 
 /// 422 — user is not eligible (missing steps).
 class JoinCircleIntentBlocked extends JoinCircleState {
+  JoinCircleIntentBlocked({required this.reason, required this.missingSteps});
   final String reason;
   final List<String> missingSteps;
-  JoinCircleIntentBlocked({required this.reason, required this.missingSteps});
 }
 
 /// Network / server error during intent check.
 class JoinCircleIntentError extends JoinCircleState {
-  final String message;
   JoinCircleIntentError(this.message);
+  final String message;
 }
 
 // ── Position / turn selection ────────────────────────────────
@@ -35,20 +35,20 @@ class JoinCircleIntentError extends JoinCircleState {
 class JoinCirclePositionsLoading extends JoinCircleState {}
 
 class JoinCirclePositionsReady extends JoinCircleState {
+  JoinCirclePositionsReady({required this.positions, this.selected});
   final List<PositionModel> positions;
   final PositionModel? selected;
-  JoinCirclePositionsReady({required this.positions, this.selected});
 }
 
 class JoinCirclePositionsError extends JoinCircleState {
-  final String message;
   JoinCirclePositionsError(this.message);
+  final String message;
 }
 
 /// User tapped a turn card — position stored in cubit.
 class JoinCirclePositionSelected extends JoinCircleState {
-  final PositionModel position;
   JoinCirclePositionSelected(this.position);
+  final PositionModel position;
 }
 
 // ── Join / create reservation ────────────────────────────────
@@ -57,8 +57,8 @@ class JoinCircleJoining extends JoinCircleState {}
 
 /// 201 — reservation created successfully.
 class JoinCircleJoinSuccess extends JoinCircleState {
-  final JoinReservationModel reservation;
   JoinCircleJoinSuccess(this.reservation);
+  final JoinReservationModel reservation;
 }
 
 /// 409 — selected position was taken; user must pick another.
@@ -66,8 +66,8 @@ class JoinCirclePositionTaken extends JoinCircleState {}
 
 /// Network / 5xx error during join.
 class JoinCircleJoinFailure extends JoinCircleState {
-  final String message;
   JoinCircleJoinFailure(this.message);
+  final String message;
 }
 
 // ── Contract accept ──────────────────────────────────────────
@@ -76,16 +76,16 @@ class JoinCircleAcceptingContract extends JoinCircleState {}
 
 /// 200 — contract accepted, OTP sent by backend.
 class JoinCircleContractAccepted extends JoinCircleState {
-  final int expiresIn;
   JoinCircleContractAccepted(this.expiresIn);
+  final int expiresIn;
 }
 
 /// 410 — reservation expired; user must restart from join.
 class JoinCircleReservationExpired extends JoinCircleState {}
 
 class JoinCircleAcceptContractFailure extends JoinCircleState {
-  final String message;
   JoinCircleAcceptContractFailure(this.message);
+  final String message;
 }
 
 // ── OTP verification ─────────────────────────────────────────
@@ -94,24 +94,24 @@ class JoinCircleVerifyingOtp extends JoinCircleState {}
 
 /// 200 — OTP verified, membership now ACTIVE.
 class JoinCircleJoinComplete extends JoinCircleState {
-  final VerifyOtpResponseModel result;
   JoinCircleJoinComplete(this.result);
+  final VerifyOtpResponseModel result;
 }
 
 /// Backend returned reason = "invalid_otp".
 class JoinCircleOtpInvalid extends JoinCircleState {
-  final String message;
   JoinCircleOtpInvalid(this.message);
+  final String message;
 }
 
 /// Backend returned reason = "otp_expired" — enable resend immediately.
 class JoinCircleOtpExpired extends JoinCircleState {
-  final String message;
   JoinCircleOtpExpired(this.message);
+  final String message;
 }
 
 /// Network / unexpected error during OTP verification.
 class JoinCircleVerifyOtpFailure extends JoinCircleState {
-  final String message;
   JoinCircleVerifyOtpFailure(this.message);
+  final String message;
 }
