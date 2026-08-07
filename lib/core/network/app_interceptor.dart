@@ -14,11 +14,6 @@ import '../utils/token_utils.dart';
 /// 3. Retries original and concurrent requests sequentially after a successful refresh.
 /// 4. Logs every request, response, and error in a structured, readable format.
 class AppInterceptor extends Interceptor {
-  final CacheHelper _cacheHelper;
-  final Dio _refreshDio;
-
-  Completer<String?>? _refreshCompleter;
-
   AppInterceptor(this._cacheHelper)
       : _refreshDio = Dio(
           BaseOptions(
@@ -28,6 +23,11 @@ class AppInterceptor extends Interceptor {
             headers: {'Content-Type': 'application/json'},
           ),
         );
+
+  final CacheHelper _cacheHelper;
+  final Dio _refreshDio;
+
+  Completer<String?>? _refreshCompleter;
 
   /// Clears all authentication AND cached profile / KYC data so no stale
   /// information remains after a session is invalidated.

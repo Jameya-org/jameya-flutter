@@ -88,17 +88,36 @@ class EligibilityModel {
 /// Maps the string returned by the backend to a typed status.
 enum KycStatus { notVerified, pendingReview, verified, rejected }
 
-KycStatus _parseKycStatus(String? raw) {
-  switch ((raw ?? '').toLowerCase()) {
+KycStatus _parseKycStatus(String? raw, {bool hasDocuments = false}) {
+  final statusStr = (raw ?? '').toLowerCase().trim();
+  switch (statusStr) {
     case 'verified':
     case 'approved':
       return KycStatus.verified;
-    case 'pending':
+
     case 'pending_review':
     case 'under_review':
+    case 'submitted':
+    case 'in_review':
       return KycStatus.pendingReview;
+
+    case 'pending':
+      // Backend returns 'pending' for newly created users who have not yet
+      // submitted verification documents. If no documents have been submitted,
+      // the status is 'notVerified' so the UI displays the upload form.
+      return hasDocuments ? KycStatus.pendingReview : KycStatus.notVerified;
+
     case 'rejected':
+    case 'denied':
+    case 'failed':
       return KycStatus.rejected;
+
+    case 'not_verified':
+    case 'unverified':
+    case 'not_started':
+    case 'draft':
+    case 'initial':
+    case 'none':
     default:
       return KycStatus.notVerified;
   }
@@ -115,7 +134,7 @@ class KycStatusModel {
   });
 
   factory KycStatusModel.fromJson(Map<String, dynamic> json) {
-    final rawStatus = json['kycStatus']?.toString();
+    final rawStatus = (json['kycStatus'] ?? json['status'] ?? json['kyc_status'])?.toString();
 
     List<KycDocumentModel> docs = [];
     final rawDocs = json['documents'];
@@ -142,7 +161,7 @@ class KycStatusModel {
 
     return KycStatusModel(
       legalName: json['legalName']?.toString(),
-      kycStatus: _parseKycStatus(rawStatus),
+      kycStatus: _parseKycStatus(rawStatus, hasDocuments: docs.isNotEmpty),
       identityProfile: identity,
       documents: docs,
       latestEligibility: eligibility,
