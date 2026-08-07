@@ -70,8 +70,8 @@ class SplashController extends ChangeNotifier {
     final cache = getIt<CacheHelper>();
     final authService = getIt<AuthService>();
 
-    String? accessToken = await TokenUtils.getAccessToken(cache);
-    String? refreshToken = await TokenUtils.getRefreshToken(cache);
+    final accessToken = await TokenUtils.getAccessToken(cache);
+    final refreshToken = await TokenUtils.getRefreshToken(cache);
 
     final onboardingSeen =
         cache.getBool(key: CacheKeys.onBoardingViewed) ?? false;
