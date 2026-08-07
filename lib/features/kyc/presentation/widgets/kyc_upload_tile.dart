@@ -9,10 +9,14 @@ class KycUploadTile extends StatelessWidget {
   /// Path of the locally selected (but not yet uploaded) file, or null.
   final String? selectedPath;
 
-  /// True while this document type is being uploaded.
-  final bool isUploading;
+  /// True while this document's physical file is being uploaded to storage.
+  final bool isUploadingToStorage;
 
-  /// Called when the tile is tapped. Null when [isUploaded] is true.
+  /// True while this document record is being registered with the backend.
+  final bool isRegisteringDocument;
+
+  /// Called when the tile is tapped. Null when [isUploaded] is true or
+  /// when any upload phase is in progress.
   final VoidCallback? onTap;
 
   const KycUploadTile({
@@ -20,17 +24,33 @@ class KycUploadTile extends StatelessWidget {
     required this.label,
     this.isUploaded = false,
     this.selectedPath,
-    this.isUploading = false,
+    this.isUploadingToStorage = false,
+    this.isRegisteringDocument = false,
     this.onTap,
   });
+
+  bool get _isBusy => isUploadingToStorage || isRegisteringDocument;
 
   @override
   Widget build(BuildContext context) {
     final hasLocalFile = selectedPath != null && selectedPath!.isNotEmpty;
     final isDone = isUploaded || hasLocalFile;
 
+    String statusLabel;
+    if (isUploadingToStorage) {
+      statusLabel = 'جاري رفع الملف...';
+    } else if (isRegisteringDocument) {
+      statusLabel = 'جاري تسجيل المستند...';
+    } else if (isUploaded) {
+      statusLabel = 'تم الرفع بنجاح';
+    } else if (hasLocalFile) {
+      statusLabel = 'تم اختيار الملف — اضغط للتغيير';
+    } else {
+      statusLabel = 'اضغط لرفع الملف';
+    }
+
     return InkWell(
-      onTap: isUploading ? null : onTap,
+      onTap: _isBusy ? null : onTap,
       borderRadius: BorderRadius.circular(12),
       child: Container(
         padding: const EdgeInsets.symmetric(vertical: 24),
@@ -44,7 +64,7 @@ class KycUploadTile extends StatelessWidget {
         ),
         child: Column(
           children: [
-            if (isUploading)
+            if (_isBusy)
               const SizedBox(
                 width: 28,
                 height: 28,
@@ -69,11 +89,7 @@ class KycUploadTile extends StatelessWidget {
             Text(label, style: const TextStyle(fontWeight: FontWeight.w600)),
             const SizedBox(height: 4),
             Text(
-              isUploaded
-                  ? 'تم الرفع بنجاح'
-                  : hasLocalFile
-                      ? 'تم اختيار الملف — اضغط للتغيير'
-                      : 'اضغط لرفع الملف',
+              statusLabel,
               style: TextStyle(fontSize: 12, color: Colors.grey.shade500),
             ),
           ],

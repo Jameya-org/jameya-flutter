@@ -22,6 +22,12 @@ class ProfileProvider extends ChangeNotifier {
 
   // ── Load ───────────────────────────────────────────────────────────────
 
+  /// Loads / refreshes GET /customers/profile.
+  ///
+  /// 1. Immediately restores any cached profile so the UI is not blank.
+  /// 2. Fetches fresh data from the server.
+  /// 3. Merges remote with cached to avoid flashing empty fields.
+  /// 4. Syncs all profile fields to local cache (email, legalName, phone).
   Future<void> loadProfile() async {
     isLoading = true;
     error = null;
@@ -33,6 +39,7 @@ class ProfileProvider extends ChangeNotifier {
       final data = await _customerService.getProfile();
       final remote = ProfileModel.fromJson(data);
       profile = _mergeWithCached(remote);
+      // Always sync cache so local data stays current.
       await _cacheProfile(profile!);
     } on DioException catch (e) {
       if (profile == null) {
@@ -53,9 +60,10 @@ class ProfileProvider extends ChangeNotifier {
   /// POST /customers/profile — creates or updates the identity profile.
   ///
   /// On success:
-  ///  1. Updates the cached profile locally.
-  ///  2. Refreshes GET /customers/kyc-status via [KycProvider] so the identity
-  ///     profile and KYC state are always up-to-date.
+  ///  1. Re-fetches GET /customers/profile so the local state always
+  ///     reflects the exact server response (no local copyWith guessing).
+  ///  2. Refreshes GET /customers/kyc-status via [KycProvider] so the
+  ///     identity profile and KYC state are always up-to-date.
   ///
   /// On failure: surfaces the exact backend error message.
   Future<bool> updateProfile({
@@ -88,17 +96,14 @@ class ProfileProvider extends ChangeNotifier {
         streetAddress: streetAddress,
       );
 
-      // Update the local cached profile with the new legalName & phone.
-      if (profile == null) _applyCachedProfile();
-      final base = profile ?? ProfileModel(legalName: legalName, email: '');
-      profile = base.copyWith(
-        legalName: legalName,
-        mobileNumber: mobileNumber,
-      );
-      await _cacheProfile(profile!);
+      // Re-fetch fresh profile from server — replaces the old manual copyWith.
+      // loadProfile() also syncs the local cache internally.
+      await loadProfile();
 
       // Refresh KYC status so identity profile info is current.
       if (context.mounted) {
+        // Fire and forget — we don't await this so the profile save response
+        // is immediate; KYC refreshes in the background.
         context.read<KycProvider>().loadStatus();
       }
 
@@ -172,12 +177,15 @@ class ProfileProvider extends ChangeNotifier {
     );
   }
 
+  /// Writes every profile field to local cache.
+  ///
+  /// All three keys are always written (never skipped) to ensure the cache
+  /// stays fully synchronized with the latest server data.
   Future<void> _cacheProfile(ProfileModel value) async {
     final cache = getIt<CacheHelper>();
     await cache.saveData(key: CacheKeys.email, value: value.email);
     await cache.saveData(key: CacheKeys.legalName, value: value.legalName);
-    if (value.mobileNumber.isNotEmpty) {
-      await cache.saveData(key: CacheKeys.phone, value: value.mobileNumber);
-    }
+    // Always write phone — even if empty — to clear any stale value.
+    await cache.saveData(key: CacheKeys.phone, value: value.mobileNumber);
   }
 }

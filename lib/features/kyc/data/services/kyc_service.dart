@@ -6,6 +6,13 @@ class KycService {
   KycService(this.dio);
 
   /// GET /customers/kyc-status
+  ///
+  /// Returns the full KYC status object which includes:
+  /// - legalName
+  /// - kycStatus
+  /// - identityProfile
+  /// - documents
+  /// - latestEligibility
   Future<Map<String, dynamic>> getKycStatus() async {
     final response = await dio.get('/customers/kyc-status');
     final data = response.data;
@@ -14,36 +21,45 @@ class KycService {
     throw StateError('Unexpected KYC status response format');
   }
 
-  /// POST /customers/documents
+  /// POST /customers/documents — STEP 2 of the two-step document upload flow.
+  ///
+  /// The [encryptedObjectRef] MUST be the [secureUrl] returned from
+  /// POST /storage/upload (Step 1). The caller is responsible for providing
+  /// it — never pass a local file path here.
   ///
   /// Body (JSON):
   /// ```json
   /// {
   ///   "docType": "...",
-  ///   "encryptedObjectRef": "...",
-  ///   "issueDate": "...",
-  ///   "expiryDate": "..."
+  ///   "encryptedObjectRef": "<secureUrl from storage upload>",
+  ///   "issueDate": "...",      // optional — omitted if null
+  ///   "expiryDate": "..."      // optional — omitted if null
   /// }
   /// ```
   ///
-  /// Throws a [DioException] on failure so the caller can surface the
-  /// backend message (e.g. validation errors) directly to the UI.
+  /// Throws [DioException] on failure so the caller can surface the exact
+  /// backend message to the UI.
   Future<void> uploadDocument({
     required String docType,
     required String encryptedObjectRef,
-    required String issueDate,
-    required String expiryDate,
+    String? issueDate,
+    String? expiryDate,
   }) async {
+    final body = <String, dynamic>{
+      'docType': docType,
+      'encryptedObjectRef': encryptedObjectRef,
+    };
+
+    // Only include date fields when they have meaningful values.
+    if (issueDate != null && issueDate.isNotEmpty) {
+      body['issueDate'] = issueDate;
+    }
+    if (expiryDate != null && expiryDate.isNotEmpty) {
+      body['expiryDate'] = expiryDate;
+    }
+
     try {
-      await dio.post(
-        '/customers/documents',
-        data: {
-          'docType': docType,
-          'encryptedObjectRef': encryptedObjectRef,
-          'issueDate': issueDate,
-          'expiryDate': expiryDate,
-        },
-      );
+      await dio.post('/customers/documents', data: body);
     } on DioException {
       rethrow;
     }

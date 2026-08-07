@@ -14,7 +14,7 @@ class _QueuedRequest {
 /// [AppInterceptor]:
 /// 1. Automatically attaches the JWT access token to every request.
 /// 2. Intercepts 401 Unauthorized errors, queues pending requests, and automatically refreshes access token.
-/// 3. Retries original and queued requests seamlessly.
+/// 3. Retries original and queued requests sequentially after a successful refresh.
 /// 4. Logs every request, response, and error in a structured, readable format.
 class AppInterceptor extends Interceptor {
   final CacheHelper _cacheHelper;
@@ -58,10 +58,18 @@ class AppInterceptor extends Interceptor {
     }
   }
 
+  /// Clears all authentication AND cached profile / KYC data so no stale
+  /// information remains after a session is invalidated.
   Future<void> _clearSession() async {
+    // Auth tokens
     await _cacheHelper.deleteData(key: CacheKeys.accessToken);
     await _cacheHelper.deleteData(key: CacheKeys.refreshToken);
     await _cacheHelper.deleteAllSecureData();
+
+    // Cached profile fields
+    await _cacheHelper.deleteData(key: CacheKeys.email);
+    await _cacheHelper.deleteData(key: CacheKeys.legalName);
+    await _cacheHelper.deleteData(key: CacheKeys.phone);
   }
 
   // ─────────────────────────────────────────────
@@ -157,48 +165,57 @@ class AppInterceptor extends Interceptor {
     final isAuthEndpoint = err.requestOptions.path.contains('/auth/');
 
     if (isUnauthorized && !isAuthEndpoint) {
+      // If already refreshing, queue this request and wait.
       if (_isRefreshing) {
-        // Queue pending request until refresh finishes
         _failedQueue.add(_QueuedRequest(err.requestOptions, handler));
         return;
       }
 
-      _isRefreshing = true;
-
-      final success = await _attemptRefresh();
-      _isRefreshing = false;
-
-      if (success) {
-        final newToken = await _getAccessToken();
-        if (newToken != null && newToken.isNotEmpty) {
-          err.requestOptions.headers['Authorization'] = 'Bearer $newToken';
-        }
-
-        try {
-          final retriedResponse = await _refreshDio.fetch(err.requestOptions);
-          handler.resolve(retriedResponse);
-        } on DioException catch (retryErr) {
-          handler.reject(retryErr);
-        }
-
-        // Retry all queued requests
-        _processQueue(newToken);
-        return;
-      } else {
+      // Guard: if no refresh token exists at all, clear session immediately.
+      final refreshToken = await _getRefreshToken();
+      if (refreshToken == null || refreshToken.isEmpty) {
         await _clearSession();
         _rejectQueue(err);
         handler.next(err);
         return;
       }
+
+      _isRefreshing = true;
+
+      final newAccessToken = await _attemptRefresh(refreshToken);
+      _isRefreshing = false;
+
+      if (newAccessToken != null) {
+        // Update token on the original failing request.
+        err.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
+
+        try {
+          // Retry the original request first.
+          final retriedResponse = await _refreshDio.fetch(err.requestOptions);
+          // Then sequentially retry all queued requests.
+          await _processQueue(newAccessToken);
+          handler.resolve(retriedResponse);
+        } on DioException catch (retryErr) {
+          await _processQueue(newAccessToken);
+          handler.reject(retryErr);
+        }
+      } else {
+        // Refresh failed — clear session and reject everything.
+        await _clearSession();
+        _rejectQueue(err);
+        handler.next(err);
+      }
+
+      return;
     }
 
     handler.next(err);
   }
 
-  Future<bool> _attemptRefresh() async {
-    final refreshToken = await _getRefreshToken();
-    if (refreshToken == null || refreshToken.isEmpty) return false;
-
+  /// Attempts to refresh the access token using [refreshToken].
+  ///
+  /// Returns the new access token string on success, or `null` on failure.
+  Future<String?> _attemptRefresh(String refreshToken) async {
     try {
       final response = await _refreshDio.post(
         '/auth/refresh',
@@ -215,20 +232,25 @@ class AppInterceptor extends Interceptor {
             accessToken: newAccess,
             refreshToken: newRefresh,
           );
-          return true;
+          return newAccess;
         }
       }
-      return false;
+      return null;
     } catch (_) {
-      return false;
+      return null;
     }
   }
 
-  void _processQueue(String? newToken) async {
-    for (final item in _failedQueue) {
-      if (newToken != null && newToken.isNotEmpty) {
-        item.options.headers['Authorization'] = 'Bearer $newToken';
-      }
+  /// Sequentially retries all queued requests using the new [newToken].
+  ///
+  /// Sequential (not parallel) to avoid thundering-herd after refresh and to
+  /// ensure each queued request gets the correct new token.
+  Future<void> _processQueue(String newToken) async {
+    final snapshot = List<_QueuedRequest>.from(_failedQueue);
+    _failedQueue.clear();
+
+    for (final item in snapshot) {
+      item.options.headers['Authorization'] = 'Bearer $newToken';
       try {
         final res = await _refreshDio.fetch(item.options);
         item.handler.resolve(res);
@@ -236,14 +258,14 @@ class AppInterceptor extends Interceptor {
         item.handler.reject(e);
       }
     }
-    _failedQueue.clear();
   }
 
   void _rejectQueue(DioException err) {
-    for (final item in _failedQueue) {
+    final snapshot = List<_QueuedRequest>.from(_failedQueue);
+    _failedQueue.clear();
+    for (final item in snapshot) {
       item.handler.reject(err);
     }
-    _failedQueue.clear();
   }
 
   // ─────────────────────────────────────────────

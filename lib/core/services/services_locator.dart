@@ -9,6 +9,7 @@ import '../../features/auth/presentation/cubit/auth_cubit.dart';
 import '../../features/profile/data/services/customer_service.dart';
 import '../../features/payment/data/services/payment_service.dart';
 import '../../features/kyc/data/services/kyc_service.dart';
+import '../../features/kyc/data/services/storage_service.dart';
 import '../../features/home/data/services/home_service.dart';
 import '../../features/home/data/repos/home_repo.dart';
 import '../../features/home/presentation/cubit/home_cubit.dart';
@@ -61,6 +62,11 @@ Future<void> setupServiceLocator() async {
   // KYC
   getIt.registerLazySingleton<KycService>(
     () => KycService(getIt<Dio>()),
+  );
+
+  // Storage — used for the two-step document upload (POST /storage/upload).
+  getIt.registerLazySingleton<StorageService>(
+    () => StorageService(getIt<Dio>()),
   );
 
   // Home
