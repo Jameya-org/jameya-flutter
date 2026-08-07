@@ -6,15 +6,14 @@ import '../providers/kyc_provider.dart';
 import '../widgets/kyc_upload_tile.dart';
 
 /// Arabic labels for each known document type.
-/// Any future docType not listed here falls back to the raw docType string.
 const _docTypeLabels = <String, String>{
   'NATIONAL_ID': 'الهوية الوطنية',
   'PASSPORT': 'جواز السفر',
   'PROOF_OF_INCOME': 'إثبات الدخل',
 };
 
-/// Document types that must NOT accept PDF files (image-only).
-const _imageOnlyDocTypes = {
+/// Document types that require image-only uploads and issue/expiry dates.
+const _dateRequiredDocTypes = {
   'NATIONAL_ID',
   'PASSPORT',
   'CAR_LICENSE',
@@ -22,9 +21,9 @@ const _imageOnlyDocTypes = {
 };
 
 class KycUploadView extends StatefulWidget {
-  final KycProvider provider;
-
   const KycUploadView({super.key, required this.provider});
+
+  final KycProvider provider;
 
   @override
   State<KycUploadView> createState() => _KycUploadViewState();
@@ -33,18 +32,8 @@ class KycUploadView extends StatefulWidget {
 class _KycUploadViewState extends State<KycUploadView> {
   bool _isSubmitting = false;
 
-  /// Picks a file for [docType] using the platform file picker and stores it
-  /// in the provider.
-  ///
-  /// Document replacement fix: calling this multiple times simply overwrites
-  /// the previous selection via [KycProvider.setDocumentFile]. The map entry
-  /// is replaced atomically — no exception, no stale reference.
-  ///
-  /// Client-side validation:
-  /// - PDF files are rejected for image-only document types.
   Future<void> _pickFile(String docType) async {
-    // For image-only types, restrict to common image extensions.
-    final isImageOnly = _imageOnlyDocTypes.contains(docType);
+    final isImageOnly = _dateRequiredDocTypes.contains(docType);
 
     FilePickerResult? result;
     try {
@@ -55,7 +44,6 @@ class _KycUploadViewState extends State<KycUploadView> {
         withReadStream: false,
       );
     } catch (_) {
-      // File picker can throw on some platforms if the user aborts.
       return;
     }
 
@@ -63,7 +51,6 @@ class _KycUploadViewState extends State<KycUploadView> {
 
     final platformFile = result.files.first;
 
-    // Guard: path must be available for file I/O.
     if (platformFile.path == null) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -76,10 +63,8 @@ class _KycUploadViewState extends State<KycUploadView> {
       return;
     }
 
-    // Client-side PDF rejection (redundant for image-only via FileType.image,
-    // but kept as a safety net for any-type pickers and future doc types).
     final ext = platformFile.extension?.toLowerCase() ?? '';
-    if (ext == 'pdf' && _imageOnlyDocTypes.contains(docType)) {
+    if (ext == 'pdf' && _dateRequiredDocTypes.contains(docType)) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -94,13 +79,46 @@ class _KycUploadViewState extends State<KycUploadView> {
       return;
     }
 
-    // Atomically replace any previously selected file — safe to call multiple
-    // times before submission. Also clears any cached secureUrl.
     context.read<KycProvider>().setDocumentFile(docType, platformFile);
   }
 
+  Future<void> _pickIssueDate(String docType) async {
+    final provider = context.read<KycProvider>();
+    final initialDate = provider.issueDate(docType) ?? DateTime.now();
+
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate.isAfter(DateTime.now()) ? DateTime.now() : initialDate,
+      firstDate: DateTime(1990),
+      lastDate: DateTime.now(),
+      helpText: 'اختر تاريخ الإصدار',
+    );
+
+    if (picked != null && mounted) {
+      provider.setIssueDate(docType, picked);
+    }
+  }
+
+  Future<void> _pickExpiryDate(String docType) async {
+    final provider = context.read<KycProvider>();
+    final tomorrow = DateTime.now().add(const Duration(days: 1));
+    final initialDate = provider.expiryDate(docType) ?? tomorrow;
+
+    final picked = await showDatePicker(
+      context: context,
+      initialDate: initialDate.isBefore(tomorrow) ? tomorrow : initialDate,
+      firstDate: tomorrow,
+      lastDate: DateTime(2050),
+      helpText: 'اختر تاريخ الانتهاء',
+    );
+
+    if (picked != null && mounted) {
+      provider.setExpiryDate(docType, picked);
+    }
+  }
+
   /// Uploads all locally-selected documents via the two-step flow, then
-  /// submits KYC for review.
+  /// submits KYC for review after strict validation.
   Future<void> _submit() async {
     final provider = context.read<KycProvider>();
 
@@ -108,9 +126,42 @@ class _KycUploadViewState extends State<KycUploadView> {
         provider.kycStatus?.documents.map((d) => d.docType).toSet() ??
         <String>{};
 
-    // Collect doc types that have either:
-    //  a) a locally selected file not yet uploaded, OR
-    //  b) a cached secureUrl waiting for document registration.
+    // ── Bug #1 Validation: Ensure mandatory documents exist ───────────────
+    final hasIdentity = uploadedTypes.contains('NATIONAL_ID') ||
+        uploadedTypes.contains('PASSPORT') ||
+        provider.selectedFilePath('NATIONAL_ID') != null ||
+        provider.selectedFilePath('PASSPORT') != null;
+
+    final hasProofOfIncome = uploadedTypes.contains('PROOF_OF_INCOME') ||
+        provider.selectedFilePath('PROOF_OF_INCOME') != null;
+
+    if (!hasIdentity && !hasProofOfIncome) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('يُرجى إرفاق الهوية الوطنية/جواز السفر وإثبات الدخل قبل التأكيد'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    } else if (!hasIdentity) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('يُرجى إرفاق الهوية الوطنية أو جواز السفر'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    } else if (!hasProofOfIncome) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('A proof of income document is required before submitting (PROOF_OF_INCOME).'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    // Collect pending docTypes
     final pending = <String>[];
     for (final docType in _docTypeLabels.keys) {
       final hasFile = provider.selectedFilePath(docType) != null;
@@ -121,14 +172,58 @@ class _KycUploadViewState extends State<KycUploadView> {
       }
     }
 
-    if (pending.isEmpty && uploadedTypes.isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('من فضلك ارفع المستندات المطلوبة أولاً'),
-          backgroundColor: Colors.red,
-        ),
-      );
-      return;
+    // ── Bug #2 Validation: Ensure date fields criteria are met ─────────────
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+
+    for (final docType in pending) {
+      if (_dateRequiredDocTypes.contains(docType)) {
+        final issue = provider.issueDate(docType);
+        final expiry = provider.expiryDate(docType);
+        final docLabel = _docTypeLabels[docType] ?? docType;
+
+        if (issue == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('يُرجى تحديد تاريخ الإصدار لـ $docLabel'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        final issueDay = DateTime(issue.year, issue.month, issue.day);
+        if (issueDay.isAfter(today)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('تاريخ الإصدار لـ $docLabel يجب أن يكون في الماضي أو اليوم'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        if (expiry == null) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('يُرجى تحديد تاريخ الانتهاء لـ $docLabel'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+
+        final expiryDay = DateTime(expiry.year, expiry.month, expiry.day);
+        if (!expiryDay.isAfter(today)) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('تاريخ الانتهاء لـ $docLabel يجب أن يكون في المستقبل'),
+              backgroundColor: Colors.red,
+            ),
+          );
+          return;
+        }
+      }
     }
 
     setState(() => _isSubmitting = true);
@@ -136,24 +231,19 @@ class _KycUploadViewState extends State<KycUploadView> {
     try {
       // Upload each pending document via the two-step flow.
       for (final docType in pending) {
-        // uploadDocument() internally:
-        //  1. Skips storage upload if secureUrl is already cached.
-        //  2. Posts to /customers/documents with the secureUrl.
-        //  3. On registration failure, keeps secureUrl in memory for retry.
         final errorMsg = await provider.uploadDocument(docType: docType);
         if (!mounted) return;
         if (errorMsg != null) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(errorMsg), backgroundColor: Colors.red),
           );
-          // Stop on first failure — user can fix and retry.
           return;
         }
       }
 
       if (!mounted) return;
 
-      // Submit KYC for review after all documents are registered.
+      // Submit KYC for review ONLY after all mandatory documents are uploaded and registered.
       final submitError = await provider.submitKyc();
       if (!mounted) return;
       if (submitError != null) {
@@ -212,6 +302,8 @@ class _KycUploadViewState extends State<KycUploadView> {
                             final selectedPath = provider.selectedFilePath(
                               docType,
                             );
+                            final requiresDates = _dateRequiredDocTypes.contains(docType);
+
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 12),
                               child: KycUploadTile(
@@ -222,8 +314,11 @@ class _KycUploadViewState extends State<KycUploadView> {
                                     .isUploadingToStorage(docType),
                                 isRegisteringDocument: provider
                                     .isRegisteringDocument(docType),
-                                // Already uploaded docs show as complete but
-                                // can still be re-tapped to replace.
+                                requiresDates: requiresDates,
+                                issueDate: provider.issueDate(docType),
+                                expiryDate: provider.expiryDate(docType),
+                                onPickIssueDate: () => _pickIssueDate(docType),
+                                onPickExpiryDate: () => _pickExpiryDate(docType),
                                 onTap: isUploaded
                                     ? null
                                     : () => _pickFile(docType),

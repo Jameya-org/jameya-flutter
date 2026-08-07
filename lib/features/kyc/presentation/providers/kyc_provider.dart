@@ -42,6 +42,12 @@ class KycProvider extends ChangeNotifier {
   /// Key: docType — Value: secureUrl returned by POST /storage/upload.
   final Map<String, String> _pendingSecureUrls = {};
 
+  /// Issue dates selected for each docType.
+  final Map<String, DateTime> _issueDates = {};
+
+  /// Expiry dates selected for each docType.
+  final Map<String, DateTime> _expiryDates = {};
+
   // ── Getters ───────────────────────────────────────────────────────────────
 
   /// Convenience accessor for the parsed status enum.
@@ -49,6 +55,12 @@ class KycProvider extends ChangeNotifier {
 
   /// Returns the locally selected file path for [docType], or null.
   String? selectedFilePath(String docType) => _selectedFiles[docType]?.path;
+
+  /// Returns the selected issue date for [docType], or null.
+  DateTime? issueDate(String docType) => _issueDates[docType];
+
+  /// Returns the selected expiry date for [docType], or null.
+  DateTime? expiryDate(String docType) => _expiryDates[docType];
 
   /// Returns true while the file for [docType] is being uploaded to storage.
   bool isUploadingToStorage(String docType) =>
@@ -68,6 +80,18 @@ class KycProvider extends ChangeNotifier {
       _pendingSecureUrls.containsKey(docType);
 
   // ── Actions ───────────────────────────────────────────────────────────────
+
+  /// Sets the issue date for [docType].
+  void setIssueDate(String docType, DateTime date) {
+    _issueDates[docType] = date;
+    notifyListeners();
+  }
+
+  /// Sets the expiry date for [docType].
+  void setExpiryDate(String docType, DateTime date) {
+    _expiryDates[docType] = date;
+    notifyListeners();
+  }
 
   /// Loads / refreshes GET /customers/kyc-status.
   /// Always called on screen open and after any mutation.
@@ -103,10 +127,12 @@ class KycProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// Clears the locally selected file for [docType].
+  /// Clears the locally selected file and dates for [docType].
   void clearDocumentFile(String docType) {
     _selectedFiles.remove(docType);
     _pendingSecureUrls.remove(docType);
+    _issueDates.remove(docType);
+    _expiryDates.remove(docType);
     notifyListeners();
   }
 
@@ -119,12 +145,17 @@ class KycProvider extends ChangeNotifier {
   ///
   /// STEP 2 — POST /customers/documents:
   ///   - Uses the secureUrl from Step 1 (or the cached one on retry).
+  ///   - Passes issueDate and expiryDate formatted as ISO YYYY-MM-DD strings.
   ///   - On failure: keeps [secureUrl] in memory and keeps the file selected
   ///     so the user can retry without choosing the file again.
   ///   - On success: clears selected file + secureUrl, refreshes KYC status.
   ///
   /// Returns `null` on full success or an error message string on failure.
-  Future<String?> uploadDocument({required String docType}) async {
+  Future<String?> uploadDocument({
+    required String docType,
+    String? issueDate,
+    String? expiryDate,
+  }) async {
     // ── STEP 1: Storage Upload ───────────────────────────────────────────
 
     // Check if we already have a valid secureUrl from a previous upload
@@ -187,16 +218,23 @@ class KycProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
+      final formattedIssueDate =
+          issueDate ?? _formatIsoDate(_issueDates[docType]);
+      final formattedExpiryDate =
+          expiryDate ?? _formatIsoDate(_expiryDates[docType]);
+
       await _kycService.uploadDocument(
         docType: docType,
         encryptedObjectRef: secureUrl,
-        // issueDate and expiryDate are not collected by the current UI.
-        // UX GAP: These fields should be added to the upload form.
+        issueDate: formattedIssueDate,
+        expiryDate: formattedExpiryDate,
       );
 
       // Full success: clear local state.
       _selectedFiles.remove(docType);
       _pendingSecureUrls.remove(docType);
+      _issueDates.remove(docType);
+      _expiryDates.remove(docType);
 
       // Refresh KYC status immediately so the UI reflects the new document.
       await loadStatus();
@@ -244,5 +282,12 @@ class KycProvider extends ChangeNotifier {
       notifyListeners();
       return msg;
     }
+  }
+
+  static String? _formatIsoDate(DateTime? date) {
+    if (date == null) return null;
+    return '${date.year.toString().padLeft(4, '0')}-'
+        '${date.month.toString().padLeft(2, '0')}-'
+        '${date.day.toString().padLeft(2, '0')}';
   }
 }
