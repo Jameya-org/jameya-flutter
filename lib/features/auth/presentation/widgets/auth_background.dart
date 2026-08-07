@@ -22,11 +22,7 @@ class AuthBackground extends StatelessWidget {
       body: Stack(
         children: [
           /// Green Background
-          Positioned.fill(
-            child: ColoredBox(
-              color: AppColors.primary,
-            ),
-          ),
+          const Positioned.fill(child: ColoredBox(color: AppColors.primary)),
 
           /// Header
           SafeArea(
@@ -55,10 +51,7 @@ class AuthBackground extends StatelessWidget {
                     padding: EdgeInsets.only(
                       bottom: MediaQuery.viewInsetsOf(context).bottom,
                     ),
-                    child: SafeArea(
-                      top: false,
-                      child: child,
-                    ),
+                    child: SafeArea(top: false, child: child),
                   ),
                 );
 

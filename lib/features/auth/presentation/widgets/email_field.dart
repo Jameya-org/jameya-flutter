@@ -5,11 +5,7 @@ import '../../../../core/utils/app_colors.dart';
 import '../../../../core/utils/app_text_styles.dart';
 
 class EmailField extends StatelessWidget {
-  const EmailField({
-    super.key,
-    required this.controller,
-    this.onChanged,
-  });
+  const EmailField({super.key, required this.controller, this.onChanged});
 
   final TextEditingController controller;
   final ValueChanged<String>? onChanged;
@@ -24,9 +20,7 @@ class EmailField extends StatelessWidget {
             children: [
               TextSpan(
                 text: '* ',
-                style: AppTextStyles.displayMedium.copyWith(
-                  color: Colors.red,
-                ),
+                style: AppTextStyles.displayMedium.copyWith(color: Colors.red),
               ),
               TextSpan(
                 text: 'الإيميل',
@@ -52,9 +46,7 @@ class EmailField extends StatelessWidget {
             style: AppTextStyles.body2,
             decoration: InputDecoration(
               hintText: 'example@gmail.com',
-              hintStyle: AppTextStyles.body2.copyWith(
-                color: AppColors.grey500,
-              ),
+              hintStyle: AppTextStyles.body2.copyWith(color: AppColors.grey500),
               filled: true,
               fillColor: AppColors.backgroundLight,
               contentPadding: EdgeInsets.symmetric(
@@ -63,13 +55,11 @@ class EmailField extends StatelessWidget {
               ),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide(
-                  color: AppColors.grey200,
-                ),
+                borderSide: const BorderSide(color: AppColors.grey200),
               ),
               focusedBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12.r),
-                borderSide: BorderSide(
+                borderSide: const BorderSide(
                   color: AppColors.primary,
                   width: 1.5,
                 ),

@@ -4,29 +4,19 @@ import '../models/request_otp_model.dart';
 import '../models/verify_otp_model.dart';
 
 class AuthService {
+  AuthService(this.dio);
   final Dio dio;
 
-  AuthService(this.dio);
-
   Future<Response> requestOtp(RequestOtpModel model) async {
-    return await dio.post(
-      '/auth/request-otp',
-      data: model.toJson(),
-    );
+    return dio.post('/auth/request-otp', data: model.toJson());
   }
 
   Future<Response> verifyOtp(VerifyOtpModel model) async {
-    return await dio.post(
-      '/auth/verify-otp',
-      data: model.toJson(),
-    );
+    return dio.post('/auth/verify-otp', data: model.toJson());
   }
 
   Future<Response> refreshToken(String refreshToken) async {
-    return await dio.post(
-      '/auth/refresh',
-      data: {'refreshToken': refreshToken},
-    );
+    return dio.post('/auth/refresh', data: {'refreshToken': refreshToken});
   }
 
   /// Creates the customer's initial profile via POST /customers/profile.
