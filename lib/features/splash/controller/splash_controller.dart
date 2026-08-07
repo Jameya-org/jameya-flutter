@@ -8,6 +8,7 @@ import '../../../../core/cache/cache_keys.dart';
 import '../../../../core/routing/routes.dart';
 import '../../../../core/services/services_locator.dart';
 import '../../../../core/utils/jwt_decoder.dart';
+import '../../../../core/utils/token_utils.dart';
 import '../../auth/data/services/auth_service.dart';
 
 enum _RefreshOutcome { success, authFailure, transientFailure }
@@ -69,11 +70,8 @@ class SplashController extends ChangeNotifier {
     final cache = getIt<CacheHelper>();
     final authService = getIt<AuthService>();
 
-    String? accessToken = await cache.getSecureData(key: CacheKeys.accessToken);
-    accessToken ??= cache.getString(key: CacheKeys.accessToken);
-
-    String? refreshToken = await cache.getSecureData(key: CacheKeys.refreshToken);
-    refreshToken ??= cache.getString(key: CacheKeys.refreshToken);
+    String? accessToken = await TokenUtils.getAccessToken(cache);
+    String? refreshToken = await TokenUtils.getRefreshToken(cache);
 
     final onboardingSeen =
         cache.getBool(key: CacheKeys.onBoardingViewed) ?? false;
@@ -119,19 +117,16 @@ class SplashController extends ChangeNotifier {
     try {
       final response = await authService.refreshToken(refreshToken);
       final data = response.data;
-      if (data is Map) {
-        final newAccess = (data['accessToken'] ?? data['access_token'])?.toString();
-        final newRefresh = (data['refreshToken'] ?? data['refresh_token'])?.toString();
+      final newAccess = TokenUtils.extractAccessToken(data);
+      final newRefresh = TokenUtils.extractRefreshToken(data);
 
-        if (newAccess != null && newAccess.isNotEmpty) {
-          await cache.saveData(key: CacheKeys.accessToken, value: newAccess);
-          await cache.saveSecureData(key: CacheKeys.accessToken, value: newAccess);
-          if (newRefresh != null && newRefresh.isNotEmpty) {
-            await cache.saveData(key: CacheKeys.refreshToken, value: newRefresh);
-            await cache.saveSecureData(key: CacheKeys.refreshToken, value: newRefresh);
-          }
-          return _RefreshOutcome.success;
-        }
+      if (newAccess != null && newAccess.isNotEmpty) {
+        await TokenUtils.saveTokens(
+          cache,
+          accessToken: newAccess,
+          refreshToken: newRefresh ?? refreshToken,
+        );
+        return _RefreshOutcome.success;
       }
       // Server responded, but the payload didn't contain a usable token.
       return _RefreshOutcome.authFailure;
@@ -149,8 +144,7 @@ class SplashController extends ChangeNotifier {
   }
 
   Future<void> _clearSession(CacheHelper cache) async {
-    await cache.deleteData(key: CacheKeys.accessToken);
-    await cache.deleteData(key: CacheKeys.refreshToken);
+    await TokenUtils.clearTokens(cache);
     await cache.deleteAllSecureData();
   }
 

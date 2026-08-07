@@ -16,7 +16,13 @@ class AuthService {
   }
 
   Future<Response> refreshToken(String refreshToken) async {
-    return dio.post('/auth/refresh', data: {'refreshToken': refreshToken});
+    return dio.post(
+      '/auth/refresh',
+      data: {
+        'refreshToken': refreshToken,
+        'refresh_token': refreshToken,
+      },
+    );
   }
 
   /// Creates the customer's initial profile via POST /customers/profile.

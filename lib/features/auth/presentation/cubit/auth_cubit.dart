@@ -10,6 +10,8 @@ import '../../data/models/verify_otp_model.dart';
 import '../../data/repos/auth_repo.dart';
 import 'auth_state.dart';
 
+import '../../../../core/utils/token_utils.dart';
+
 class AuthCubit extends Cubit<AuthState> {
   AuthCubit(this.authRepo) : super(AuthInitial());
 
@@ -39,30 +41,16 @@ class AuthCubit extends Cubit<AuthState> {
         VerifyOtpModel(email: email, otp: otp),
       );
 
-      final accessToken = (response.data['accessToken'] ?? response.data['access_token'])?.toString();
-      final refreshToken = (response.data['refreshToken'] ?? response.data['refresh_token'])?.toString();
+      final accessToken = TokenUtils.extractAccessToken(response.data);
+      final refreshToken = TokenUtils.extractRefreshToken(response.data);
 
       final cache = getIt<CacheHelper>();
 
       if (accessToken != null && accessToken.isNotEmpty) {
-        await cache.saveData(
-          key: CacheKeys.accessToken,
-          value: accessToken,
-        );
-        await cache.saveSecureData(
-          key: CacheKeys.accessToken,
-          value: accessToken,
-        );
-      }
-
-      if (refreshToken != null && refreshToken.isNotEmpty) {
-        await cache.saveData(
-          key: CacheKeys.refreshToken,
-          value: refreshToken,
-        );
-        await cache.saveSecureData(
-          key: CacheKeys.refreshToken,
-          value: refreshToken,
+        await TokenUtils.saveTokens(
+          cache,
+          accessToken: accessToken,
+          refreshToken: refreshToken,
         );
       }
 
