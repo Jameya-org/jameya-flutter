@@ -31,6 +31,9 @@ class _CreateAccountViewState extends State<CreateAccountView> {
   String countryCode = '+20';
   final nationalIdController = TextEditingController();
   final birthDateController = TextEditingController();
+  final governorateController = TextEditingController();
+  final cityController = TextEditingController();
+  final streetAddressController = TextEditingController();
 
   bool _acceptedTerms = false;
   bool _isButtonEnabled = false;
@@ -44,6 +47,9 @@ class _CreateAccountViewState extends State<CreateAccountView> {
     phoneController.addListener(_validateForm);
     nationalIdController.addListener(_validateForm);
     birthDateController.addListener(_validateForm);
+    governorateController.addListener(_validateForm);
+    cityController.addListener(_validateForm);
+    streetAddressController.addListener(_validateForm);
   }
 
   void _validateForm() {
@@ -53,6 +59,9 @@ class _CreateAccountViewState extends State<CreateAccountView> {
         phoneController.text.length == 11 &&
         nationalIdController.text.length == 14 &&
         birthDateController.text.isNotEmpty &&
+        governorateController.text.trim().isNotEmpty &&
+        cityController.text.trim().isNotEmpty &&
+        streetAddressController.text.trim().isNotEmpty &&
         _acceptedTerms;
 
     setState(() {
@@ -67,6 +76,9 @@ class _CreateAccountViewState extends State<CreateAccountView> {
     phoneController.dispose();
     nationalIdController.dispose();
     birthDateController.dispose();
+    governorateController.dispose();
+    cityController.dispose();
+    streetAddressController.dispose();
     super.dispose();
   }
 
@@ -137,6 +149,24 @@ class _CreateAccountViewState extends State<CreateAccountView> {
                           readOnly: true,
                           onTap: _selectDate,
                         ),
+                        SizedBox(height: 16.h),
+                        LabeledTextField(
+                          label: 'المحافظة',
+                          controller: governorateController,
+                          hintText: 'القاهرة',
+                        ),
+                        SizedBox(height: 16.h),
+                        LabeledTextField(
+                          label: 'المدينة',
+                          controller: cityController,
+                          hintText: 'مدينة نصر',
+                        ),
+                        SizedBox(height: 16.h),
+                        LabeledTextField(
+                          label: 'العنوان بالتفصيل',
+                          controller: streetAddressController,
+                          hintText: 'شارع الطيران، العمارة 15',
+                        ),
                         SizedBox(height: 50.h),
                         TermsCheckbox(
                           value: _acceptedTerms,
@@ -186,6 +216,9 @@ class _CreateAccountViewState extends State<CreateAccountView> {
         nationalId: nationalIdController.text,
         dateOfBirth: birthDateController.text,
         mobileNumber: mobileNumber,
+        governorate: governorateController.text.trim(),
+        city: cityController.text.trim(),
+        streetAddress: streetAddressController.text.trim(),
       );
 
       final cache = getIt<CacheHelper>();

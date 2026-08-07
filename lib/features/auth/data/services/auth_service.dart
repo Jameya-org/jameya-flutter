@@ -47,6 +47,9 @@ class AuthService {
     required String nationalId,
     required String dateOfBirth,
     required String mobileNumber,
+    required String governorate,
+    required String city,
+    required String streetAddress,
   }) async {
     await dio.post(
       '/customers/profile',
@@ -55,9 +58,9 @@ class AuthService {
         'dateOfBirth': dateOfBirth,
         'nationalIdNumber': nationalId,
         'address': {
-          'governorate': '',
-          'city': '',
-          'streetAddress': '',
+          'governorate': governorate,
+          'city': city,
+          'streetAddress': streetAddress,
         },
         'mobileNumber': mobileNumber,
       },
