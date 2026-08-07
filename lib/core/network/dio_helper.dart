@@ -4,8 +4,6 @@ import '../cache/cache_helper.dart';
 import 'app_interceptor.dart';
 
 class DioHelper {
-  late Dio dio;
-
   DioHelper(CacheHelper cacheHelper) {
     dio = Dio(
       BaseOptions(
@@ -13,9 +11,7 @@ class DioHelper {
         receiveDataWhenStatusError: true,
         connectTimeout: const Duration(seconds: 30),
         receiveTimeout: const Duration(seconds: 30),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: {'Content-Type': 'application/json'},
       ),
     );
 
@@ -23,4 +19,5 @@ class DioHelper {
     // and structured request / response / error logging.
     dio.interceptors.add(AppInterceptor(cacheHelper));
   }
+  late Dio dio;
 }

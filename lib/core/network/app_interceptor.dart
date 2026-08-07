@@ -5,10 +5,9 @@ import '../cache/cache_helper.dart';
 import '../cache/cache_keys.dart';
 
 class _QueuedRequest {
+  _QueuedRequest(this.options, this.handler);
   final RequestOptions options;
   final ErrorInterceptorHandler handler;
-
-  _QueuedRequest(this.options, this.handler);
 }
 
 /// [AppInterceptor]:
@@ -17,30 +16,33 @@ class _QueuedRequest {
 /// 3. Retries original and queued requests sequentially after a successful refresh.
 /// 4. Logs every request, response, and error in a structured, readable format.
 class AppInterceptor extends Interceptor {
+  AppInterceptor(this._cacheHelper)
+    : _refreshDio = Dio(
+        BaseOptions(
+          baseUrl: 'https://jameya-backend.onrender.com',
+          connectTimeout: const Duration(seconds: 15),
+          receiveTimeout: const Duration(seconds: 15),
+          headers: {'Content-Type': 'application/json'},
+        ),
+      );
   final CacheHelper _cacheHelper;
   final Dio _refreshDio;
 
   bool _isRefreshing = false;
   final List<_QueuedRequest> _failedQueue = [];
 
-  AppInterceptor(this._cacheHelper)
-      : _refreshDio = Dio(
-          BaseOptions(
-            baseUrl: 'https://jameya-backend.onrender.com',
-            connectTimeout: const Duration(seconds: 15),
-            receiveTimeout: const Duration(seconds: 15),
-            headers: {'Content-Type': 'application/json'},
-          ),
-        );
-
   Future<String?> _getAccessToken() async {
-    String? token = await _cacheHelper.getSecureData(key: CacheKeys.accessToken);
+    String? token = await _cacheHelper.getSecureData(
+      key: CacheKeys.accessToken,
+    );
     token ??= _cacheHelper.getString(key: CacheKeys.accessToken);
     return token;
   }
 
   Future<String?> _getRefreshToken() async {
-    String? token = await _cacheHelper.getSecureData(key: CacheKeys.refreshToken);
+    String? token = await _cacheHelper.getSecureData(
+      key: CacheKeys.refreshToken,
+    );
     token ??= _cacheHelper.getString(key: CacheKeys.refreshToken);
     return token;
   }
@@ -50,11 +52,20 @@ class AppInterceptor extends Interceptor {
     String? refreshToken,
   }) async {
     await _cacheHelper.saveData(key: CacheKeys.accessToken, value: accessToken);
-    await _cacheHelper.saveSecureData(key: CacheKeys.accessToken, value: accessToken);
+    await _cacheHelper.saveSecureData(
+      key: CacheKeys.accessToken,
+      value: accessToken,
+    );
 
     if (refreshToken != null && refreshToken.isNotEmpty) {
-      await _cacheHelper.saveData(key: CacheKeys.refreshToken, value: refreshToken);
-      await _cacheHelper.saveSecureData(key: CacheKeys.refreshToken, value: refreshToken);
+      await _cacheHelper.saveData(
+        key: CacheKeys.refreshToken,
+        value: refreshToken,
+      );
+      await _cacheHelper.saveSecureData(
+        key: CacheKeys.refreshToken,
+        value: refreshToken,
+      );
     }
   }
 
@@ -98,9 +109,7 @@ class AppInterceptor extends Interceptor {
 
     if (options.headers.isNotEmpty) {
       buffer.writeln('│ Headers :');
-      options.headers.forEach(
-        (k, v) => buffer.writeln('│   $k: $v'),
-      );
+      options.headers.forEach((k, v) => buffer.writeln('│   $k: $v'));
     }
 
     if (options.data != null) {
@@ -224,14 +233,13 @@ class AppInterceptor extends Interceptor {
 
       final data = response.data;
       if (data is Map) {
-        final newAccess = (data['accessToken'] ?? data['access_token'])?.toString();
-        final newRefresh = (data['refreshToken'] ?? data['refresh_token'])?.toString();
+        final newAccess = (data['accessToken'] ?? data['access_token'])
+            ?.toString();
+        final newRefresh = (data['refreshToken'] ?? data['refresh_token'])
+            ?.toString();
 
         if (newAccess != null && newAccess.isNotEmpty) {
-          await _saveTokens(
-            accessToken: newAccess,
-            refreshToken: newRefresh,
-          );
+          await _saveTokens(accessToken: newAccess, refreshToken: newRefresh);
           return newAccess;
         }
       }
