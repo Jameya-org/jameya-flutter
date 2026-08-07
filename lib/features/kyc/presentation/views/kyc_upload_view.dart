@@ -48,7 +48,7 @@ class _KycUploadViewState extends State<KycUploadView> {
 
     FilePickerResult? result;
     try {
-      result = await FilePicker.platform.pickFiles(
+      result = await FilePicker.pickFiles(
         allowMultiple: false,
         type: isImageOnly ? FileType.image : FileType.any,
         withData: false,
@@ -106,7 +106,7 @@ class _KycUploadViewState extends State<KycUploadView> {
 
     final uploadedTypes =
         provider.kycStatus?.documents.map((d) => d.docType).toSet() ??
-            <String>{};
+        <String>{};
 
     // Collect doc types that have either:
     //  a) a locally selected file not yet uploaded, OR
@@ -172,7 +172,7 @@ class _KycUploadViewState extends State<KycUploadView> {
       builder: (context, provider, _) {
         final uploadedTypes =
             provider.kycStatus?.documents.map((d) => d.docType).toSet() ??
-                <String>{};
+            <String>{};
 
         return LayoutBuilder(
           builder: (context, constraints) {
@@ -209,18 +209,19 @@ class _KycUploadViewState extends State<KycUploadView> {
                             final docType = entry.key;
                             final label = entry.value;
                             final isUploaded = uploadedTypes.contains(docType);
-                            final selectedPath =
-                                provider.selectedFilePath(docType);
+                            final selectedPath = provider.selectedFilePath(
+                              docType,
+                            );
                             return Padding(
                               padding: const EdgeInsets.only(bottom: 12),
                               child: KycUploadTile(
                                 label: label,
                                 isUploaded: isUploaded,
                                 selectedPath: selectedPath,
-                                isUploadingToStorage:
-                                    provider.isUploadingToStorage(docType),
-                                isRegisteringDocument:
-                                    provider.isRegisteringDocument(docType),
+                                isUploadingToStorage: provider
+                                    .isUploadingToStorage(docType),
+                                isRegisteringDocument: provider
+                                    .isRegisteringDocument(docType),
                                 // Already uploaded docs show as complete but
                                 // can still be re-tapped to replace.
                                 onTap: isUploaded
