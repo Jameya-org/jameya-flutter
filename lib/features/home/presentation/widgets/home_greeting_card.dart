@@ -11,9 +11,8 @@ import '../../data/models/home_dashboard_model.dart';
 /// Shows notification bell, greeting text, and user avatar (initials fallback).
 /// Accepts [HomeUserModel] from the /customers/profile endpoint.
 class HomeGreetingCard extends StatelessWidget {
-  final HomeUserModel user;
-
   const HomeGreetingCard({super.key, required this.user});
+  final HomeUserModel user;
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +27,7 @@ class HomeGreetingCard extends StatelessWidget {
             Container(
               width: 44.w,
               height: 44.w,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.grey100,
                 shape: BoxShape.circle,
               ),
@@ -68,10 +67,7 @@ class HomeGreetingCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Text(
-                    '👋',
-                    style: TextStyle(fontSize: 18.sp),
-                  ),
+                  Text('👋', style: TextStyle(fontSize: 18.sp)),
                   SizedBox(width: 4.w),
                   Text(
                     'صباح الخير، ${user.legalName}',
@@ -86,9 +82,7 @@ class HomeGreetingCard extends StatelessWidget {
               SizedBox(height: 2.h),
               Text(
                 'كل ما يخص جمعيتك في مكان واحد.',
-                style: AppTextStyles.label.copyWith(
-                  color: AppColors.textHint,
-                ),
+                style: AppTextStyles.label.copyWith(color: AppColors.textHint),
               ),
             ],
           ),
@@ -99,9 +93,7 @@ class HomeGreetingCard extends StatelessWidget {
           radius: 22.r,
           backgroundColor: AppColors.grey200,
           child: Text(
-            user.legalName.isNotEmpty
-                ? user.legalName[0].toUpperCase()
-                : '؟',
+            user.legalName.isNotEmpty ? user.legalName[0].toUpperCase() : '؟',
             style: TextStyle(
               fontSize: 16.sp,
               fontWeight: FontWeight.bold,

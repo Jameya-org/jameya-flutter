@@ -10,11 +10,6 @@ import '../../../../core/utils/assets.dart';
 /// Note: The /customer/home endpoint no longer returns recent activities.
 /// This widget is kept for future use when activity data becomes available.
 class RecentActivityItem extends StatelessWidget {
-  final String type;
-  final String title;
-  final String description;
-  final String createdAt;
-
   const RecentActivityItem({
     super.key,
     required this.type,
@@ -22,6 +17,10 @@ class RecentActivityItem extends StatelessWidget {
     required this.description,
     required this.createdAt,
   });
+  final String type;
+  final String title;
+  final String description;
+  final String createdAt;
 
   String _formatTime(String isoString) {
     try {

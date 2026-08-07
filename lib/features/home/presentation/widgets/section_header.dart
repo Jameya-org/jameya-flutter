@@ -6,16 +6,15 @@ import '../../../../core/utils/app_text_styles.dart';
 
 /// Section header row with title on the right and optional action on the left.
 class SectionHeader extends StatelessWidget {
-  final String title;
-  final String? actionLabel;
-  final VoidCallback? onActionTap;
-
   const SectionHeader({
     super.key,
     required this.title,
     this.actionLabel,
     this.onActionTap,
   });
+  final String title;
+  final String? actionLabel;
+  final VoidCallback? onActionTap;
 
   @override
   Widget build(BuildContext context) {

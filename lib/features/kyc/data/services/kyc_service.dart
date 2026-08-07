@@ -1,9 +1,8 @@
 import 'package:dio/dio.dart';
 
 class KycService {
-  final Dio dio;
-
   KycService(this.dio);
+  final Dio dio;
 
   /// GET /customers/kyc-status
   ///

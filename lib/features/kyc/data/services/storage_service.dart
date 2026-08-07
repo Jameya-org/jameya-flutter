@@ -22,9 +22,8 @@ const _maxFileSizeBytes = 10 * 1024 * 1024;
 ///   1. [upload] → returns [StorageUploadResult.secureUrl]
 ///   2. KycService.uploadDocument(encryptedObjectRef: secureUrl)
 class StorageService {
-  final Dio dio;
-
   StorageService(this.dio);
+  final Dio dio;
 
   /// Uploads [file] to cloud storage for the given [docType].
   ///
@@ -55,7 +54,7 @@ class StorageService {
 
     final isPdf = file.path.toLowerCase().endsWith('.pdf');
     if (isPdf && _imageOnlyDocTypes.contains(docType)) {
-      throw StorageValidationException(
+      throw const StorageValidationException(
         'نوع الملف PDF غير مقبول لهذا النوع من المستندات. '
         'يُرجى اختيار صورة بدلاً من ذلك.',
       );
@@ -67,10 +66,7 @@ class StorageService {
 
     final formData = FormData.fromMap({
       'docType': docType,
-      'file': await MultipartFile.fromFile(
-        file.path,
-        filename: fileName,
-      ),
+      'file': await MultipartFile.fromFile(file.path, filename: fileName),
     });
 
     try {
@@ -91,7 +87,7 @@ class StorageService {
       } else if (data is Map) {
         json = Map<String, dynamic>.from(data);
       } else {
-        throw StorageValidationException(
+        throw const StorageValidationException(
           'فشل رفع الملف: استجابة غير متوقعة من الخادم.',
         );
       }
@@ -100,7 +96,7 @@ class StorageService {
 
       // ── Strict secureUrl validation ─────────────────────────────────────
       if (result.secureUrl.isEmpty) {
-        throw StorageValidationException(
+        throw const StorageValidationException(
           'فشل رفع الملف: لم يتم استلام رابط الملف من الخادم.',
         );
       }
@@ -115,8 +111,8 @@ class StorageService {
 /// Thrown when client-side storage validation fails (size, type, etc.)
 /// or when the server returns a malformed response (missing secureUrl).
 class StorageValidationException implements Exception {
-  final String message;
   const StorageValidationException(this.message);
+  final String message;
 
   @override
   String toString() => message;

@@ -7,9 +7,8 @@ import '../../../../core/utils/app_text_styles.dart';
 /// A teal-tinted information/warning box with an "!" icon.
 /// Used in Subscription Review and Contract Review screens.
 class JoinInfoBox extends StatelessWidget {
-  final String message;
-
   const JoinInfoBox({super.key, required this.message});
+  final String message;
 
   @override
   Widget build(BuildContext context) {

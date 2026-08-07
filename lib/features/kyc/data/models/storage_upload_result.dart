@@ -13,11 +13,6 @@
 /// The [secureUrl] MUST be passed as [encryptedObjectRef] in the subsequent
 /// POST /customers/documents call.
 class StorageUploadResult {
-  final String secureUrl;
-  final String publicId;
-  final String docType;
-  final String message;
-
   const StorageUploadResult({
     required this.secureUrl,
     required this.publicId,
@@ -33,4 +28,8 @@ class StorageUploadResult {
       message: json['message']?.toString() ?? '',
     );
   }
+  final String secureUrl;
+  final String publicId;
+  final String docType;
+  final String message;
 }

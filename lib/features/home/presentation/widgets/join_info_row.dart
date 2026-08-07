@@ -10,11 +10,6 @@ import '../../../../core/utils/app_text_styles.dart';
 /// Layout (RTL):
 ///   [svgIconPath icon] [label]          [value]
 class JoinInfoRow extends StatelessWidget {
-  final String svgIconPath;
-  final String label;
-  final String value;
-  final bool showDivider;
-
   const JoinInfoRow({
     super.key,
     required this.svgIconPath,
@@ -22,6 +17,10 @@ class JoinInfoRow extends StatelessWidget {
     required this.value,
     this.showDivider = true,
   });
+  final String svgIconPath;
+  final String label;
+  final String value;
+  final bool showDivider;
 
   @override
   Widget build(BuildContext context) {
@@ -76,11 +75,7 @@ class JoinInfoRow extends StatelessWidget {
           ),
         ),
         if (showDivider)
-          Divider(
-            height: 1,
-            thickness: 1,
-            color: AppColors.divider,
-          ),
+          const Divider(height: 1, thickness: 1, color: AppColors.divider),
       ],
     );
   }

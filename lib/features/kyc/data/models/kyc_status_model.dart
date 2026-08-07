@@ -1,14 +1,6 @@
 /// Nested address model returned inside [IdentityProfileModel].
 class AddressModel {
-  final String? governorate;
-  final String? city;
-  final String? streetAddress;
-
-  const AddressModel({
-    this.governorate,
-    this.city,
-    this.streetAddress,
-  });
+  const AddressModel({this.governorate, this.city, this.streetAddress});
 
   factory AddressModel.fromJson(Map<String, dynamic> json) {
     return AddressModel(
@@ -17,15 +9,13 @@ class AddressModel {
       streetAddress: json['streetAddress']?.toString(),
     );
   }
+  final String? governorate;
+  final String? city;
+  final String? streetAddress;
 }
 
 /// Identity profile data returned inside [KycStatusModel].
 class IdentityProfileModel {
-  final String? dateOfBirth;
-  final String? nationalIdNumber;
-  final AddressModel? address;
-  final String? mobileNumber;
-
   const IdentityProfileModel({
     this.dateOfBirth,
     this.nationalIdNumber,
@@ -43,18 +33,14 @@ class IdentityProfileModel {
       mobileNumber: json['mobileNumber']?.toString(),
     );
   }
+  final String? dateOfBirth;
+  final String? nationalIdNumber;
+  final AddressModel? address;
+  final String? mobileNumber;
 }
 
 /// A single verification document returned inside [KycStatusModel].
 class KycDocumentModel {
-  final String? id;
-  final String docType;
-  final String? encryptedObjectRef;
-  final String? issueDate;
-  final String? expiryDate;
-  final String? status;
-  final String? createdAt;
-
   const KycDocumentModel({
     this.id,
     required this.docType,
@@ -76,13 +62,17 @@ class KycDocumentModel {
       createdAt: json['createdAt']?.toString(),
     );
   }
+  final String? id;
+  final String docType;
+  final String? encryptedObjectRef;
+  final String? issueDate;
+  final String? expiryDate;
+  final String? status;
+  final String? createdAt;
 }
 
 /// Eligibility result returned as [KycStatusModel.latestEligibility].
 class EligibilityModel {
-  final String? status;
-  final String? reason;
-
   const EligibilityModel({this.status, this.reason});
 
   factory EligibilityModel.fromJson(Map<String, dynamic> json) {
@@ -91,6 +81,8 @@ class EligibilityModel {
       reason: json['reason']?.toString(),
     );
   }
+  final String? status;
+  final String? reason;
 }
 
 /// Maps the string returned by the backend to a typed status.
@@ -114,12 +106,6 @@ KycStatus _parseKycStatus(String? raw) {
 
 /// Full KYC status response from GET /customers/kyc-status.
 class KycStatusModel {
-  final String? legalName;
-  final KycStatus kycStatus;
-  final IdentityProfileModel? identityProfile;
-  final List<KycDocumentModel> documents;
-  final EligibilityModel? latestEligibility;
-
   const KycStatusModel({
     this.legalName,
     required this.kycStatus,
@@ -127,9 +113,6 @@ class KycStatusModel {
     this.documents = const [],
     this.latestEligibility,
   });
-
-  /// Convenience accessor kept for the UI switch.
-  KycStatus get status => kycStatus;
 
   factory KycStatusModel.fromJson(Map<String, dynamic> json) {
     final rawStatus = json['kycStatus']?.toString();
@@ -165,4 +148,12 @@ class KycStatusModel {
       latestEligibility: eligibility,
     );
   }
+  final String? legalName;
+  final KycStatus kycStatus;
+  final IdentityProfileModel? identityProfile;
+  final List<KycDocumentModel> documents;
+  final EligibilityModel? latestEligibility;
+
+  /// Convenience accessor kept for the UI switch.
+  KycStatus get status => kycStatus;
 }

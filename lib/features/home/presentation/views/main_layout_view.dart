@@ -11,9 +11,8 @@ import 'my_circles_view.dart';
 import 'transactions_view.dart';
 
 class MainLayoutView extends StatefulWidget {
-  final int initialIndex;
-
   const MainLayoutView({super.key, this.initialIndex = 0});
+  final int initialIndex;
 
   @override
   State<MainLayoutView> createState() => _MainLayoutViewState();
@@ -32,12 +31,8 @@ class _MainLayoutViewState extends State<MainLayoutView> {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider<HomeCubit>(
-          create: (_) => getIt<HomeCubit>(),
-        ),
-        BlocProvider<CirclesCubit>(
-          create: (_) => getIt<CirclesCubit>(),
-        ),
+        BlocProvider<HomeCubit>(create: (_) => getIt<HomeCubit>()),
+        BlocProvider<CirclesCubit>(create: (_) => getIt<CirclesCubit>()),
       ],
       child: Scaffold(
         body: IndexedStack(

@@ -12,9 +12,8 @@ import '../../../../core/utils/app_text_styles.dart';
 ///  - "UPCOMING" → light teal background + green dot, "متاح الانضمام"
 ///  - "OPEN"     → light teal background + green dot, "متاح الانضمام"
 class StatusBadge extends StatelessWidget {
-  final String status;
-
   const StatusBadge({super.key, required this.status});
+  final String status;
 
   @override
   Widget build(BuildContext context) {

@@ -18,9 +18,8 @@ import '../../widgets/turn_card.dart';
 /// Loads positions on mount (skips API if already loaded).
 /// After a 409, force-refreshes the list automatically.
 class SelectTurnView extends StatefulWidget {
-  final String circleId;
-
   const SelectTurnView({super.key, required this.circleId});
+  final String circleId;
 
   @override
   State<SelectTurnView> createState() => _SelectTurnViewState();
@@ -40,10 +39,7 @@ class _SelectTurnViewState extends State<SelectTurnView> {
         if (state is JoinCircleIntentBlocked) {
           context.push(
             AppRoutes.eligibilityBlockedPath(widget.circleId),
-            extra: {
-              'reason': state.reason,
-              'missingSteps': state.missingSteps,
-            },
+            extra: {'reason': state.reason, 'missingSteps': state.missingSteps},
           );
         }
       },
@@ -107,7 +103,11 @@ class _SelectTurnViewState extends State<SelectTurnView> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Icon(Icons.wifi_off_rounded, size: 48.sp, color: AppColors.textHint),
+              Icon(
+                Icons.wifi_off_rounded,
+                size: 48.sp,
+                color: AppColors.textHint,
+              ),
               SizedBox(height: 16.h),
               Text(
                 state.message,
@@ -117,8 +117,9 @@ class _SelectTurnViewState extends State<SelectTurnView> {
               SizedBox(height: 20.h),
               CustomButton(
                 text: 'إعادة المحاولة',
-                onPressed: () =>
-                    context.read<JoinCircleCubit>().loadPositions(forceRefresh: true),
+                onPressed: () => context.read<JoinCircleCubit>().loadPositions(
+                  forceRefresh: true,
+                ),
               ),
             ],
           ),
@@ -135,15 +136,12 @@ class _SelectTurnViewState extends State<SelectTurnView> {
       separatorBuilder: (_, _) => SizedBox(height: 12.h),
       itemBuilder: (context, index) {
         final pos = positions[index];
-        final isSelected =
-            cubit.selectedPosition?.position == pos.position;
+        final isSelected = cubit.selectedPosition?.position == pos.position;
         return TurnCard(
           position: pos,
           isSelected: isSelected,
           payoutDate: cubit.computePayoutDate(pos.position),
-          onTap: pos.isAvailable
-              ? () => cubit.selectPosition(pos)
-              : null,
+          onTap: pos.isAvailable ? () => cubit.selectPosition(pos) : null,
         );
       },
     );

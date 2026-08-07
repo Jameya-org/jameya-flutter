@@ -14,9 +14,8 @@ import '../../cubit/join_circle_cubit.dart';
 /// All navigation is replaced/reset back to home.
 /// Contract download opens the PDF URL in the system browser.
 class JoinSuccessView extends StatelessWidget {
-  final String circleId;
-
   const JoinSuccessView({super.key, required this.circleId});
+  final String circleId;
 
   Future<void> _downloadContract(JoinCircleCubit cubit) async {
     final downloadUrl = cubit.contract?.downloadUrl ?? '';
@@ -53,10 +52,8 @@ class JoinSuccessView extends StatelessWidget {
                   tween: Tween(begin: 0.0, end: 1.0),
                   duration: const Duration(milliseconds: 600),
                   curve: Curves.elasticOut,
-                  builder: (context, value, child) => Transform.scale(
-                    scale: value,
-                    child: child,
-                  ),
+                  builder: (context, value, child) =>
+                      Transform.scale(scale: value, child: child),
                   child: Container(
                     width: 110.w,
                     height: 110.w,
@@ -114,12 +111,16 @@ class JoinSuccessView extends StatelessWidget {
                     icon: Icon(
                       Icons.download_rounded,
                       size: 20.sp,
-                      color: hasContract ? Colors.white : AppColors.textDisabled,
+                      color: hasContract
+                          ? Colors.white
+                          : AppColors.textDisabled,
                     ),
                     label: Text(
                       'تحميل العقد',
                       style: AppTextStyles.body.copyWith(
-                        color: hasContract ? Colors.white : AppColors.textDisabled,
+                        color: hasContract
+                            ? Colors.white
+                            : AppColors.textDisabled,
                         fontWeight: FontWeight.w600,
                         fontSize: 16.sp,
                       ),
@@ -146,7 +147,10 @@ class JoinSuccessView extends StatelessWidget {
                   child: OutlinedButton(
                     onPressed: () => context.go(AppRoutes.kHomeView),
                     style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: AppColors.primary, width: 1.5),
+                      side: const BorderSide(
+                        color: AppColors.primary,
+                        width: 1.5,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(14.r),
                       ),

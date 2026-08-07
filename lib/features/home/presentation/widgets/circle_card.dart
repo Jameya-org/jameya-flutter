@@ -12,14 +12,14 @@ import 'status_badge.dart';
 /// Reusable card for displaying a circle summary in lists.
 /// Used in: home screen (inline preview), available circles page, my circles page.
 class CircleCard extends StatelessWidget {
+  const CircleCard({super.key, required this.circle, this.onTap});
   final dynamic circle;
   final VoidCallback? onTap;
 
-  const CircleCard({super.key, required this.circle, this.onTap});
-
   String get _title => circle.title?.toString() ?? '';
   String get _status => circle.status?.toString() ?? '';
-  String get _contributionAmount => circle.contributionAmount?.toString() ?? '0';
+  String get _contributionAmount =>
+      circle.contributionAmount?.toString() ?? '0';
 
   /// Members/installments chip — value depends on the model type.
   String get _countValue {
@@ -59,8 +59,18 @@ class CircleCard extends StatelessWidget {
 
   String _arabicMonth(int month) {
     const months = [
-      'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
-      'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر',
+      'يناير',
+      'فبراير',
+      'مارس',
+      'أبريل',
+      'مايو',
+      'يونيو',
+      'يوليو',
+      'أغسطس',
+      'سبتمبر',
+      'أكتوبر',
+      'نوفمبر',
+      'ديسمبر',
     ];
     return months[(month - 1).clamp(0, 11)];
   }
@@ -157,8 +167,7 @@ class CircleCard extends StatelessWidget {
                     SizedBox(height: 6.h),
                     _InfoChip(
                       icon: Assets.iconsCalendarDots,
-                      label:
-                          '$_dateLabel · ${_formatStartDate(_startDate)}',
+                      label: '$_dateLabel · ${_formatStartDate(_startDate)}',
                     ),
                   ],
                 ),
@@ -172,10 +181,9 @@ class CircleCard extends StatelessWidget {
 }
 
 class _InfoChip extends StatelessWidget {
+  const _InfoChip({required this.icon, required this.label});
   final String icon;
   final String label;
-
-  const _InfoChip({required this.icon, required this.label});
 
   @override
   Widget build(BuildContext context) {

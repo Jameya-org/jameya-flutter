@@ -25,9 +25,8 @@ import '../../widgets/join_step_indicator.dart';
 ///  • otp_expired → inline error, resend enabled immediately
 ///  • network     → snackbar, button re-enabled
 class OtpVerificationView extends StatefulWidget {
-  final String circleId;
-
   const OtpVerificationView({super.key, required this.circleId});
+  final String circleId;
 
   @override
   State<OtpVerificationView> createState() => _OtpVerificationViewState();
@@ -86,10 +85,10 @@ class _OtpVerificationViewState extends State<OtpVerificationView> {
     _otpController.clear();
     _startResendTimer();
     context.read<JoinCircleCubit>().acceptContract(
-          agreedToTerms: true,
-          agreedToInstallmentSchedule: true,
-          agreedToLateFees: true,
-        );
+      agreedToTerms: true,
+      agreedToInstallmentSchedule: true,
+      agreedToLateFees: true,
+    );
   }
 
   void _verify(BuildContext context) {
@@ -152,7 +151,8 @@ class _OtpVerificationViewState extends State<OtpVerificationView> {
         }
       },
       builder: (context, state) {
-        final isVerifying = state is JoinCircleVerifyingOtp ||
+        final isVerifying =
+            state is JoinCircleVerifyingOtp ||
             state is JoinCircleAcceptingContract;
 
         return Directionality(
@@ -227,8 +227,9 @@ class _OtpVerificationViewState extends State<OtpVerificationView> {
                             ),
                             enableActiveFill: true,
                             animationType: AnimationType.scale,
-                            animationDuration:
-                                const Duration(milliseconds: 150),
+                            animationDuration: const Duration(
+                              milliseconds: 150,
+                            ),
                             onChanged: (val) {
                               setState(() {
                                 _isOtpComplete = val.length == 6;

@@ -9,14 +9,13 @@ import '../../../../core/utils/app_colors.dart';
 /// the dot at [currentTurn] is a larger outlined teal dot (current),
 /// and dots to the right are light grey (remaining).
 class ProgressDotsIndicator extends StatelessWidget {
-  final int currentTurn;
-  final int totalTurns;
-
   const ProgressDotsIndicator({
     super.key,
     required this.currentTurn,
     required this.totalTurns,
   });
+  final int currentTurn;
+  final int totalTurns;
 
   @override
   Widget build(BuildContext context) {
@@ -61,9 +60,7 @@ class ProgressDotsIndicator extends StatelessWidget {
                 height: isCompleted ? 8.w : 7.w,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: isCompleted
-                      ? AppColors.primary
-                      : AppColors.grey200,
+                  color: isCompleted ? AppColors.primary : AppColors.grey200,
                 ),
               ),
             ),

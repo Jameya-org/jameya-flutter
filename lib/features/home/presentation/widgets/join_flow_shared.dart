@@ -8,14 +8,9 @@ import '../../../../core/utils/app_text_styles.dart';
 ///
 /// Layout (RTL): back chevron (right) ← title (center-right) ← spacer
 class JoinFlowHeader extends StatelessWidget {
+  const JoinFlowHeader({super.key, required this.title, required this.onBack});
   final String title;
   final VoidCallback onBack;
-
-  const JoinFlowHeader({
-    super.key,
-    required this.title,
-    required this.onBack,
-  });
 
   @override
   Widget build(BuildContext context) {
@@ -50,11 +45,6 @@ class JoinFlowHeader extends StatelessWidget {
 /// Shows a loading spinner inside the button when [isLoading] is true.
 /// Disables the button when [enabled] is false.
 class JoinFlowBottomBar extends StatelessWidget {
-  final String label;
-  final bool enabled;
-  final bool isLoading;
-  final VoidCallback? onTap;
-
   const JoinFlowBottomBar({
     super.key,
     required this.label,
@@ -62,6 +52,10 @@ class JoinFlowBottomBar extends StatelessWidget {
     this.enabled = true,
     this.isLoading = false,
   });
+  final String label;
+  final bool enabled;
+  final bool isLoading;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -83,8 +77,7 @@ class JoinFlowBottomBar extends StatelessWidget {
         child: ElevatedButton(
           onPressed: enabled && !isLoading ? onTap : null,
           style: ElevatedButton.styleFrom(
-            backgroundColor:
-                enabled ? AppColors.primary : AppColors.greyBut,
+            backgroundColor: enabled ? AppColors.primary : AppColors.greyBut,
             disabledBackgroundColor: AppColors.greyBut,
             elevation: 0,
             shape: RoundedRectangleBorder(

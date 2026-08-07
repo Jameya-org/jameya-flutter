@@ -1,80 +1,38 @@
+import 'dart:async';
+
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
 
 import '../cache/cache_helper.dart';
 import '../cache/cache_keys.dart';
-
-class _QueuedRequest {
-  _QueuedRequest(this.options, this.handler);
-  final RequestOptions options;
-  final ErrorInterceptorHandler handler;
-}
+import '../utils/token_utils.dart';
 
 /// [AppInterceptor]:
 /// 1. Automatically attaches the JWT access token to every request.
-/// 2. Intercepts 401 Unauthorized errors, queues pending requests, and automatically refreshes access token.
-/// 3. Retries original and queued requests sequentially after a successful refresh.
+/// 2. Intercepts 401 Unauthorized errors, locks concurrent requests via [Completer],
+///    and automatically refreshes the access token using the refresh token.
+/// 3. Retries original and concurrent requests sequentially after a successful refresh.
 /// 4. Logs every request, response, and error in a structured, readable format.
 class AppInterceptor extends Interceptor {
-  AppInterceptor(this._cacheHelper)
-    : _refreshDio = Dio(
-        BaseOptions(
-          baseUrl: 'https://jameya-backend.onrender.com',
-          connectTimeout: const Duration(seconds: 15),
-          receiveTimeout: const Duration(seconds: 15),
-          headers: {'Content-Type': 'application/json'},
-        ),
-      );
   final CacheHelper _cacheHelper;
   final Dio _refreshDio;
 
-  bool _isRefreshing = false;
-  final List<_QueuedRequest> _failedQueue = [];
+  Completer<String?>? _refreshCompleter;
 
-  Future<String?> _getAccessToken() async {
-    String? token = await _cacheHelper.getSecureData(
-      key: CacheKeys.accessToken,
-    );
-    token ??= _cacheHelper.getString(key: CacheKeys.accessToken);
-    return token;
-  }
-
-  Future<String?> _getRefreshToken() async {
-    String? token = await _cacheHelper.getSecureData(
-      key: CacheKeys.refreshToken,
-    );
-    token ??= _cacheHelper.getString(key: CacheKeys.refreshToken);
-    return token;
-  }
-
-  Future<void> _saveTokens({
-    required String accessToken,
-    String? refreshToken,
-  }) async {
-    await _cacheHelper.saveData(key: CacheKeys.accessToken, value: accessToken);
-    await _cacheHelper.saveSecureData(
-      key: CacheKeys.accessToken,
-      value: accessToken,
-    );
-
-    if (refreshToken != null && refreshToken.isNotEmpty) {
-      await _cacheHelper.saveData(
-        key: CacheKeys.refreshToken,
-        value: refreshToken,
-      );
-      await _cacheHelper.saveSecureData(
-        key: CacheKeys.refreshToken,
-        value: refreshToken,
-      );
-    }
-  }
+  AppInterceptor(this._cacheHelper)
+      : _refreshDio = Dio(
+          BaseOptions(
+            baseUrl: 'https://jameya-backend.onrender.com',
+            connectTimeout: const Duration(seconds: 15),
+            receiveTimeout: const Duration(seconds: 15),
+            headers: {'Content-Type': 'application/json'},
+          ),
+        );
 
   /// Clears all authentication AND cached profile / KYC data so no stale
   /// information remains after a session is invalidated.
   Future<void> _clearSession() async {
-    // Auth tokens
-    await _cacheHelper.deleteData(key: CacheKeys.accessToken);
-    await _cacheHelper.deleteData(key: CacheKeys.refreshToken);
+    await TokenUtils.clearTokens(_cacheHelper);
     await _cacheHelper.deleteAllSecureData();
 
     // Cached profile fields
@@ -92,7 +50,7 @@ class AppInterceptor extends Interceptor {
     RequestOptions options,
     RequestInterceptorHandler handler,
   ) async {
-    final token = await _getAccessToken();
+    final token = await TokenUtils.getAccessToken(_cacheHelper);
     if (token != null && token.isNotEmpty) {
       options.headers['Authorization'] = 'Bearer $token';
     }
@@ -109,7 +67,9 @@ class AppInterceptor extends Interceptor {
 
     if (options.headers.isNotEmpty) {
       buffer.writeln('│ Headers :');
-      options.headers.forEach((k, v) => buffer.writeln('│   $k: $v'));
+      options.headers.forEach(
+        (k, v) => buffer.writeln('│   $k: $v'),
+      );
     }
 
     if (options.data != null) {
@@ -174,48 +134,57 @@ class AppInterceptor extends Interceptor {
     final isAuthEndpoint = err.requestOptions.path.contains('/auth/');
 
     if (isUnauthorized && !isAuthEndpoint) {
-      // If already refreshing, queue this request and wait.
-      if (_isRefreshing) {
-        _failedQueue.add(_QueuedRequest(err.requestOptions, handler));
-        return;
-      }
-
-      // Guard: if no refresh token exists at all, clear session immediately.
-      final refreshToken = await _getRefreshToken();
-      if (refreshToken == null || refreshToken.isEmpty) {
-        await _clearSession();
-        _rejectQueue(err);
-        handler.next(err);
-        return;
-      }
-
-      _isRefreshing = true;
-
-      final newAccessToken = await _attemptRefresh(refreshToken);
-      _isRefreshing = false;
-
-      if (newAccessToken != null) {
-        // Update token on the original failing request.
-        err.requestOptions.headers['Authorization'] = 'Bearer $newAccessToken';
-
-        try {
-          // Retry the original request first.
-          final retriedResponse = await _refreshDio.fetch(err.requestOptions);
-          // Then sequentially retry all queued requests.
-          await _processQueue(newAccessToken);
-          handler.resolve(retriedResponse);
-        } on DioException catch (retryErr) {
-          await _processQueue(newAccessToken);
-          handler.reject(retryErr);
+      // 1) If a token refresh is already in progress, await its completer.
+      if (_refreshCompleter != null) {
+        final newAccessToken = await _refreshCompleter!.future;
+        if (newAccessToken != null && newAccessToken.isNotEmpty) {
+          try {
+            err.requestOptions.headers['Authorization'] =
+                'Bearer $newAccessToken';
+            final retriedResponse = await _refreshDio.fetch(err.requestOptions);
+            return handler.resolve(retriedResponse);
+          } on DioException catch (retryErr) {
+            return handler.reject(retryErr);
+          }
+        } else {
+          return handler.next(err);
         }
-      } else {
-        // Refresh failed — clear session and reject everything.
-        await _clearSession();
-        _rejectQueue(err);
-        handler.next(err);
       }
 
-      return;
+      // 2) Synchronously initialize completer to prevent parallel race conditions.
+      final completer = Completer<String?>();
+      _refreshCompleter = completer;
+
+      try {
+        final refreshToken = await TokenUtils.getRefreshToken(_cacheHelper);
+        if (refreshToken == null || refreshToken.isEmpty) {
+          await _clearSession();
+          completer.complete(null);
+          _refreshCompleter = null;
+          return handler.next(err);
+        }
+
+        final newAccessToken = await _attemptRefresh(refreshToken);
+        if (newAccessToken != null && newAccessToken.isNotEmpty) {
+          completer.complete(newAccessToken);
+          _refreshCompleter = null;
+
+          err.requestOptions.headers['Authorization'] =
+              'Bearer $newAccessToken';
+          final retriedResponse = await _refreshDio.fetch(err.requestOptions);
+          return handler.resolve(retriedResponse);
+        } else {
+          await _clearSession();
+          completer.complete(null);
+          _refreshCompleter = null;
+          return handler.next(err);
+        }
+      } catch (refreshErr) {
+        await _clearSession();
+        completer.complete(null);
+        _refreshCompleter = null;
+        return handler.next(err);
+      }
     }
 
     handler.next(err);
@@ -228,51 +197,28 @@ class AppInterceptor extends Interceptor {
     try {
       final response = await _refreshDio.post(
         '/auth/refresh',
-        data: {'refreshToken': refreshToken},
+        data: {
+          'refreshToken': refreshToken,
+          'refresh_token': refreshToken,
+        },
       );
 
       final data = response.data;
-      if (data is Map) {
-        final newAccess = (data['accessToken'] ?? data['access_token'])
-            ?.toString();
-        final newRefresh = (data['refreshToken'] ?? data['refresh_token'])
-            ?.toString();
+      final newAccess = TokenUtils.extractAccessToken(data);
+      final newRefresh = TokenUtils.extractRefreshToken(data);
 
-        if (newAccess != null && newAccess.isNotEmpty) {
-          await _saveTokens(accessToken: newAccess, refreshToken: newRefresh);
-          return newAccess;
-        }
+      if (newAccess != null && newAccess.isNotEmpty) {
+        await TokenUtils.saveTokens(
+          _cacheHelper,
+          accessToken: newAccess,
+          refreshToken: newRefresh ?? refreshToken,
+        );
+        return newAccess;
       }
       return null;
-    } catch (_) {
+    } catch (e) {
+      debugPrint('AppInterceptor: Token refresh endpoint error: $e');
       return null;
-    }
-  }
-
-  /// Sequentially retries all queued requests using the new [newToken].
-  ///
-  /// Sequential (not parallel) to avoid thundering-herd after refresh and to
-  /// ensure each queued request gets the correct new token.
-  Future<void> _processQueue(String newToken) async {
-    final snapshot = List<_QueuedRequest>.from(_failedQueue);
-    _failedQueue.clear();
-
-    for (final item in snapshot) {
-      item.options.headers['Authorization'] = 'Bearer $newToken';
-      try {
-        final res = await _refreshDio.fetch(item.options);
-        item.handler.resolve(res);
-      } on DioException catch (e) {
-        item.handler.reject(e);
-      }
-    }
-  }
-
-  void _rejectQueue(DioException err) {
-    final snapshot = List<_QueuedRequest>.from(_failedQueue);
-    _failedQueue.clear();
-    for (final item in snapshot) {
-      item.handler.reject(err);
     }
   }
 

@@ -21,9 +21,8 @@ import '../../widgets/join_step_indicator.dart';
 /// • 422 → navigate to EligibilityBlockedView
 /// • network → snackbar, re-enable button
 class SubscriptionReviewView extends StatefulWidget {
-  final String circleId;
-
   const SubscriptionReviewView({super.key, required this.circleId});
+  final String circleId;
 
   @override
   State<SubscriptionReviewView> createState() => _SubscriptionReviewViewState();
@@ -46,8 +45,18 @@ class _SubscriptionReviewViewState extends State<SubscriptionReviewView> {
     try {
       final date = DateTime.parse(dateStr);
       const months = [
-        'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
-        'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر',
+        'يناير',
+        'فبراير',
+        'مارس',
+        'أبريل',
+        'مايو',
+        'يونيو',
+        'يوليو',
+        'أغسطس',
+        'سبتمبر',
+        'أكتوبر',
+        'نوفمبر',
+        'ديسمبر',
       ];
       return '${date.day} ${months[date.month - 1]}';
     } catch (_) {
@@ -82,10 +91,7 @@ class _SubscriptionReviewViewState extends State<SubscriptionReviewView> {
           setState(() => _isSubmitting = false);
           context.push(
             AppRoutes.eligibilityBlockedPath(widget.circleId),
-            extra: {
-              'reason': state.reason,
-              'missingSteps': state.missingSteps,
-            },
+            extra: {'reason': state.reason, 'missingSteps': state.missingSteps},
           );
         }
 
@@ -158,7 +164,8 @@ class _SubscriptionReviewViewState extends State<SubscriptionReviewView> {
                                 _ReviewRow(
                                   label: 'قيمة القسط',
                                   value: _formatAmount(
-                                      detail?.contributionAmount ?? '0'),
+                                    detail?.contributionAmount ?? '0',
+                                  ),
                                 ),
                                 _ReviewRow(
                                   label: 'عدد الاعضاء',
@@ -173,10 +180,11 @@ class _SubscriptionReviewViewState extends State<SubscriptionReviewView> {
                                   label: 'تاريخ القبض',
                                   value: selected != null
                                       ? cubit.computePayoutDate(
-                                          selected.position)
+                                          selected.position,
+                                        )
                                       : '—',
                                 ),
-                                _ReviewRow(
+                                const _ReviewRow(
                                   label: 'طريقة الدفع',
                                   value: 'بطاقة بنكية',
                                   showDivider: false,
@@ -238,9 +246,9 @@ class _SubscriptionReviewViewState extends State<SubscriptionReviewView> {
                 // Pop back through payment -> select_turn, then refresh
                 context.pop(); // payment_info
                 context.pop(); // select_turn
-                context
-                    .read<JoinCircleCubit>()
-                    .loadPositions(forceRefresh: true);
+                context.read<JoinCircleCubit>().loadPositions(
+                  forceRefresh: true,
+                );
               },
               child: Text(
                 'اختر دوراً آخر',
@@ -258,15 +266,14 @@ class _SubscriptionReviewViewState extends State<SubscriptionReviewView> {
 }
 
 class _ReviewRow extends StatelessWidget {
-  final String label;
-  final String value;
-  final bool showDivider;
-
   const _ReviewRow({
     required this.label,
     required this.value,
     this.showDivider = true,
   });
+  final String label;
+  final String value;
+  final bool showDivider;
 
   @override
   Widget build(BuildContext context) {
@@ -294,7 +301,7 @@ class _ReviewRow extends StatelessWidget {
           ),
         ),
         if (showDivider)
-          Divider(height: 1, thickness: 1, color: AppColors.divider),
+          const Divider(height: 1, thickness: 1, color: AppColors.divider),
       ],
     );
   }

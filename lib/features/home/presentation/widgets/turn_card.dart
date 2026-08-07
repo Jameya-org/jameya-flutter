@@ -12,11 +12,6 @@ import '../../data/models/home_dashboard_model.dart';
 ///  - [isAvailable = true, isSelected = false] → white card with radio indicator.
 ///  - [isAvailable = true, isSelected = true] → teal background with checkmark.
 class TurnCard extends StatelessWidget {
-  final PositionModel position;
-  final bool isSelected;
-  final String payoutDate;
-  final VoidCallback? onTap;
-
   const TurnCard({
     super.key,
     required this.position,
@@ -24,23 +19,25 @@ class TurnCard extends StatelessWidget {
     required this.payoutDate,
     this.onTap,
   });
+  final PositionModel position;
+  final bool isSelected;
+  final String payoutDate;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
     final bool available = position.isAvailable;
-    final Color bgColor = isSelected
-        ? AppColors.primary
-        : AppColors.surface;
+    final Color bgColor = isSelected ? AppColors.primary : AppColors.surface;
     final Color textColor = isSelected
         ? Colors.white
         : available
-            ? AppColors.textPrimary
-            : AppColors.textDisabled;
+        ? AppColors.textPrimary
+        : AppColors.textDisabled;
     final Color subtitleColor = isSelected
         ? Colors.white.withValues(alpha: 0.85)
         : available
-            ? AppColors.textHint
-            : AppColors.textDisabled;
+        ? AppColors.textHint
+        : AppColors.textDisabled;
     final Color discountColor = isSelected
         ? Colors.white.withValues(alpha: 0.9)
         : AppColors.primary;
@@ -125,17 +122,14 @@ class TurnCard extends StatelessWidget {
                     height: 22.w,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      border: Border.all(
-                        color: AppColors.grey500,
-                        width: 1.5,
-                      ),
+                      border: Border.all(color: AppColors.grey500, width: 1.5),
                     ),
                   )
                 else
                   Container(
                     width: 22.w,
                     height: 22.w,
-                    decoration: BoxDecoration(
+                    decoration: const BoxDecoration(
                       color: AppColors.grey200,
                       shape: BoxShape.circle,
                     ),

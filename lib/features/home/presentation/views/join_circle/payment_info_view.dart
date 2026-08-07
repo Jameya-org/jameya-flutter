@@ -15,9 +15,8 @@ import '../../widgets/join_step_indicator.dart';
 /// Static informational screen — no API call.
 /// Explains how the bank card will be used and data protection guarantees.
 class PaymentInfoView extends StatelessWidget {
-  final String circleId;
-
   const PaymentInfoView({super.key, required this.circleId});
+  final String circleId;
 
   @override
   Widget build(BuildContext context) {
@@ -32,10 +31,7 @@ class PaymentInfoView extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // ── Header ──────────────────────────────────────────
-              JoinFlowHeader(
-                title: 'طريقة الدفع',
-                onBack: () => context.pop(),
-              ),
+              JoinFlowHeader(title: 'طريقة الدفع', onBack: () => context.pop()),
               SizedBox(height: 12.h),
               const JoinStepIndicator(currentStep: 3),
               SizedBox(height: 20.h),
@@ -103,7 +99,8 @@ class PaymentInfoView extends StatelessWidget {
                               children: [
                                 Expanded(
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
                                       Text(
                                         'حماية بياناتك',
@@ -114,10 +111,12 @@ class PaymentInfoView extends StatelessWidget {
                                       ),
                                       SizedBox(height: 10.h),
                                       const _BulletItem(
-                                        text: 'لن يتم حفظ بياناتك بطاقتك داخل التطبيق .',
+                                        text:
+                                            'لن يتم حفظ بياناتك بطاقتك داخل التطبيق .',
                                       ),
                                       const _BulletItem(
-                                        text: 'سيتم ادخال بيانات البطاقة داخل بوابة دفع امنة .',
+                                        text:
+                                            'سيتم ادخال بيانات البطاقة داخل بوابة دفع امنة .',
                                       ),
                                     ],
                                   ),
@@ -140,7 +139,7 @@ class PaymentInfoView extends StatelessWidget {
                             ),
 
                             SizedBox(height: 16.h),
-                            Divider(height: 1, color: AppColors.divider),
+                            const Divider(height: 1, color: AppColors.divider),
                             SizedBox(height: 16.h),
 
                             Text(
@@ -152,7 +151,9 @@ class PaymentInfoView extends StatelessWidget {
                             ),
                             SizedBox(height: 10.h),
                             const _BulletItem(text: 'خصم قيمة القسط الشهري.'),
-                            const _BulletItem(text: 'تحويل القبض عند حلول دورك'),
+                            const _BulletItem(
+                              text: 'تحويل القبض عند حلول دورك',
+                            ),
                           ],
                         ),
                       ),
@@ -180,8 +181,8 @@ class PaymentInfoView extends StatelessWidget {
 }
 
 class _InfoCard extends StatelessWidget {
-  final Widget child;
   const _InfoCard({required this.child});
+  final Widget child;
 
   @override
   Widget build(BuildContext context) {
@@ -206,8 +207,8 @@ class _InfoCard extends StatelessWidget {
 }
 
 class _BulletItem extends StatelessWidget {
-  final String text;
   const _BulletItem({required this.text});
+  final String text;
 
   @override
   Widget build(BuildContext context) {

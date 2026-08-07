@@ -11,9 +11,8 @@ import 'status_badge.dart';
 /// Teal gradient card showing an active circle summary.
 /// Accepts CircleSummaryModel with real API fields.
 class ActiveCircleCard extends StatelessWidget {
-  final CircleSummaryModel circle;
-
   const ActiveCircleCard({super.key, required this.circle});
+  final CircleSummaryModel circle;
 
   String _formatStartDate(String dateStr) {
     if (dateStr.isEmpty) return '—';
@@ -27,8 +26,18 @@ class ActiveCircleCard extends StatelessWidget {
 
   String _arabicMonth(int month) {
     const months = [
-      'يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو',
-      'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر',
+      'يناير',
+      'فبراير',
+      'مارس',
+      'أبريل',
+      'مايو',
+      'يونيو',
+      'يوليو',
+      'أغسطس',
+      'سبتمبر',
+      'أكتوبر',
+      'نوفمبر',
+      'ديسمبر',
     ];
     return months[month - 1];
   }
@@ -92,8 +101,7 @@ class ActiveCircleCard extends StatelessWidget {
               _StatItem(
                 icon: Assets.iconsGroupOfUsers,
                 label: 'الأعضاء',
-                value:
-                    '${circle.currentMembersCount}/${circle.memberCapacity}',
+                value: '${circle.currentMembersCount}/${circle.memberCapacity}',
               ),
               _StatItem(
                 icon: Assets.iconsCalendarDots,
@@ -114,15 +122,14 @@ class ActiveCircleCard extends StatelessWidget {
 }
 
 class _StatItem extends StatelessWidget {
-  final String icon;
-  final String label;
-  final String value;
-
   const _StatItem({
     required this.icon,
     required this.label,
     required this.value,
   });
+  final String icon;
+  final String label;
+  final String value;
 
   @override
   Widget build(BuildContext context) {
@@ -133,10 +140,7 @@ class _StatItem extends StatelessWidget {
           icon,
           width: 18.w,
           height: 18.w,
-          colorFilter: const ColorFilter.mode(
-            Colors.white,
-            BlendMode.srcIn,
-          ),
+          colorFilter: const ColorFilter.mode(Colors.white, BlendMode.srcIn),
         ),
         SizedBox(height: 6.h),
         Text(

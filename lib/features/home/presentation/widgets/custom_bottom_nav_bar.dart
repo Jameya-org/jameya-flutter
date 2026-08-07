@@ -7,14 +7,13 @@ import '../../../../core/utils/app_text_styles.dart';
 import '../../../../core/utils/assets.dart';
 
 class CustomBottomNavBar extends StatelessWidget {
-  final int currentIndex;
-  final ValueChanged<int> onTap;
-
   const CustomBottomNavBar({
     super.key,
     required this.currentIndex,
     required this.onTap,
   });
+  final int currentIndex;
+  final ValueChanged<int> onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -69,17 +68,16 @@ class CustomBottomNavBar extends StatelessWidget {
 }
 
 class _NavBarItem extends StatelessWidget {
-  final String iconPath;
-  final String label;
-  final bool isSelected;
-  final VoidCallback onTap;
-
   const _NavBarItem({
     required this.iconPath,
     required this.label,
     required this.isSelected,
     required this.onTap,
   });
+  final String iconPath;
+  final String label;
+  final bool isSelected;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {

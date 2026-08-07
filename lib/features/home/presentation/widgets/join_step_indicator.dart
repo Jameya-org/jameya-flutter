@@ -9,14 +9,13 @@ import '../../../../core/utils/app_colors.dart';
 /// [currentStep] is 1-based (1 = first screen, 7 = success screen).
 /// [totalSteps] defaults to 7.
 class JoinStepIndicator extends StatelessWidget {
-  final int currentStep;
-  final int totalSteps;
-
   const JoinStepIndicator({
     super.key,
     required this.currentStep,
     this.totalSteps = 7,
   });
+  final int currentStep;
+  final int totalSteps;
 
   @override
   Widget build(BuildContext context) {
@@ -32,9 +31,7 @@ class JoinStepIndicator extends StatelessWidget {
               duration: const Duration(milliseconds: 300),
               curve: Curves.easeOut,
               height: 4.h,
-              margin: EdgeInsets.only(
-                left: isLast ? 0 : 3.w,
-              ),
+              margin: EdgeInsets.only(left: isLast ? 0 : 3.w),
               decoration: BoxDecoration(
                 color: isFilled ? AppColors.primary : AppColors.grey200,
                 borderRadius: BorderRadius.horizontal(

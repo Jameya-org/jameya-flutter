@@ -21,9 +21,8 @@ import '../../widgets/join_step_indicator.dart';
 /// • 410 → reservation expired dialog → navigate back to Subscription Review
 /// • network → snackbar, re-enable button
 class ContractReviewView extends StatefulWidget {
-  final String circleId;
-
   const ContractReviewView({super.key, required this.circleId});
+  final String circleId;
 
   @override
   State<ContractReviewView> createState() => _ContractReviewViewState();
@@ -57,10 +56,10 @@ class _ContractReviewViewState extends State<ContractReviewView> {
     if (!_allChecked) return;
     setState(() => _isSubmitting = true);
     context.read<JoinCircleCubit>().acceptContract(
-          agreedToTerms: _agreedToTerms,
-          agreedToInstallmentSchedule: _agreedToInstallments,
-          agreedToLateFees: _agreedToLateFees,
-        );
+      agreedToTerms: _agreedToTerms,
+      agreedToInstallmentSchedule: _agreedToInstallments,
+      agreedToLateFees: _agreedToLateFees,
+    );
   }
 
   @override
@@ -70,10 +69,7 @@ class _ContractReviewViewState extends State<ContractReviewView> {
         if (state is JoinCircleContractAccepted) {
           setState(() => _isSubmitting = false);
           final cubit = context.read<JoinCircleCubit>();
-          context.push(
-            AppRoutes.joinOtpPath(widget.circleId),
-            extra: cubit,
-          );
+          context.push(AppRoutes.joinOtpPath(widget.circleId), extra: cubit);
         }
 
         if (state is JoinCircleReservationExpired) {
@@ -93,8 +89,7 @@ class _ContractReviewViewState extends State<ContractReviewView> {
       },
       builder: (context, state) {
         final cubit = context.read<JoinCircleCubit>();
-        final hasContractUrl =
-            (cubit.contract?.downloadUrl ?? '').isNotEmpty;
+        final hasContractUrl = (cubit.contract?.downloadUrl ?? '').isNotEmpty;
 
         return Directionality(
           textDirection: TextDirection.rtl,
@@ -164,8 +159,9 @@ class _ContractReviewViewState extends State<ContractReviewView> {
                                 ),
                                 SizedBox(height: 20.h),
                                 OutlinedButton(
-                                  onPressed:
-                                      hasContractUrl ? _onViewContract : null,
+                                  onPressed: hasContractUrl
+                                      ? _onViewContract
+                                      : null,
                                   style: OutlinedButton.styleFrom(
                                     side: BorderSide(
                                       color: hasContractUrl
@@ -208,7 +204,8 @@ class _ContractReviewViewState extends State<ContractReviewView> {
                             label: 'أوافق على جدول التقسيط',
                             value: _agreedToInstallments,
                             onChanged: (v) => setState(
-                                () => _agreedToInstallments = v ?? false),
+                              () => _agreedToInstallments = v ?? false,
+                            ),
                           ),
                           SizedBox(height: 10.h),
                           _CheckboxItem(
@@ -287,15 +284,14 @@ class _ContractReviewViewState extends State<ContractReviewView> {
 }
 
 class _CheckboxItem extends StatelessWidget {
-  final String label;
-  final bool value;
-  final ValueChanged<bool?> onChanged;
-
   const _CheckboxItem({
     required this.label,
     required this.value,
     required this.onChanged,
   });
+  final String label;
+  final bool value;
+  final ValueChanged<bool?> onChanged;
 
   @override
   Widget build(BuildContext context) {

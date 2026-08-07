@@ -10,9 +10,8 @@ import '../../../../core/widgets/custom_button.dart';
 /// Empty state card shown when user has no active circle.
 /// Contains title, subtitle, and CTA button to browse circles.
 class EmptyCircleCard extends StatelessWidget {
-  final VoidCallback onBrowseCircles;
-
   const EmptyCircleCard({super.key, required this.onBrowseCircles});
+  final VoidCallback onBrowseCircles;
 
   @override
   Widget build(BuildContext context) {

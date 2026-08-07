@@ -11,14 +11,13 @@ import '../../../../../core/widgets/custom_button.dart';
 /// during join-intent or join. Displays the missing steps that the user
 /// must complete before they can join any circle.
 class EligibilityBlockedView extends StatelessWidget {
-  final String reason;
-  final List<String> missingSteps;
-
   const EligibilityBlockedView({
     super.key,
     required this.reason,
     required this.missingSteps,
   });
+  final String reason;
+  final List<String> missingSteps;
 
   String _arabicStep(String step) {
     switch (step) {
@@ -51,8 +50,8 @@ class EligibilityBlockedView extends StatelessWidget {
                 Container(
                   width: 90.w,
                   height: 90.w,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFFFF3E0),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFFFF3E0),
                     shape: BoxShape.circle,
                   ),
                   child: Icon(
