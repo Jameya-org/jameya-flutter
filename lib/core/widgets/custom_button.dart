@@ -4,14 +4,6 @@ import 'package:jameya/core/utils/app_colors.dart';
 import 'package:jameya/core/utils/app_text_styles.dart';
 
 class CustomButton extends StatelessWidget {
-  final String text;
-  final VoidCallback onPressed;
-  final Color? backgroundColor;
-  final Color? textColor;
-  final double? width;
-  final double? height;
-  final double? borderRadius;
-
   const CustomButton({
     super.key,
     required this.text,
@@ -22,6 +14,13 @@ class CustomButton extends StatelessWidget {
     this.height,
     this.borderRadius,
   });
+  final String text;
+  final VoidCallback onPressed;
+  final Color? backgroundColor;
+  final Color? textColor;
+  final double? width;
+  final double? height;
+  final double? borderRadius;
 
   @override
   Widget build(BuildContext context) {

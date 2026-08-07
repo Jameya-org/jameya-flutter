@@ -1,11 +1,22 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 
-import '../animations/smart_animate_transition.dart';
-import '../routing/routes.dart';
 import '../../features/auth/presentation/views/create_account_view.dart';
 import '../../features/auth/presentation/views/email_view.dart';
 import '../../features/auth/presentation/views/otp_view.dart';
+import '../../features/home/presentation/cubit/circles_cubit.dart';
+import '../../features/home/presentation/cubit/join_circle_cubit.dart';
+import '../../features/home/presentation/views/available_circles_view.dart';
+import '../../features/home/presentation/views/join_circle/circle_detail_view.dart';
+import '../../features/home/presentation/views/join_circle/contract_review_view.dart';
+import '../../features/home/presentation/views/join_circle/eligibility_blocked_view.dart';
+import '../../features/home/presentation/views/join_circle/join_success_view.dart';
+import '../../features/home/presentation/views/join_circle/otp_verification_view.dart';
+import '../../features/home/presentation/views/join_circle/payment_info_view.dart';
+import '../../features/home/presentation/views/join_circle/select_turn_view.dart';
+import '../../features/home/presentation/views/join_circle/subscription_review_view.dart';
+import '../../features/home/presentation/views/main_layout_view.dart';
+import '../../features/home/presentation/views/progress_view.dart';
 import '../../features/info/presentation/views/terms_and_conditions_view.dart';
 import '../../features/kyc/presentation/views/kyc_verification_view.dart';
 import '../../features/onboarding/presentation/cubit/onboarding_cubit.dart';
@@ -14,19 +25,8 @@ import '../../features/payment/presentation/views/add_card_view.dart';
 import '../../features/payment/presentation/views/payment_methods_view.dart';
 import '../../features/profile/presentation/views/profile_details_view.dart';
 import '../../features/splash/views/splash_view.dart';
-import '../../features/home/presentation/views/main_layout_view.dart';
-import '../../features/home/presentation/views/progress_view.dart';
-import '../../features/home/presentation/views/available_circles_view.dart';
-import '../../features/home/presentation/cubit/circles_cubit.dart';
-import '../../features/home/presentation/cubit/join_circle_cubit.dart';
-import '../../features/home/presentation/views/join_circle/circle_detail_view.dart';
-import '../../features/home/presentation/views/join_circle/select_turn_view.dart';
-import '../../features/home/presentation/views/join_circle/payment_info_view.dart';
-import '../../features/home/presentation/views/join_circle/subscription_review_view.dart';
-import '../../features/home/presentation/views/join_circle/contract_review_view.dart';
-import '../../features/home/presentation/views/join_circle/otp_verification_view.dart';
-import '../../features/home/presentation/views/join_circle/join_success_view.dart';
-import '../../features/home/presentation/views/join_circle/eligibility_blocked_view.dart';
+import '../animations/smart_animate_transition.dart';
+import '../routing/routes.dart';
 import '../services/services_locator.dart';
 
 abstract final class AppRouter {
@@ -174,7 +174,6 @@ abstract final class AppRouter {
       // Each screen receives the shared JoinCircleCubit via state.extra.
       // The cubit is created once at the entry point (AvailableCirclesView)
       // and passed forward — preserving all state across Back navigation.
-
       GoRoute(
         path: AppRoutes.kCircleDetailView,
         pageBuilder: (context, state) {
