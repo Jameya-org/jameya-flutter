@@ -17,6 +17,7 @@ abstract final class AppRoutes {
   static const kProgressView = '/home/progress';
   static const kAvailableCirclesView = '/home/circles';
   static const kMyCirclesView = '/home/my-circles';
+  static const kTransactionsView = '/home/transactions';
 
   // ── Join Circle Flow ──────────────────────────────────────
   // Route pattern constants (for GoRouter path matching)
