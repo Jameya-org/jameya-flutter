@@ -7,6 +7,7 @@ class SettingsTile extends StatelessWidget {
   final IconData icon;
   final VoidCallback onTap;
   final String? trailingText;
+  final IconData? trailingIcon;
 
   const SettingsTile({
     super.key,
@@ -16,6 +17,7 @@ class SettingsTile extends StatelessWidget {
     required this.icon,
     required this.onTap,
     this.trailingText,
+    this.trailingIcon,
   });
 
   @override
@@ -54,7 +56,11 @@ class SettingsTile extends StatelessWidget {
                 ),
               )
             else
-              const Icon(Icons.arrow_back_ios, size: 16, color: Colors.grey),
+              Icon(
+                trailingIcon ?? Icons.arrow_back_ios,
+                size: 16,
+                color: Colors.grey,
+              ),
           ],
         ),
       ),

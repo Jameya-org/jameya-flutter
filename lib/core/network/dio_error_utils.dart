@@ -13,5 +13,15 @@ String dioErrorMessage(DioException e, {String fallback = 'حدث خطأ'}) {
       return message.toString();
     }
   }
-  return e.message ?? fallback;
+
+  switch (e.type) {
+    case DioExceptionType.connectionTimeout:
+    case DioExceptionType.sendTimeout:
+    case DioExceptionType.receiveTimeout:
+      return 'استغرقت الاستجابة وقتاً أطول من المتوقع (السيرفر يستغرق وقتاً للاستجابة)، يرجى المحاولة مرة أخرى.';
+    case DioExceptionType.connectionError:
+      return 'تعذر الاتصال بالخادم، يرجى التأكد من الاتصال بالإنترنت.';
+    default:
+      return (e.message != null && e.message!.isNotEmpty) ? e.message! : fallback;
+  }
 }

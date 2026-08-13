@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+
+import '../../../../core/routing/routes.dart';
 import '../providers/profile_provider.dart';
+import '../widgets/logout_button.dart';
 import '../widgets/profile_header.dart';
 import '../widgets/settings_tile.dart';
-import '../widgets/logout_button.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -59,11 +62,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         appBar: AppBar(
           backgroundColor: Colors.white,
           elevation: 0,
-          // ✅ leading بدل actions عشان يظهر يمين في RTL زي الصورة
-          leading: IconButton(
-            icon: const Icon(Icons.chevron_left, color: Colors.teal, size: 18),
-            onPressed: () => Navigator.pop(context),
+          title: const Text(
+            'حسابي',
+            style: TextStyle(
+              color: Color(0xFF1A7A6E),
+              fontSize: 22,
+              fontWeight: FontWeight.bold,
+            ),
           ),
+          centerTitle: true,
         ),
         body: Consumer<ProfileProvider>(
           builder: (context, provider, _) {
@@ -109,10 +116,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         iconBgColor: const Color(0xFFD6EAF8),
                         iconColor: const Color(0xFF3498DB),
                         icon: Icons.person_outline,
-                        trailingIcon:
-                            Icons.chevron_left, // ✅ أيقونة السهم على اليمين
+                        trailingIcon: Icons.chevron_left,
                         onTap: () =>
-                            Navigator.pushNamed(context, '/personal-info'),
+                            context.push(AppRoutes.kProfileDetailsView),
                       ),
                       SettingsTile(
                         title: 'طرق الدفع',
@@ -121,7 +127,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         icon: Icons.credit_card,
                         trailingIcon: Icons.chevron_left,
                         onTap: () =>
-                            Navigator.pushNamed(context, '/payment-methods'),
+                            context.push(AppRoutes.kPaymentMethodsView),
                       ),
                       SettingsTile(
                         title: 'توثيق الهوية',
@@ -130,7 +136,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         icon: Icons.fingerprint,
                         trailingIcon: Icons.chevron_left,
                         onTap: () =>
-                            Navigator.pushNamed(context, '/kyc-verification'),
+                            context.push(AppRoutes.kKycVerificationView),
                       ),
                     ],
                   ),
@@ -144,7 +150,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         iconColor: const Color(0xFF3498DB),
                         icon: Icons.description_outlined,
                         trailingIcon: Icons.chevron_left,
-                        onTap: () => Navigator.pushNamed(context, '/terms'),
+                        onTap: () =>
+                            context.push(AppRoutes.kTermsAndConditionsView),
                       ),
                       SettingsTile(
                         title: 'عن تطبيق جمعيه',
@@ -152,8 +159,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         iconColor: const Color(0xFFE67E22),
                         icon: Icons.help_outline,
                         trailingIcon: Icons.chevron_left,
-                        trailingText: '1.0 V', // ✅ رقم الإصدار جوه نفس الصف
-                        onTap: () => Navigator.pushNamed(context, '/about'),
+                        trailingText: '1.0 V',
+                        onTap: () =>
+                            context.push(AppRoutes.kTermsAndConditionsView),
                       ),
                     ],
                   ),
@@ -165,90 +173,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             );
           },
         ),
-        // ✅ الـ Bottom Navigation Bar الناقص
-        bottomNavigationBar: Container(
-          decoration: BoxDecoration(
-            color: Colors.white,
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.05),
-                blurRadius: 8,
-                offset: const Offset(0, -2),
-              ),
-            ],
-          ),
-          child: SafeArea(
-            child: Row(
-              textDirection: TextDirection.ltr,
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: const [
-                Expanded(
-                  child: _NavItem(
-                    icon: Icons.person,
-                    label: 'حسابي',
-                    selected: true,
-                  ),
-                ),
-                Expanded(
-                  child: _NavItem(
-                    icon: Icons.payments_outlined,
-                    label: 'سجل التعاملات',
-                    selected: false,
-                  ),
-                ),
-                Expanded(
-                  child: _NavItem(
-                    icon: Icons.sync,
-                    label: 'جمعياتي',
-                    selected: false,
-                  ),
-                ),
-                Expanded(
-                  child: _NavItem(
-                    icon: Icons.home_outlined,
-                    label: 'الرئيسية',
-                    selected: false,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool selected;
-
-  const _NavItem({
-    required this.icon,
-    required this.label,
-    required this.selected,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final color = selected ? const Color(0xFF1A7A6E) : Colors.grey;
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: color, size: 24),
-          const SizedBox(height: 4),
-          Text(
-            label,
-            style: TextStyle(
-              color: color,
-              fontSize: 11,
-              fontWeight: selected ? FontWeight.bold : FontWeight.normal,
-            ),
-          ),
-        ],
       ),
     );
   }

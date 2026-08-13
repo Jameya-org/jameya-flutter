@@ -79,6 +79,24 @@ class KycProvider extends ChangeNotifier {
   bool hasSecureUrl(String docType) =>
       _pendingSecureUrls.containsKey(docType);
 
+  // ── Convenience getters for kyc_screen.dart ──────────────────────────────
+
+  /// The locally selected national-ID file (as [File]), or null.
+  File? get nationalIdFile {
+    final path = _selectedFiles['NATIONAL_ID']?.path;
+    return path != null ? File(path) : null;
+  }
+
+  /// The locally selected income-proof file (as [File]), or null.
+  File? get incomeProofFile {
+    final path = _selectedFiles['PROOF_OF_INCOME']?.path;
+    return path != null ? File(path) : null;
+  }
+
+  /// True while [submitDocuments] is running.
+  bool get isSubmitting => _isSubmitting;
+  bool _isSubmitting = false;
+
   // ── Actions ───────────────────────────────────────────────────────────────
 
   /// Sets the issue date for [docType].
@@ -91,6 +109,60 @@ class KycProvider extends ChangeNotifier {
   void setExpiryDate(String docType, DateTime date) {
     _expiryDates[docType] = date;
     notifyListeners();
+  }
+
+  // ── Convenience setters for kyc_screen.dart ───────────────────────────────
+
+  /// Convenience wrapper — sets the national-ID file via [setDocumentFile].
+  void setNationalIdFile(File file) {
+    setDocumentFile(
+      'NATIONAL_ID',
+      PlatformFile(name: file.path.split('/').last, size: 0, path: file.path),
+    );
+  }
+
+  /// Convenience wrapper — sets the income-proof file via [setDocumentFile].
+  void setIncomeProofFile(File file) {
+    setDocumentFile(
+      'PROOF_OF_INCOME',
+      PlatformFile(name: file.path.split('/').last, size: 0, path: file.path),
+    );
+  }
+
+  /// High-level submit: uploads both documents then calls [submitKyc].
+  /// Returns `true` on full success, `false` on any failure (sets [error]).
+  Future<bool> submitDocuments() async {
+    _isSubmitting = true;
+    error = null;
+    notifyListeners();
+
+    try {
+      if (_selectedFiles.containsKey('NATIONAL_ID')) {
+        final err = await uploadDocument(docType: 'NATIONAL_ID');
+        if (err != null) {
+          error = err;
+          return false;
+        }
+      }
+
+      if (_selectedFiles.containsKey('PROOF_OF_INCOME')) {
+        final err = await uploadDocument(docType: 'PROOF_OF_INCOME');
+        if (err != null) {
+          error = err;
+          return false;
+        }
+      }
+
+      final submitErr = await submitKyc();
+      if (submitErr != null) {
+        error = submitErr;
+        return false;
+      }
+      return true;
+    } finally {
+      _isSubmitting = false;
+      notifyListeners();
+    }
   }
 
   /// Loads / refreshes GET /customers/kyc-status.

@@ -18,12 +18,12 @@ import '../../features/home/presentation/views/join_circle/subscription_review_v
 import '../../features/home/presentation/views/main_layout_view.dart';
 import '../../features/home/presentation/views/progress_view.dart';
 import '../../features/info/presentation/views/terms_and_conditions_view.dart';
-import '../../features/kyc/presentation/views/kyc_verification_view.dart';
+import '../../features/kyc/presentation/views/kyc_screen.dart';
 import '../../features/onboarding/presentation/cubit/onboarding_cubit.dart';
 import '../../features/onboarding/presentation/views/onboarding_view.dart';
-import '../../features/payment/presentation/views/add_card_view.dart';
-import '../../features/payment/presentation/views/payment_methods_view.dart';
-import '../../features/profile/presentation/views/profile_details_view.dart';
+import '../../features/payment/presentation/views/add_card_screen.dart';
+import '../../features/payment/presentation/views/saved_cards_screen.dart';
+import '../../features/profile/presentation/views/profile_info_screen.dart';
 import '../../features/splash/views/splash_view.dart';
 import '../animations/smart_animate_transition.dart';
 import '../routing/routes.dart';
@@ -85,7 +85,7 @@ abstract final class AppRouter {
         pageBuilder: (context, state) {
           return SmartAnimateTransition.buildPage(
             state: state,
-            child: const ProfileDetailsView(),
+            child: const PersonalInfoScreen(),
           );
         },
       ),
@@ -94,7 +94,7 @@ abstract final class AppRouter {
         pageBuilder: (context, state) {
           return SmartAnimateTransition.buildPage(
             state: state,
-            child: const PaymentMethodsView(),
+            child: const SavedCardsScreen(),
           );
         },
       ),
@@ -103,7 +103,7 @@ abstract final class AppRouter {
         pageBuilder: (context, state) {
           return SmartAnimateTransition.buildPage(
             state: state,
-            child: const AddCardView(),
+            child: const AddCardScreen(),
           );
         },
       ),
@@ -112,7 +112,7 @@ abstract final class AppRouter {
         pageBuilder: (context, state) {
           return SmartAnimateTransition.buildPage(
             state: state,
-            child: const KycVerificationView(),
+            child: const KycScreen(),
           );
         },
       ),

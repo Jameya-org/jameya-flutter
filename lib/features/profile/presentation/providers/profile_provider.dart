@@ -1,12 +1,17 @@
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import '../../../services/customer_service.dart';
-import '../../../services/auth_service.dart';
-import '../models/profile_model.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../../../core/cache/cache_helper.dart';
+import '../../../../core/routing/routes.dart';
+import '../../../../core/services/services_locator.dart';
+import '../../../../core/utils/token_utils.dart';
+import '../../data/models/profile_model.dart';
+import '../../data/services/customer_service.dart';
 
 class ProfileProvider extends ChangeNotifier {
-  final CustomerService _customerService = CustomerService();
-  final AuthService _authService = AuthService();
+  final CustomerService _customerService = getIt<CustomerService>();
+  final CacheHelper _cacheHelper = getIt<CacheHelper>();
 
   ProfileModel? profile;
   bool isLoading = false;
@@ -22,7 +27,7 @@ class ProfileProvider extends ChangeNotifier {
       final data = await _customerService.getProfile();
       profile = ProfileModel.fromJson(data);
     } catch (e) {
-      print('PROFILE ERROR: $e');
+      debugPrint('PROFILE ERROR: $e');
       error = 'حدث خطأ في تحميل البيانات';
     } finally {
       isLoading = false;
@@ -59,21 +64,18 @@ class ProfileProvider extends ChangeNotifier {
 
       if (profile != null) {
         profile = profile!.copyWith(
-          name: legalName,
-          phone: mobileNumber,
-          address: '$streetAddress، $city، $governorate',
-          birthDate:
-              '${dateOfBirth.day}/${dateOfBirth.month}/${dateOfBirth.year}',
+          legalName: legalName,
+          mobileNumber: mobileNumber,
         );
       }
       return true;
     } catch (e) {
       if (e is DioException) {
-        print(
+        debugPrint(
           'PROFILE UPDATE ERROR: ${e.response?.statusCode} - ${e.response?.data}',
         );
       } else {
-        print('PROFILE UPDATE ERROR: $e');
+        debugPrint('PROFILE UPDATE ERROR: $e');
       }
       error = 'فشل حفظ التعديلات';
       return false;
@@ -85,9 +87,9 @@ class ProfileProvider extends ChangeNotifier {
 
   Future<void> logout(BuildContext context) async {
     try {
-      await _authService.logout();
+      await TokenUtils.clearTokens(_cacheHelper);
       if (context.mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, '/login', (_) => false);
+        context.go(AppRoutes.kEmailView);
       }
     } catch (e) {
       error = 'فشل تسجيل الخروج';

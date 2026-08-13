@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+
+import '../../../../core/routing/routes.dart';
+import '../../data/models/payment_method_model.dart';
 import '../providers/payment_provider.dart';
-import '../models/payment_method_model.dart';
 
 class SavedCardsScreen extends StatefulWidget {
   const SavedCardsScreen({super.key});
@@ -23,7 +26,7 @@ class _SavedCardsScreenState extends State<SavedCardsScreen> {
   }
 
   Future<void> _goToAddCard() async {
-    await Navigator.pushNamed(context, '/add-card');
+    await context.push(AppRoutes.kAddCardView);
     if (context.mounted) {
       context.read<PaymentProvider>().loadCards();
     }
@@ -41,7 +44,7 @@ class _SavedCardsScreenState extends State<SavedCardsScreen> {
           title: const Text('حذف البطاقة'),
           content: const Text('هل أنت متأكد أنك تريد حذف هذه البطاقة؟'),
           backgroundColor: Colors.white,
-          shadowColor: Colors.black.withOpacity(0.2),
+          shadowColor: Colors.black.withValues(alpha: 0.2),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx, false),
@@ -177,7 +180,7 @@ class _SavedCardsScreenState extends State<SavedCardsScreen> {
                               : LinearGradient(
                                   colors: [
                                     Colors.white,
-                                    Colors.white.withOpacity(0.9),
+                                    Colors.white.withValues(alpha: 0.9),
                                   ],
                                 ),
                           borderRadius: BorderRadius.circular(18),
@@ -278,7 +281,7 @@ class _SavedCardsScreenState extends State<SavedCardsScreen> {
                       color: const Color(0xFFE8F6F3),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: const Color(0xFF1A7A6E).withOpacity(0.3),
+                        color: const Color(0xFF1A7A6E).withValues(alpha: 0.3),
                       ),
                     ),
                     child: const Row(
@@ -399,7 +402,7 @@ class _SavedCardsScreenState extends State<SavedCardsScreen> {
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.05),
+              color: Colors.black.withValues(alpha: 0.05),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),

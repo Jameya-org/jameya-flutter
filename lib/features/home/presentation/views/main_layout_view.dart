@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 import '../../../../core/services/services_locator.dart';
-import '../../../profile/presentation/views/profile_view.dart';
+import '../../../profile/presentation/views/profile_screen.dart';
 import '../cubit/circles_cubit.dart';
 import '../cubit/home_cubit.dart';
 import '../widgets/custom_bottom_nav_bar.dart';
@@ -41,7 +41,7 @@ class _MainLayoutViewState extends State<MainLayoutView> {
             HomeView(),
             MyCirclesView(),
             TransactionsView(),
-            ProfileView(),
+            ProfileScreen(),
           ],
         ),
         bottomNavigationBar: CustomBottomNavBar(
