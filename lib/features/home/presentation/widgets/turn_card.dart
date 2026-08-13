@@ -149,9 +149,9 @@ class TurnCard extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 4.h),
-                // Discount percentage
+                // Fee / discount percentage label
                 Text(
-                  'نسبة الخصم: ${position.feePreview.feePercentage}%',
+                  _formatFeeLabel(position.feePreview.feePercentage),
                   style: AppTextStyles.label.copyWith(
                     color: discountColor,
                     fontWeight: FontWeight.w600,
@@ -164,5 +164,19 @@ class TurnCard extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  static String _formatFeeLabel(String feePercentageStr) {
+    final val = double.tryParse(feePercentageStr) ?? 0.0;
+    if (val < 0) {
+      final absVal = val.abs();
+      final formatted = absVal % 1 == 0 ? absVal.toInt() : absVal;
+      return 'نسبة الخصم: $formatted%';
+    } else if (val > 0) {
+      final formatted = val % 1 == 0 ? val.toInt() : val;
+      return 'نسبة الرسوم: $formatted%';
+    } else {
+      return 'بدون رسوم إضافية';
+    }
   }
 }

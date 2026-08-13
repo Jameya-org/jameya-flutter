@@ -231,14 +231,48 @@ class _KycScreenState extends State<KycScreen> {
                 ),
                 const SizedBox(height: 20),
                 _infoRow('الاسم الكامل', kyc?.fullName ?? '-'),
-                _infoRow('رقم الهوية', kyc?.idNumber ?? '-'),
-                _infoRow('تاريخ التوثيق', kyc?.verifiedAt ?? '-'),
+                _infoRow('رقم الهوية', _maskIdNumber(kyc?.idNumber)),
+                _infoRow('تاريخ التوثيق', _formatArabicDate(kyc?.verifiedAt)),
               ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  static String _maskIdNumber(String? idNumber) {
+    if (idNumber == null || idNumber.isEmpty) return '-';
+    final clean = idNumber.trim();
+    if (clean.length < 6) return clean;
+    final start = clean.substring(0, 4);
+    final end = clean.substring(clean.length - 2);
+    final stars = '*' * (clean.length - 6);
+    return '$start$stars$end';
+  }
+
+  static String _formatArabicDate(String? rawDate) {
+    if (rawDate == null || rawDate.isEmpty || rawDate == '-') return '-';
+    try {
+      final date = DateTime.parse(rawDate);
+      const months = [
+        'يناير',
+        'فبراير',
+        'مارس',
+        'أبريل',
+        'مايو',
+        'يونيو',
+        'يوليو',
+        'أغسطس',
+        'سبتمبر',
+        'أكتوبر',
+        'نوفمبر',
+        'ديسمبر',
+      ];
+      return '${date.day} ${months[date.month - 1]} ${date.year}';
+    } catch (_) {
+      return rawDate;
+    }
   }
 
   Widget _infoRow(String label, String value) {
@@ -316,7 +350,7 @@ class _KycScreenState extends State<KycScreen> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          Text(provider.kycStatus?.submittedAt ?? '-'),
+                          Text(_formatArabicDate(provider.kycStatus?.submittedAt)),
                           const Text('تم الإرسال:'),
                         ],
                       ),

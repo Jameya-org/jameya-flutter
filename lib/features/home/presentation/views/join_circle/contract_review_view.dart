@@ -297,10 +297,52 @@ class _ContractReviewViewState extends State<ContractReviewView> {
                           ),
                           SizedBox(height: 10.h),
                           _CheckboxItem(
-                            label: 'أوافق على شروط الاستخدام وسياسة الخصوصية.',
                             value: _agreedToTerms,
                             onChanged: (v) =>
                                 setState(() => _agreedToTerms = v ?? false),
+                            labelWidget: RichText(
+                              text: TextSpan(
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.textSecondary,
+                                  height: 1.5,
+                                ),
+                                children: [
+                                  const TextSpan(text: 'أوافق على '),
+                                  WidgetSpan(
+                                    child: GestureDetector(
+                                      onTap: () => context.push(
+                                        AppRoutes.kTermsAndConditionsView,
+                                      ),
+                                      child: Text(
+                                        'شروط الاستخدام',
+                                        style: AppTextStyles.bodySmall.copyWith(
+                                          color: AppColors.primary,
+                                          fontWeight: FontWeight.w600,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const TextSpan(text: ' و '),
+                                  WidgetSpan(
+                                    child: GestureDetector(
+                                      onTap: () => context.push(
+                                        AppRoutes.kTermsAndConditionsView,
+                                      ),
+                                      child: Text(
+                                        'سياسة الخصوصية',
+                                        style: AppTextStyles.bodySmall.copyWith(
+                                          color: AppColors.primary,
+                                          fontWeight: FontWeight.w600,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const TextSpan(text: '.'),
+                                ],
+                              ),
+                            ),
                           ),
 
                           SizedBox(height: 24.h),
@@ -373,11 +415,13 @@ class _ContractReviewViewState extends State<ContractReviewView> {
 
 class _CheckboxItem extends StatelessWidget {
   const _CheckboxItem({
-    required this.label,
+    this.label,
+    this.labelWidget,
     required this.value,
     required this.onChanged,
   });
-  final String label;
+  final String? label;
+  final Widget? labelWidget;
   final bool value;
   final ValueChanged<bool?> onChanged;
 
@@ -389,13 +433,14 @@ class _CheckboxItem extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           Expanded(
-            child: Text(
-              label,
-              style: AppTextStyles.bodySmall.copyWith(
-                color: AppColors.textSecondary,
-                height: 1.5,
-              ),
-            ),
+            child: labelWidget ??
+                Text(
+                  label ?? '',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
           ),
           SizedBox(width: 8.w),
           AnimatedContainer(
