@@ -5,6 +5,7 @@ import '../../../../core/services/services_locator.dart';
 import '../../../profile/presentation/views/profile_screen.dart';
 import '../cubit/circles_cubit.dart';
 import '../cubit/home_cubit.dart';
+import '../cubit/transactions_cubit.dart';
 import '../widgets/custom_bottom_nav_bar.dart';
 import 'home_view.dart';
 import 'my_circles_view.dart';
@@ -33,6 +34,7 @@ class _MainLayoutViewState extends State<MainLayoutView> {
       providers: [
         BlocProvider<HomeCubit>(create: (_) => getIt<HomeCubit>()),
         BlocProvider<CirclesCubit>(create: (_) => getIt<CirclesCubit>()),
+        BlocProvider<TransactionsCubit>(create: (_) => getIt<TransactionsCubit>()..loadTransactions()),
       ],
       child: Scaffold(
         body: IndexedStack(

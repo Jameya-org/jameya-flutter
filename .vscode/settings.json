@@ -19,5 +19,6 @@
         "أكتوبر",
         "نوفمبر",
         "ديسمبر",
-    ]
+    ],
+    "java.configuration.updateBuildConfiguration": "automatic"
 }

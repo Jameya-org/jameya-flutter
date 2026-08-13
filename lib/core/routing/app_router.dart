@@ -21,9 +21,12 @@ import '../../features/info/presentation/views/terms_and_conditions_view.dart';
 import '../../features/kyc/presentation/views/kyc_screen.dart';
 import '../../features/onboarding/presentation/cubit/onboarding_cubit.dart';
 import '../../features/onboarding/presentation/views/onboarding_view.dart';
+import '../../features/payment/presentation/cubit/payment_details_cubit.dart';
 import '../../features/payment/presentation/views/add_card_screen.dart';
+import '../../features/payment/presentation/views/payment_details_view.dart';
 import '../../features/payment/presentation/views/saved_cards_screen.dart';
 import '../../features/profile/presentation/views/profile_info_screen.dart';
+
 import '../../features/splash/views/splash_view.dart';
 import '../animations/smart_animate_transition.dart';
 import '../routing/routes.dart';
@@ -99,6 +102,18 @@ abstract final class AppRouter {
         },
       ),
       GoRoute(
+        path: AppRoutes.kPaymentDetailsView,
+        pageBuilder: (context, state) {
+          return SmartAnimateTransition.buildPage(
+            state: state,
+            child: BlocProvider(
+              create: (context) => getIt<PaymentDetailsCubit>(),
+              child: const PaymentDetailsView(),
+            ),
+          );
+        },
+      ),
+      GoRoute(
         path: AppRoutes.kAddCardView,
         pageBuilder: (context, state) {
           return SmartAnimateTransition.buildPage(
@@ -169,6 +184,16 @@ abstract final class AppRouter {
           );
         },
       ),
+      GoRoute(
+        path: AppRoutes.kTransactionsView,
+        pageBuilder: (context, state) {
+          return SmartAnimateTransition.buildPage(
+            state: state,
+            child: const MainLayoutView(initialIndex: 2),
+          );
+        },
+      ),
+
 
       // ── Join Circle Flow ──────────────────────────────────────
       // Each screen receives the shared JoinCircleCubit via state.extra.

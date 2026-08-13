@@ -7,6 +7,7 @@ abstract final class AppRoutes {
   static const kProfileView = '/profile';
   static const kProfileDetailsView = '/personal-info';
   static const kPaymentMethodsView = '/payment-methods';
+  static const kPaymentDetailsView = '/payment-details';
   static const kAddCardView = '/add-card';
   static const kKycVerificationView = '/kyc-verification';
   static const kTermsAndConditionsView = '/terms';
