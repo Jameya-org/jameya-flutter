@@ -89,5 +89,18 @@ class Assets {
   /// Assets for imagesOnboardingTwo
   /// assets/images/onboarding_two.png
   static const String imagesOnboardingTwo = "assets/images/onboarding_two.png";
+
+  /// Assets for imagesTransactionFailed
+  /// assets/images/transaction_failed.png
+  static const String imagesTransactionFailed = "assets/images/transaction_failed.png";
+
+  /// Assets for imagesTransactionPaid
+  /// assets/images/transaction_paid.png
+  static const String imagesTransactionPaid = "assets/images/transaction_paid.png";
+
+  /// Assets for imagesTransactionPending
+  /// assets/images/transaction_pending.png
+  static const String imagesTransactionPending = "assets/images/transaction_pending.png";
 }
+
 

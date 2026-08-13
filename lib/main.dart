@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'core/localization/cubit/localization_cubit.dart';
 import 'core/localization/cubit/localization_state.dart';
@@ -45,7 +46,8 @@ class JameyaApp extends StatelessWidget {
                 title: 'جمعية',
                 debugShowCheckedModeBanner: false,
                 theme: ThemeData(
-                  fontFamily: 'Cairo',
+                  textTheme: GoogleFonts.interTextTheme(),
+                  fontFamily: GoogleFonts.inter().fontFamily,
                   primaryColor: const Color(0xFF008080),
                   colorScheme: ColorScheme.fromSeed(
                     seedColor: const Color(0xFF008080),

@@ -13,6 +13,8 @@ import '../../features/kyc/data/services/kyc_service.dart';
 import '../../features/kyc/data/services/storage_service.dart';
 import '../../features/payment/data/services/payment_service.dart';
 import '../../features/profile/data/services/customer_service.dart';
+import '../../features/home/presentation/cubit/transactions_cubit.dart';
+import '../../features/payment/presentation/cubit/payment_details_cubit.dart';
 import '../cache/cache_helper.dart';
 import '../localization/cubit/localization_cubit.dart';
 import '../network/dio_helper.dart';
@@ -50,6 +52,14 @@ Future<void> setupServiceLocator() async {
     () => PaymentService(getIt<Dio>()),
   );
 
+  getIt.registerFactory<PaymentDetailsCubit>(
+    () => PaymentDetailsCubit(getIt<PaymentService>()),
+  );
+
+  getIt.registerFactory<TransactionsCubit>(
+    () => TransactionsCubit(getIt<PaymentService>()),
+  );
+
   // KYC
   getIt.registerLazySingleton<KycService>(() => KycService(getIt<Dio>()));
 
@@ -71,3 +81,4 @@ Future<void> setupServiceLocator() async {
     () => JoinCircleCubit(getIt<HomeRepo>()),
   );
 }
+
