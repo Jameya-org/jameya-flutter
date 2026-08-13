@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -36,6 +38,61 @@ class _ContractReviewViewState extends State<ContractReviewView> {
   bool get _allChecked =>
       _agreedToLateFees && _agreedToInstallments && _agreedToTerms;
   bool _isSubmitting = false;
+
+  Timer? _countdownTimer;
+  String _remainingTimeString = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _startCountdownTimer();
+  }
+
+  void _startCountdownTimer() {
+    _updateRemainingTime();
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      _updateRemainingTime();
+    });
+  }
+
+  void _updateRemainingTime() {
+    final expiresAtStr =
+        context.read<JoinCircleCubit>().reservation?.reservationExpiresAt;
+    if (expiresAtStr == null || expiresAtStr.isEmpty) {
+      if (mounted && _remainingTimeString.isNotEmpty) {
+        setState(() => _remainingTimeString = '');
+      }
+      return;
+    }
+
+    try {
+      final expiry = DateTime.parse(expiresAtStr);
+      final diff = expiry.difference(DateTime.now());
+      if (diff.isNegative) {
+        _countdownTimer?.cancel();
+        if (mounted && _remainingTimeString != 'مُنتَهي') {
+          setState(() => _remainingTimeString = 'مُنتَهي');
+        }
+        return;
+      }
+
+      final minutes = diff.inMinutes;
+      final seconds = diff.inSeconds % 60;
+      final formatted =
+          '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+      if (mounted && _remainingTimeString != formatted) {
+        setState(() => _remainingTimeString = formatted);
+      }
+    } catch (_) {
+      _countdownTimer?.cancel();
+    }
+  }
+
+  @override
+  void dispose() {
+    _countdownTimer?.cancel();
+    super.dispose();
+  }
 
   Future<void> _onViewContract() async {
     final cubit = context.read<JoinCircleCubit>();
@@ -157,6 +214,37 @@ class _ContractReviewViewState extends State<ContractReviewView> {
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
+                                if (_remainingTimeString.isNotEmpty) ...[
+                                  SizedBox(height: 8.h),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 12.w,
+                                      vertical: 4.h,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFF3E0),
+                                      borderRadius: BorderRadius.circular(20.r),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.timer_outlined,
+                                          size: 14.sp,
+                                          color: const Color(0xFFE87D3E),
+                                        ),
+                                        SizedBox(width: 4.w),
+                                        Text(
+                                          'متبقي على صلاحية الحجز: $_remainingTimeString',
+                                          style: AppTextStyles.label.copyWith(
+                                            color: const Color(0xFFE87D3E),
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                                 SizedBox(height: 20.h),
                                 OutlinedButton(
                                   onPressed: hasContractUrl

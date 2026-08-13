@@ -184,7 +184,11 @@ class _SubscriptionReviewViewState extends State<SubscriptionReviewView> {
                                         )
                                       : '—',
                                 ),
-                                const _ReviewRow(
+                                // TODO(BUG-03 / LOGIC-01): Payment method value
+                            // is hardcoded. When the backend requires a real
+                            // paymentMethodId in POST /customer/circles/{id}/join,
+                            // this must display the user's selected method.
+                            const _ReviewRow(
                                   label: 'طريقة الدفع',
                                   value: 'بطاقة بنكية',
                                   showDivider: false,
@@ -225,6 +229,7 @@ class _SubscriptionReviewViewState extends State<SubscriptionReviewView> {
   void _showPositionTakenDialog(BuildContext context) {
     showDialog<void>(
       context: context,
+      barrierDismissible: false,
       builder: (_) => Directionality(
         textDirection: TextDirection.rtl,
         child: AlertDialog(
@@ -242,12 +247,18 @@ class _SubscriptionReviewViewState extends State<SubscriptionReviewView> {
           actions: [
             TextButton(
               onPressed: () {
+                final cubit = context.read<JoinCircleCubit>();
+                cubit.loadPositions(forceRefresh: true);
+
+                // Dismiss the dialog first.
                 Navigator.pop(context);
-                // Pop back through payment -> select_turn, then refresh
-                context.pop(); // payment_info
-                context.pop(); // select_turn
-                context.read<JoinCircleCubit>().loadPositions(
-                  forceRefresh: true,
+
+                // Navigate back to SelectTurnView safely by replacing the
+                // current stack segment rather than doing sequential pops
+                // which can fail if the context becomes unmounted mid-pop.
+                context.pushReplacement(
+                  AppRoutes.selectTurnPath(widget.circleId),
+                  extra: cubit,
                 );
               },
               child: Text(

@@ -125,6 +125,10 @@ class _KycScreenState extends State<KycScreen> {
               return const Center(child: CircularProgressIndicator());
             }
 
+            if (provider.error != null && provider.kycStatus == null) {
+              return _buildLoadError(provider);
+            }
+
             final status = provider.status;
 
             switch (status) {
@@ -137,6 +141,46 @@ class _KycScreenState extends State<KycScreen> {
                 return _buildUploadOrNotVerified(provider);
             }
           },
+        ),
+      ),
+    );
+  }
+
+  // ======== حالة: خطأ في الاتصال / التحميل ========
+  Widget _buildLoadError(KycProvider provider) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.wifi_off_rounded,
+              size: 48,
+              color: Colors.grey,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              provider.error ?? 'حدث خطأ في تحميل حالة التوثيق',
+              textAlign: TextAlign.center,
+              style: const TextStyle(color: Colors.red, fontSize: 14),
+            ),
+            const SizedBox(height: 20),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF1A7A6E),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              ),
+              onPressed: () => context.read<KycProvider>().loadStatus(),
+              child: const Text(
+                'إعادة المحاولة',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
         ),
       ),
     );

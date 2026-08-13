@@ -131,6 +131,10 @@ class JoinCircleCubit extends Cubit<JoinCircleState> {
   /// • 201 → [JoinCircleJoinSuccess]
   /// • 409 → [JoinCirclePositionTaken] + auto-refresh positions
   /// • 422 → [JoinCircleIntentBlocked]
+  ///
+  /// Note: [paymentMethodId] and [cardToken] are optional parameters. In Phase 1,
+  /// if no payment method is provided by UI, backend allows reservation creation.
+  /// TODO(BUG-03): Wire up actual payment method selection when backend enforces payment token.
   Future<void> submitJoin({
     String? paymentMethodId,
     String? cardToken,

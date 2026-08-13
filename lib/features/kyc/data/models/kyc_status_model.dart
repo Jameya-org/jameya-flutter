@@ -19,10 +19,33 @@ class KycStatusModel {
     this.submittedAt,
   });
 
+  /// Parses the KYC status response.
+  ///
+  /// Handles **both** response shapes to guard against backend variations:
+  ///
+  /// **Shape A (flat):**
+  /// ```json
+  /// { "status": "verified", "fullName": "...", "nationalIdUploaded": true }
+  /// ```
+  ///
+  /// **Shape B (nested — as documented in jameya-api.md):**
+  /// ```json
+  /// {
+  ///   "kycStatus": "VERIFIED",
+  ///   "legalName": "...",
+  ///   "identityProfile": { "nationalId": "..." },
+  ///   "documents": [{ "docType": "NATIONAL_ID", "status": "APPROVED" }],
+  ///   "latestEligibility": { ... }
+  /// }
+  /// ```
   factory KycStatusModel.fromJson(Map<String, dynamic> json) {
-    final statusStr = (json['status'] ?? '').toString().toLowerCase();
+    // ── Status resolution ─────────────────────────────────────────────────
+    // Try documented field `kycStatus` first, then fallback to `status`.
+    final rawStatus =
+        (json['kycStatus'] ?? json['status'] ?? '').toString().toLowerCase();
+
     KycStatus status;
-    switch (statusStr) {
+    switch (rawStatus) {
       case 'verified':
       case 'approved':
         status = KycStatus.verified;
@@ -39,14 +62,46 @@ class KycStatusModel {
         status = KycStatus.notVerified;
     }
 
+    // ── Name resolution ───────────────────────────────────────────────────
+    // Try flat `fullName`, then documented `legalName`.
+    final fullName =
+        json['fullName'] ?? json['legalName'];
+
+    // ── ID number resolution ──────────────────────────────────────────────
+    // Try flat `idNumber`, then nested `identityProfile.nationalId`.
+    String? idNumber = json['idNumber'];
+    if (idNumber == null) {
+      final identityProfile = json['identityProfile'];
+      if (identityProfile is Map) {
+        idNumber = identityProfile['nationalId']?.toString();
+      }
+    }
+
+    // ── Document upload status resolution ─────────────────────────────────
+    // Try flat booleans first, then infer from nested `documents` array.
+    bool nationalIdUploaded = json['nationalIdUploaded'] ?? false;
+    bool incomeProofUploaded = json['incomeProofUploaded'] ?? false;
+
+    final documents = json['documents'];
+    if (documents is List && documents.isNotEmpty) {
+      for (final doc in documents) {
+        if (doc is Map) {
+          final docType = doc['docType']?.toString();
+          if (docType == 'NATIONAL_ID') nationalIdUploaded = true;
+          if (docType == 'PROOF_OF_INCOME') incomeProofUploaded = true;
+        }
+      }
+    }
+
     return KycStatusModel(
       status: status,
-      fullName: json['fullName'],
-      idNumber: json['idNumber'],
-      verifiedAt: json['verifiedAt'],
-      nationalIdUploaded: json['nationalIdUploaded'] ?? false,
-      incomeProofUploaded: json['incomeProofUploaded'] ?? false,
-      submittedAt: json['submittedAt'],
+      fullName: fullName?.toString(),
+      idNumber: idNumber,
+      verifiedAt: json['verifiedAt']?.toString(),
+      nationalIdUploaded: nationalIdUploaded,
+      incomeProofUploaded: incomeProofUploaded,
+      submittedAt: json['submittedAt']?.toString(),
     );
   }
 }
+
