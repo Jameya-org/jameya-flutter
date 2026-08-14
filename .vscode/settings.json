@@ -4,6 +4,21 @@
         "source.fixAll": "explicit"
     },
     "cSpell.words": [
-        "Jameya"
-    ]
+        "Jameya",
+        "الإيميل",
+        "جمعية",
+        "يناير",
+        "فبراير",
+        "مارس",
+        "أبريل",
+        "مايو",
+        "يونيو",
+        "يوليو",
+        "أغسطس",
+        "سبتمبر",
+        "أكتوبر",
+        "نوفمبر",
+        "ديسمبر",
+    ],
+    "java.configuration.updateBuildConfiguration": "automatic"
 }

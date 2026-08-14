@@ -2,50 +2,66 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:jameya/core/localization/cubit/localization_cubit.dart';
-import 'package:jameya/core/localization/cubit/localization_state.dart';
-import 'package:jameya/core/routing/app_router.dart';
-import 'package:jameya/core/services/services_locator.dart';
-import 'package:jameya/generated/l10n.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
+import 'core/localization/cubit/localization_cubit.dart';
+import 'core/localization/cubit/localization_state.dart';
+import 'core/routing/app_router.dart';
+import 'core/services/services_locator.dart';
+import 'features/auth/presentation/cubit/auth_cubit.dart';
+import 'features/kyc/presentation/providers/kyc_provider.dart';
+import 'features/payment/presentation/providers/payment_provider.dart';
+import 'features/profile/presentation/providers/profile_provider.dart';
+import 'generated/l10n.dart';
 
 void main() async {
-  // Ensure Flutter bindings are ready before any async work
   WidgetsFlutterBinding.ensureInitialized();
-  // Initialize all services (cache, cubit, etc.)
   await setupServiceLocator();
-  runApp(const Jameya());
+  runApp(const JameyaApp());
 }
 
-class Jameya extends StatelessWidget {
-  const Jameya({super.key});
+class JameyaApp extends StatelessWidget {
+  const JameyaApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      // Provide LocaleCubit globally and load the saved language on start
-      create: (_) => getIt<LocaleCubit>()..loadSavedLanguage(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ProfileProvider()),
+        ChangeNotifierProvider(create: (_) => PaymentProvider()),
+        ChangeNotifierProvider(create: (_) => KycProvider()),
+        BlocProvider<AuthCubit>(create: (_) => getIt<AuthCubit>()),
+        BlocProvider<LocaleCubit>(
+          create: (_) => getIt<LocaleCubit>()..loadSavedLanguage(),
+        ),
+      ],
       child: ScreenUtilInit(
-        // Base design size used for responsive scaling
-        designSize: const Size(440, 956),
+        designSize: const Size(375, 812),
         minTextAdapt: true,
         splitScreenMode: true,
         builder: (context, child) {
           return BlocBuilder<LocaleCubit, LocaleState>(
-            // Rebuild the app whenever the locale changes
             builder: (context, state) {
               return MaterialApp.router(
-                routerConfig: AppRouter.router,
-                //* Localization
+                title: 'جمعية',
+                debugShowCheckedModeBanner: false,
+                theme: ThemeData(
+                  textTheme: GoogleFonts.interTextTheme(),
+                  fontFamily: GoogleFonts.inter().fontFamily,
+                  primaryColor: const Color(0xFF008080),
+                  colorScheme: ColorScheme.fromSeed(
+                    seedColor: const Color(0xFF008080),
+                  ),
+                ),
                 locale: state.locale,
-                supportedLocales: S.delegate.supportedLocales,
                 localizationsDelegates: const [
                   S.delegate,
                   GlobalMaterialLocalizations.delegate,
                   GlobalWidgetsLocalizations.delegate,
                   GlobalCupertinoLocalizations.delegate,
                 ],
-                debugShowCheckedModeBanner: false,
-                theme: ThemeData(primarySwatch: Colors.blue),
+                supportedLocales: S.delegate.supportedLocales,
+                routerConfig: AppRouter.router,
               );
             },
           );

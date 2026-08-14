@@ -1,6 +1,6 @@
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:jameya/core/cache/cache_key.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:jameya/core/cache/cache_keys.dart';
 import 'package:jameya/core/localization/cubit/localization_state.dart';
 
 import '../../../../core/cache/cache_helper.dart';
@@ -15,7 +15,7 @@ class LocaleCubit extends Cubit<LocaleState> {
   /// load saved language
   void loadSavedLanguage() {
     final languageCode =
-        _cacheHelper.getString(key: CacheKey.languageCode) ?? 'en';
+        _cacheHelper.getString(key: CacheKeys.languageCode) ?? 'en';
 
     emit(LocaleState(locale: Locale(languageCode)));
   }
@@ -23,7 +23,7 @@ class LocaleCubit extends Cubit<LocaleState> {
   /// Switch Language
   Future<void> changeLanguage(String languageCode) async {
     await _cacheHelper.saveData(
-      key: CacheKey.languageCode,
+      key: CacheKeys.languageCode,
       value: languageCode,
     );
 

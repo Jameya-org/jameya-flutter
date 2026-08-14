@@ -1,0 +1,466 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:go_router/go_router.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../../../../../core/routing/routes.dart';
+import '../../../../../core/utils/app_colors.dart';
+import '../../../../../core/utils/app_text_styles.dart';
+import '../../cubit/join_circle_cubit.dart';
+import '../../cubit/join_circle_state.dart';
+import '../../widgets/join_flow_shared.dart';
+import '../../widgets/join_info_box.dart';
+import '../../widgets/join_step_indicator.dart';
+
+/// Step 5/7 — Contract Review.
+///
+/// Shows the contract card + 3 mandatory checkboxes.
+/// "ارسل رمز التحقق" calls [JoinCircleCubit.acceptContract] which triggers OTP.
+/// • 200 → navigate to OTP screen
+/// • 410 → reservation expired dialog → navigate back to Subscription Review
+/// • network → snackbar, re-enable button
+class ContractReviewView extends StatefulWidget {
+  const ContractReviewView({super.key, required this.circleId});
+  final String circleId;
+
+  @override
+  State<ContractReviewView> createState() => _ContractReviewViewState();
+}
+
+class _ContractReviewViewState extends State<ContractReviewView> {
+  bool _agreedToLateFees = false;
+  bool _agreedToInstallments = false;
+  bool _agreedToTerms = false;
+
+  bool get _allChecked =>
+      _agreedToLateFees && _agreedToInstallments && _agreedToTerms;
+  bool _isSubmitting = false;
+
+  Timer? _countdownTimer;
+  String _remainingTimeString = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _startCountdownTimer();
+  }
+
+  void _startCountdownTimer() {
+    _updateRemainingTime();
+    _countdownTimer = Timer.periodic(const Duration(seconds: 1), (_) {
+      _updateRemainingTime();
+    });
+  }
+
+  void _updateRemainingTime() {
+    final expiresAtStr =
+        context.read<JoinCircleCubit>().reservation?.reservationExpiresAt;
+    if (expiresAtStr == null || expiresAtStr.isEmpty) {
+      if (mounted && _remainingTimeString.isNotEmpty) {
+        setState(() => _remainingTimeString = '');
+      }
+      return;
+    }
+
+    try {
+      final expiry = DateTime.parse(expiresAtStr);
+      final diff = expiry.difference(DateTime.now());
+      if (diff.isNegative) {
+        _countdownTimer?.cancel();
+        if (mounted && _remainingTimeString != 'مُنتَهي') {
+          setState(() => _remainingTimeString = 'مُنتَهي');
+        }
+        return;
+      }
+
+      final minutes = diff.inMinutes;
+      final seconds = diff.inSeconds % 60;
+      final formatted =
+          '${minutes.toString().padLeft(2, '0')}:${seconds.toString().padLeft(2, '0')}';
+      if (mounted && _remainingTimeString != formatted) {
+        setState(() => _remainingTimeString = formatted);
+      }
+    } catch (_) {
+      _countdownTimer?.cancel();
+    }
+  }
+
+  @override
+  void dispose() {
+    _countdownTimer?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _onViewContract() async {
+    final cubit = context.read<JoinCircleCubit>();
+    final downloadUrl = cubit.contract?.downloadUrl ?? '';
+    if (downloadUrl.isEmpty) return;
+
+    final fullUrl = downloadUrl.startsWith('http')
+        ? downloadUrl
+        : 'https://jameya-backend.onrender.com$downloadUrl';
+
+    final uri = Uri.parse(fullUrl);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
+    }
+  }
+
+  void _onSendCode(BuildContext context) {
+    if (!_allChecked) return;
+    setState(() => _isSubmitting = true);
+    context.read<JoinCircleCubit>().acceptContract(
+      agreedToTerms: _agreedToTerms,
+      agreedToInstallmentSchedule: _agreedToInstallments,
+      agreedToLateFees: _agreedToLateFees,
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocConsumer<JoinCircleCubit, JoinCircleState>(
+      listener: (context, state) {
+        if (state is JoinCircleContractAccepted) {
+          setState(() => _isSubmitting = false);
+          final cubit = context.read<JoinCircleCubit>();
+          context.push(AppRoutes.joinOtpPath(widget.circleId), extra: cubit);
+        }
+
+        if (state is JoinCircleReservationExpired) {
+          setState(() => _isSubmitting = false);
+          _showExpiredDialog(context);
+        }
+
+        if (state is JoinCircleAcceptContractFailure) {
+          setState(() => _isSubmitting = false);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      },
+      builder: (context, state) {
+        final cubit = context.read<JoinCircleCubit>();
+        final hasContractUrl = (cubit.contract?.downloadUrl ?? '').isNotEmpty;
+
+        return Directionality(
+          textDirection: TextDirection.rtl,
+          child: Scaffold(
+            backgroundColor: AppColors.background,
+            body: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // ── Header ────────────────────────────────────
+                  JoinFlowHeader(
+                    title: 'مراجعة العقد',
+                    onBack: () => context.pop(),
+                  ),
+                  SizedBox(height: 12.h),
+                  const JoinStepIndicator(currentStep: 5),
+                  SizedBox(height: 20.h),
+
+                  // ── Body ──────────────────────────────────────
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.symmetric(horizontal: 20.w),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          // ── Contract card ──────────────────────
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              vertical: 32.h,
+                              horizontal: 20.w,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.surface,
+                              borderRadius: BorderRadius.circular(16.r),
+                              border: Border.all(color: AppColors.grey200),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.black.withValues(alpha: 0.04),
+                                  blurRadius: 12,
+                                  offset: const Offset(0, 2),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                Container(
+                                  width: 68.w,
+                                  height: 68.w,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFE6F7F7),
+                                    borderRadius: BorderRadius.circular(16.r),
+                                  ),
+                                  child: Icon(
+                                    Icons.description_outlined,
+                                    size: 34.sp,
+                                    color: AppColors.primary,
+                                  ),
+                                ),
+                                SizedBox(height: 16.h),
+                                Text(
+                                  'عقد الاشتراك في الجمعية',
+                                  style: AppTextStyles.body.copyWith(
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.textPrimary,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                if (_remainingTimeString.isNotEmpty) ...[
+                                  SizedBox(height: 8.h),
+                                  Container(
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 12.w,
+                                      vertical: 4.h,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFFFF3E0),
+                                      borderRadius: BorderRadius.circular(20.r),
+                                    ),
+                                    child: Row(
+                                      mainAxisSize: MainAxisSize.min,
+                                      children: [
+                                        Icon(
+                                          Icons.timer_outlined,
+                                          size: 14.sp,
+                                          color: const Color(0xFFE87D3E),
+                                        ),
+                                        SizedBox(width: 4.w),
+                                        Text(
+                                          'متبقي على صلاحية الحجز: $_remainingTimeString',
+                                          style: AppTextStyles.label.copyWith(
+                                            color: const Color(0xFFE87D3E),
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                                SizedBox(height: 20.h),
+                                OutlinedButton(
+                                  onPressed: hasContractUrl
+                                      ? _onViewContract
+                                      : null,
+                                  style: OutlinedButton.styleFrom(
+                                    side: BorderSide(
+                                      color: hasContractUrl
+                                          ? AppColors.primary
+                                          : AppColors.greyBut,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(10.r),
+                                    ),
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 28.w,
+                                      vertical: 12.h,
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'عرض العقد',
+                                    style: AppTextStyles.bodySmall.copyWith(
+                                      color: hasContractUrl
+                                          ? AppColors.primary
+                                          : AppColors.textDisabled,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          SizedBox(height: 28.h),
+
+                          // ── Checkboxes ─────────────────────────
+                          _CheckboxItem(
+                            label: 'أوافق على فرض رسوم تأخير',
+                            value: _agreedToLateFees,
+                            onChanged: (v) =>
+                                setState(() => _agreedToLateFees = v ?? false),
+                          ),
+                          SizedBox(height: 10.h),
+                          _CheckboxItem(
+                            label: 'أوافق على جدول التقسيط',
+                            value: _agreedToInstallments,
+                            onChanged: (v) => setState(
+                              () => _agreedToInstallments = v ?? false,
+                            ),
+                          ),
+                          SizedBox(height: 10.h),
+                          _CheckboxItem(
+                            value: _agreedToTerms,
+                            onChanged: (v) =>
+                                setState(() => _agreedToTerms = v ?? false),
+                            labelWidget: RichText(
+                              text: TextSpan(
+                                style: AppTextStyles.bodySmall.copyWith(
+                                  color: AppColors.textSecondary,
+                                  height: 1.5,
+                                ),
+                                children: [
+                                  const TextSpan(text: 'أوافق على '),
+                                  WidgetSpan(
+                                    child: GestureDetector(
+                                      onTap: () => context.push(
+                                        AppRoutes.kTermsAndConditionsView,
+                                      ),
+                                      child: Text(
+                                        'شروط الاستخدام',
+                                        style: AppTextStyles.bodySmall.copyWith(
+                                          color: AppColors.primary,
+                                          fontWeight: FontWeight.w600,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const TextSpan(text: ' و '),
+                                  WidgetSpan(
+                                    child: GestureDetector(
+                                      onTap: () => context.push(
+                                        AppRoutes.kTermsAndConditionsView,
+                                      ),
+                                      child: Text(
+                                        'سياسة الخصوصية',
+                                        style: AppTextStyles.bodySmall.copyWith(
+                                          color: AppColors.primary,
+                                          fontWeight: FontWeight.w600,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                  const TextSpan(text: '.'),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          SizedBox(height: 24.h),
+
+                          const JoinInfoBox(
+                            message:
+                                'بمتابعة هذه الخطوة فأنك تؤكد مراجعة العقد قبل اتمام عملية التحقق.',
+                          ),
+
+                          SizedBox(height: 24.h),
+                        ],
+                      ),
+                    ),
+                  ),
+
+                  // ── Bottom button ──────────────────────────────
+                  JoinFlowBottomBar(
+                    label: 'ارسل رمز التحقق',
+                    enabled: _allChecked && !_isSubmitting,
+                    isLoading: _isSubmitting,
+                    onTap: () => _onSendCode(context),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  void _showExpiredDialog(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => Directionality(
+        textDirection: TextDirection.rtl,
+        child: AlertDialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.r),
+          ),
+          title: Text(
+            'انتهت صلاحية الحجز',
+            style: AppTextStyles.body.copyWith(fontWeight: FontWeight.w700),
+          ),
+          content: Text(
+            'انتهت صلاحية حجزك. يمكنك إنشاء حجز جديد من شاشة المراجعة.',
+            style: AppTextStyles.bodySmall.copyWith(color: AppColors.textHint),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+                context.pop(); // back to SubscriptionReviewView
+              },
+              child: Text(
+                'إنشاء حجز جديد',
+                style: AppTextStyles.bodySmall.copyWith(
+                  color: AppColors.primary,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _CheckboxItem extends StatelessWidget {
+  const _CheckboxItem({
+    this.label,
+    this.labelWidget,
+    required this.value,
+    required this.onChanged,
+  });
+  final String? label;
+  final Widget? labelWidget;
+  final bool value;
+  final ValueChanged<bool?> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () => onChanged(!value),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: labelWidget ??
+                Text(
+                  label ?? '',
+                  style: AppTextStyles.bodySmall.copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.5,
+                  ),
+                ),
+          ),
+          SizedBox(width: 8.w),
+          AnimatedContainer(
+            duration: const Duration(milliseconds: 150),
+            width: 20.w,
+            height: 20.w,
+            decoration: BoxDecoration(
+              color: value ? AppColors.primary : Colors.transparent,
+              borderRadius: BorderRadius.circular(5.r),
+              border: Border.all(
+                color: value ? AppColors.primary : AppColors.greyBut,
+                width: 1.5,
+              ),
+            ),
+            child: value
+                ? Icon(Icons.check, size: 13.sp, color: Colors.white)
+                : null,
+          ),
+        ],
+      ),
+    );
+  }
+}

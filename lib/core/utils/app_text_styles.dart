@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:jameya/core/utils/app_colors.dart';
 
 // Reusable text styles based on a consistent type scale
@@ -7,7 +8,7 @@ abstract final class AppTextStyles {
   const AppTextStyles._();
 
   // Default font used across all styles
-  static const _fontFamily = 'Inter';
+  static String get _fontFamily => GoogleFonts.inter().fontFamily!;
 
   static final appTitle = TextStyle(
     fontSize: 44.sp,
@@ -59,11 +60,19 @@ abstract final class AppTextStyles {
 
   static final body = TextStyle(
     fontSize: 16.sp,
-    fontWeight: FontWeight.w500,
+    fontWeight: FontWeight.w400,
     fontFamily: _fontFamily,
     height: 1.5,
     letterSpacing: -.02,
-    color: AppColors.primary,
+
+  );
+  static final body2 = TextStyle(
+    fontSize: 18.sp,
+    fontWeight: FontWeight.w400,
+    fontFamily: _fontFamily,
+    height: 1.5,
+    letterSpacing: -.02,
+
   );
 
   static final bodySmall = TextStyle(

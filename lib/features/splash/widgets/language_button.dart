@@ -3,7 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:go_router/go_router.dart';
 import 'package:jameya/core/localization/cubit/localization_cubit.dart';
-import 'package:jameya/core/routing/app_rotes.dart';
+import 'package:jameya/core/routing/routes.dart';
 import 'package:jameya/core/utils/app_colors.dart';
 import 'package:jameya/core/utils/app_text_styles.dart';
 
@@ -21,11 +21,12 @@ class LanguageButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
+      onTap: () async {
         // Save the selected language then navigate forward
-        context.read<LocaleCubit>().changeLanguage(localeCode);
-
-        context.push(AppRoutes.kOnboardingView);
+        await context.read<LocaleCubit>().changeLanguage(localeCode);
+        if (context.mounted) {
+          context.push(AppRoutes.kOnboardingView);
+        }
       },
       child: Container(
         height: 52.h,
